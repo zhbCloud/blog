@@ -66,6 +66,7 @@ jobs:
         run: |
           cd public
           git init
+          git checkout -b main
           git add -A
           git commit -m "部署于 $(date '+%Y-%m-%d %H:%M:%S')"
           git push -f https://${{ secrets.GH_TOKEN }}@github.com/zhbcloud/zhbcloud.github.io.git main
