@@ -108,6 +108,6 @@ theme: hexo-theme-snippet
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: https://github.com/a772198520-cloud/a772198520-cloud.github.io.git
+  repo: https://github.com/zhbCloud/zhbCloud.github.io.git
   branch: main
 
