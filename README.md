@@ -261,8 +261,9 @@ pnpm run push
 #### 第二步：添加 Secret 到您的博客源码仓库
 
 1. **进入博客源码仓库**
-   - 打开存放 Hexo 源码的仓库（不是 `shixna.github.io`）
+   - 打开存放 Hexo 源码的仓库（不是 `zhbcloud.github.io`）
    - 这个仓库应该包含 `package.json`、`_config.yml` 等文件
+   - ⚠️ **重要**：Secret 必须添加到**源码仓库**（blog 仓库），而不是部署目标仓库
 
 2. **进入 Secrets 设置**
    - 点击仓库顶部的 **Settings** 标签
@@ -317,7 +318,7 @@ pnpm run push
 3. **等待部署完成**
 
    - 整个流程大约需要 2-5 分钟
-   - 部署成功后，访问 `https://shixna.github.io` 查看更新
+   - 部署成功后，访问 `https://zhbCloud.github.io` 查看更新
 
 ---
 
@@ -381,12 +382,16 @@ git push
 
 #### 问题 1：部署失败，提示认证错误
 
-**错误信息**：`Authentication failed` 或 `403 Forbidden`
+**错误信息**：
+- `fatal: could not read Password for 'https://github.com': No such device or address`
+- `Authentication failed` 或 `403 Forbidden`
 
 **解决方法**：
-1. 检查 `GH_TOKEN` Secret 是否正确添加
+1. 检查 `GH_TOKEN` Secret 是否正确添加到**源码仓库**（blog 仓库）
 2. 检查 Token 是否有 `repo` 权限
 3. 检查 Token 是否过期（重新生成并更新 Secret）
+4. 如果没有配置 `GH_TOKEN`，workflow 会尝试使用 `GITHUB_TOKEN`（内置 token）
+   - 如果推送到不同仓库，建议使用 Personal Access Token
 
 #### 问题 2：部署成功但网站没有更新
 
@@ -394,6 +399,9 @@ git push
 1. GitHub Pages 有缓存，等待 1-2 分钟后刷新
 2. 浏览器缓存，按 `Ctrl+F5` 强制刷新
 3. 检查部署的目标仓库是否正确
+4. **仓库地址大小写问题**：确保 workflow 中的仓库地址大小写正确（`zhbCloud/zhbCloud.github.io`）
+   - 如果看到 "This repository moved" 提示，说明地址大小写不正确
+   - 检查 `.github/workflows/deploy.yml` 中的仓库地址
 
 #### 问题 3：构建失败
 
@@ -456,8 +464,25 @@ blog/
 │       └── deploy.yml          # GitHub Actions 工作流配置
 ├── _config.yml                  # Hexo 站点配置（包含部署配置）
 ├── package.json                 # 项目依赖和脚本
+├── source/                      # 博客源文件目录
+│   └── _posts/                  # 文章存放目录
 └── README.md                    # 本文档
 ```
+
+### ⚙️ 项目配置信息
+
+- **源码仓库**：当前仓库（blog）
+- **部署目标仓库**：`zhbCloud/zhbcloud.github.io`
+- **部署地址**：https://zhbcloud.github.io/
+- **Node.js 版本**：20 LTS
+- **包管理器**：pnpm 9
+- **Hexo 版本**：7.3.0
+
+### ⚠️ 重要提示
+
+1. **仓库地址大小写**：GitHub 仓库名区分大小写，确保 workflow 中的地址正确
+2. **Secret 添加位置**：`GH_TOKEN` 必须添加到**源码仓库**（blog 仓库），不是部署目标仓库
+3. **主题更新警告**：不要直接更新主题，更新前请先备份配置
 
 ---
 
