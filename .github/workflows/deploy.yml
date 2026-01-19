@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 需要写入权限来推送代码
     
     steps:
       - name: 检出代码
@@ -62,11 +64,14 @@ jobs:
           
       - name: 部署到 GitHub Pages
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          # 优先使用 GH_TOKEN（Personal Access Token），如果没有配置则使用 GITHUB_TOKEN
+          DEPLOY_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           cd public
           git init
           git checkout -b main
           git add -A
           git commit -m "部署于 $(date '+%Y-%m-%d %H:%M:%S')"
-          git push -f https://${{ secrets.GH_TOKEN }}@github.com/zhbcloud/zhbcloud.github.io.git main
+          # 使用 x-access-token 作为用户名，这是 GitHub Actions 推荐的方式
+          git remote add origin https://x-access-token:${DEPLOY_TOKEN}@github.com/zhbcloud/zhbcloud.github.io.git
+          git push -f origin main
