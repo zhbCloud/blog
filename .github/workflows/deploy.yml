@@ -24,7 +24,7 @@ jobs:
       - name: 安装 pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 9
           
       - name: 获取 pnpm 缓存目录
         id: pnpm-cache
