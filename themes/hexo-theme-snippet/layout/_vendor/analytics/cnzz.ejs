@@ -1,0 +1,24 @@
+<% if (theme.cnzz_analytics) { %>
+<div class="hide">
+  <script type="text/javascript">
+    (function() {
+      var cnzzId = "<%= theme.cnzz_analytics %>";
+
+      // 根据协议选择加载方式
+      var protocol = (document.location.protocol === "https:" ? "https://" : "http://");
+
+      // 第一个统计脚本（原 s95.cnzz.com）
+      var script1 = document.createElement("script");
+      script1.src = "https://s95.cnzz.com/z_stat.php?web_id=1272564536";
+      script1.async = true;
+      document.body.appendChild(script1);
+
+      // 第二个统计脚本（原 s19.cnzz.com，根据配置ID）
+      var script2 = document.createElement("script");
+      script2.src = protocol + "s19.cnzz.com/z_stat.php?id=" + cnzzId + "&show=pic1";
+      script2.async = true;
+      document.body.appendChild(script2);
+    })();
+  </script>
+</div>
+<% } %>

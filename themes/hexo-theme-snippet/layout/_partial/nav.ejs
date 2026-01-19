@@ -1,0 +1,50 @@
+<nav class="main-navigation">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="navbar-header"><span class="nav-toggle-button collapsed pull-right" data-toggle="collapse" data-target="#main-menu" id="mnav">
+                        <span class="sr-only"></span>
+                        <i class="fa fa-bars"></i>
+                    </span>
+                    <a class="navbar-brand" href="<%= config.url %>">
+                        <%= config.title %></a>
+                </div>
+                <div class="collapse navbar-collapse" id="main-menu">
+                    <ul class="menu">
+                        <% theme.menu.forEach(function (item) {%>
+                        <% var isActive = false; %>
+                        <% var currentPath = url || ''; %>
+                        <% 
+                            // 使用yml文件中的id来判断活跃状态
+                            // 首页特殊处理
+                            if (item.id == 0 && is_home()) {
+                                isActive = true;
+                            }
+                            // 分类页
+                            else if (item.id == 1 && currentPath.includes('categories')) {
+                                isActive = true;
+                            }
+			    // 标签
+                            else if (item.id == 2 && currentPath.includes('tags')) {
+                                isActive = true;
+                            }
+                            // 时间轴/归档页
+                            else if (item.id == 3 && currentPath.includes('archives')) {
+                                isActive = true;
+                            }
+                            // 关于页
+                            else if (item.id == 4 && currentPath.includes('about')) {
+                                isActive = true;
+                            }
+                        %>
+                        <li role="presentation" class="text-center <% if(isActive) { %>nav-current active<% } %>">
+                            <a href="<%- item.url%>"><i class="fa <%- item.icon%>"></i>
+                                <%= __(item.page+'') %></a>
+                        </li>
+                        <%})%>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
