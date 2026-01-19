@@ -73,5 +73,7 @@ jobs:
           git add -A
           git commit -m "部署于 $(date '+%Y-%m-%d %H:%M:%S')"
           # 使用 x-access-token 作为用户名，这是 GitHub Actions 推荐的方式
-          git remote add origin https://x-access-token:${DEPLOY_TOKEN}@github.com/zhbcloud/zhbcloud.github.io.git
+          # 如果 remote 已存在则先删除，确保使用正确的地址
+          git remote remove origin 2>/dev/null || true
+          git remote add origin https://x-access-token:${DEPLOY_TOKEN}@github.com/zhbCloud/zhbCloud.github.io.git
           git push -f origin main
