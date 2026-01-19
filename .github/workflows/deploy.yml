@@ -68,4 +68,4 @@ jobs:
           git init
           git add -A
           git commit -m "部署于 $(date '+%Y-%m-%d %H:%M:%S')"
-          git push -f https://${{ secrets.GH_TOKEN }}@github.com/shixna/shixna.github.io.git main
+          git push -f https://${{ secrets.GH_TOKEN }}@github.com/zhbcloud/zhbcloud.github.io.git main
