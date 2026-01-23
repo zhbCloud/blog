@@ -1,5 +1,5 @@
 ---
-title: 46-React 完全指南 (React 18 & 19)
+title: React 完全指南 (React 18 & 19)
 img: /static/45.webp
 categories: 框架与生态
 tags:
