@@ -166,6 +166,8 @@ function Welcome() {
 | `onclick`  | `onClick`   |
 | `tabindex` | `tabIndex`  |
 
+<br>
+
 ### **<font color='red'>3.2 组件</font>**
 
 #### **<font color='#10c300'>1）函数组件（推荐）</font>**
@@ -193,6 +195,8 @@ class Greeting extends Component {
   }
 }
 ```
+
+<br>
 
 ### **<font color='red'>3.3 Props（属性）</font>**
 
@@ -235,6 +239,8 @@ function Button({ text = "点击", type = "primary" }) {
   return <button className={`btn-${type}`}>{text}</button>;
 }
 ```
+
+<br>
 
 ### **<font color='red'>3.4 State（状态）</font>**
 
@@ -282,6 +288,8 @@ function Example() {
 }
 ```
 
+<br>
+
 ### **<font color='red'>3.5 事件处理</font>**
 
 ```jsx
@@ -312,6 +320,8 @@ function EventExample() {
 }
 ```
 
+<br>
+
 ### **<font color='red'>3.6 条件渲染</font>**
 
 ```jsx
@@ -334,6 +344,8 @@ function ConditionalExample({ isLoggedIn, messages }) {
   );
 }
 ```
+
+<br>
 
 ### **<font color='red'>3.7 列表渲染</font>**
 
@@ -362,15 +374,15 @@ function TodoList() {
 
 ---
 
-## 四、 React Hooks 详解
+<br>
+
+## **四、 React Hooks 详解**
 
 Hooks 是 React 16.8 引入的特性，让你在函数组件中使用状态和其他 React 特性。
 
 ### **<font color='red'>4.1 useState - 状态管理</font>**
 
 `useState` 是一个 React Hook，用于在函数组件中声明和管理**状态（state）**（ 一定要在**`组件顶层`**调用）
-
-<br>
 
 #### **<font color='#10c300'>1）基本语法</font>**
 
@@ -383,7 +395,7 @@ const [state, setState] = useState(initialValue);
   1. `state`：当前状态值：在首次渲染时，它将与你传递的 `initialState` 相匹配。
   2. `setState`：更新状态的函数：它可以让你将 state 更新为不同的值并触发重新渲染。
 
-<br>
+
 
 #### **<font color='#10c300'>2）示例：计数器</font>**
 
@@ -414,7 +426,7 @@ export default Counter;
 - 每次点击 `button` → 调用 `setCount(count + 1)`
 - React 检测到状态更新 → 重新渲染 UI（如状态和上一次一样则不会重新渲染UI）
 
-<br>
+
 
 #### **<font color='#10c300'>3）更新状态的两种方式</font>**
 
@@ -432,7 +444,7 @@ setCount(prevCount => prevCount + 1);
 
 ⚠️ 这个写法更安全，因为 React 的状态更新是**异步批处理的**，直接用旧的 `count` 可能不是最新值。
 
-<br>
+
 
 #### **<font color='#10c300'>4）各数据类型更新方式</font>**
 
@@ -476,7 +488,7 @@ function Form() {
 export default Form;
 ```
 
-<br>
+
 
 #### **<font color='#10c300'>5）更新是异步且可能合并</font>**
 
@@ -504,7 +516,7 @@ function App() {
 export default App
 ```
 
-<br>
+
 
 #### **<font color='#10c300'>6）注意点</font>**
 
@@ -515,7 +527,7 @@ export default App
 | 初始值只在第一次渲染时生效       | 之后不会因为 props 改变而重新设置              |
 | 可以传入函数初始化（惰性初始化） | `useState(() => 计算初始值)`，只执行一次       |
 
-<br>
+
 
 #### **<font color='#10c300'>6）惰性初始化（性能优化）</font>**
 
@@ -528,7 +540,7 @@ const [data, setData] = useState(() => {
 });
 ```
 
-<br>
+
 
 #### **<font color='#10c300'>7）useState 小结</font>**
 
@@ -549,8 +561,6 @@ const [data, setData] = useState(() => {
 
 函数组件里没有生命周期方法（像类组件的 `componentDidMount`、`componentWillUnmount`）；React 提供 `useEffect` 来替代它们。
 
-<br>
-
 #### **<font color='#10c300'>1）基本语法</font>**
 
 ```js
@@ -568,7 +578,7 @@ useEffect(() => {
   2. `空数组`：仅在挂载时执行一次。
   3. `依赖参数`：依赖参数变化时执行。
 
-<br>
+
 
 #### **<font color='#10c300'>2）使用场景示例</font>**
 
@@ -635,7 +645,7 @@ function Counter() {
 
 ✅ 当 `count` 改变时，`useEffect` 会重新运行副作用逻辑。
 
-<br>
+
 
 #### **<font color='#10c300'>3）清理副作用（如事件、定时器）</font>**
 
@@ -652,7 +662,7 @@ useEffect(() => {
 }, []);
 ```
 
-<br>
+
 
 #### **<font color='#10c300'>4）常见用途总结</font>**
 
@@ -664,6 +674,8 @@ useEffect(() => {
 | 定时器    | `setInterval()` / `setTimeout()`         |
 | 订阅/清理 | WebSocket、Observer 模式等               |
 
+
+
 #### **<font color='#10c300'>5）常见坑和注意事项</font>**
 
 1. 依赖遗漏会导致逻辑错误。
@@ -672,6 +684,8 @@ useEffect(() => {
    - 不清理定时器或监听可能造成内存泄漏。
 3. 不要在 useEffect 内直接修改状态导致无限循环。
    - React 会重复渲染；必须控制好条件。
+
+
 
 #### **<font color='#10c300'>6）总结对比</font>**
 
@@ -702,8 +716,6 @@ useEffect(() => {
 👆 每层都要传 `theme`，这就是 **props drilling**。
 
 React 提供 **Context**，可以让你在组件树间**直接共享数据，不必层层传递**。
-
-<br>
 
 #### **<font color='#10c300'>1）使用步骤</font>**
 
@@ -774,10 +786,10 @@ function GrandChild() {
     )
 }
 
-export default GrandChild
+export defau lt GrandChild
 ```
 
-<br>
+
 
 #### **<font color='#10c300'>2）语法总结</font>**
 
@@ -794,7 +806,7 @@ React 会自动：
 - 读取它的 `value`；
 - 如果找不到 Provider，返回 `createContext(defaultValue)` 里定义的默认值。
 
-<br>
+
 
 #### **<font color='#10c300'>3）使用场景示例</font>**
 
@@ -887,7 +899,7 @@ function App() {
 export default App;
 ```
 
-<br>
+
 
 #### **<font color='#10c300'>4）应用场景</font>**
 
@@ -906,7 +918,7 @@ export default App;
 - `<Context.Provider>` 提供数据；
 - `useContext()` 消费数据。
 
-<br>
+
 
 #### **<font color='#10c300'>5）注意事项</font>**
 
@@ -917,7 +929,7 @@ export default App;
 | 每当 Provider 的 value 改变时 | 所有使用该 Context 的组件都会重新渲染          |
 | 不支持选择性订阅              | 所以大型状态可以考虑使用 Zustand、Redux 等方案 |
 
-<br>
+
 
 #### **<font color='#10c300'>6）总结</font>**
 
@@ -929,7 +941,9 @@ export default App;
 | 搭配使用 | `createContext()` + `<Context.Provider>`      |
 | 场景     | 全局状态共享（主题、用户、语言等）            |
 
+<br>
 
+### **<font color='red'>4.4 useMemo- 缓存计算结果</font>**
 
 ## 五、HOC 高阶组件
 
@@ -951,7 +965,7 @@ const MemoizedComponent = React.memo(MyComponent);
 export default React.memo(MyComponent);
 ```
 
-<br>
+
 
 #### **<font color='#10c300'>2）基本示例</font>**
 
@@ -1002,7 +1016,7 @@ export default memo(Child);
 
 如果用的是普通组件，哪怕 props 一样，也会重新渲染。
 
-<br>
+
 
 #### **<font color='#10c300'>3）工作原理</font>**
 
@@ -1015,7 +1029,7 @@ export default memo(Child);
 > 默认比较是浅层（只比较基础类型或引用是否相同），
 > 对象/数组类型的 props 如果新建了对象，就会认为不同。
 
-<br>
+
 
 #### **<font color='#10c300'>4）自定义比较函数</font>**	
 
@@ -1032,7 +1046,7 @@ const Memoized = React.memo(
 );
 ```
 
-<br>
+
 
 #### **<font color='#10c300'>5）常见优化场景</font>**
 
@@ -1042,6 +1056,8 @@ const Memoized = React.memo(
 | 表单组件            | 输入变化导致整个页面重渲染         |
 | 复杂组件            | 内部渲染代价高但 props 很稳定      |
 | 与 useCallback 搭配 | 保持传入函数引用一致，避免误触更新 |
+
+
 
 #### **<font color='#10c300'>6）与 useCallback 和 useMemo 的配合</font>**
 
@@ -1108,7 +1124,7 @@ unction Parent() {
 export default Parent;
 ```
 
-<br>
+
 
 #### **<font color='#10c300'>7）注意事项</font>**
 
@@ -1119,7 +1135,7 @@ export default Parent;
 | useContext 更新仍会触发 | Context 更新时会重新渲染子节点         |
 | 不缓存 state            | 仅缓存渲染结果，与内部状态无关         |
 
-<br>
+
 
 #### **<font color='#10c300'>8）总结</font>**
 
