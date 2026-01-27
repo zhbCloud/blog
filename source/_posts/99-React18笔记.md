@@ -3002,7 +3002,7 @@ export default App;
 #### 基本语法
 
 ```js
-useReducer(reducer, initialState); 不应该有4个参数么
+const [state,dispatch] = useReducer(reducer, initialState); 
 ```
 
 - **`state`**：当前状态

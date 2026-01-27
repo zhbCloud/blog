@@ -20,11 +20,12 @@ date: 2025-12-02 10:28:38
 2. [环境搭建](#二-环境搭建)
 3. [核心概念](#三-核心概念)
 4. [React Hooks 详解](#四-react-hooks-详解)
-5. [React 18 新特性](#5-react-18-新特性)
-6. [React 19 新特性](#6-react-19-新特性)
-7. [最佳实践](#7-最佳实践)
-8. [常见问题与解决方案](#8-常见问题与解决方案)
-9. [学习资源推荐](#9-学习资源推荐)
+5. [HOC 高阶组件](#五-HOC 高阶组件)
+6. [React 18 新特性](#5-react-18-新特性)
+7. [React 19 新特性](#6-react-19-新特性)
+8. [最佳实践](#7-最佳实践)
+9. [常见问题与解决方案](#8-常见问题与解决方案)
+10. [学习资源推荐](#9-学习资源推荐)
 
 <br>
 
@@ -390,9 +391,9 @@ Hooks 是 React 16.8 引入的特性，让你在函数组件中使用状态和�
 const [state, setState] = useState(initialValue);
 ```
 
-- initialState：定义的初始值，可以是任意数据，像数字，字符串或者数组和对象。
+- initialArg：定义的初始值，可以是任意数据，像数字，字符串或者数组和对象。
 - useState ()方法的返回值为由两个值组成的数组
-  1. `state`：当前状态值：在首次渲染时，它将与你传递的 `initialState` 相匹配。
+  1. `state`：当前状态值：在首次渲染时，它将与你传递的 `initialArg` 相匹配。
   2. `setState`：更新状态的函数：它可以让你将 state 更新为不同的值并触发重新渲染。
 
 
@@ -723,8 +724,8 @@ React 提供 **Context**，可以让你在组件树间**直接共享数据，不
 
 ```jsx
 // src\context\index.jsx
-import React from "react";
-const MyContext = React.createContext();
+import {createContext} from "react";
+const MyContext = createContext();
 export {
 	MyContext
 }
@@ -945,7 +946,548 @@ export default App;
 
 ### **<font color='red'>4.4 useMemo- 缓存计算结果</font>**
 
-## 五、HOC 高阶组件
+**让 React 记住一个计算值（memoized value）**，只有在依赖项变化时才重新计算。
+
+换句话说：
+
+- 如果依赖没变 → 直接用上次计算的结果；
+- 如果依赖变了 → 重新计算并返回新结果。
+
+它可以帮你显著减少不必要的计算或对象重建。
+
+`useMemo`的理念是同步的，useMemo不能进行一些额外的副操作，比如网络请求等。
+
+#### **<font color='#10c300'>1）基本语法</font>**
+
+```js
+useMemo(()=>{return 值},[依赖项])
+```
+
+- 参数1 (函数)：一个返回值的函数（执行计算）
+- 参数2 (依赖项)：依赖数组，当其中某项改变时才重新计算
+
+返回值：**缓存的计算结果**。
+
+#### **<font color='#10c300'>2）使用场景示例</font>**
+
+**<font color='#00A6ED'>1️⃣ 计算缓存</font>**
+
+未使用`useMemo`的时候改变颜色，也会执行ComputeTotal价格的计算。
+
+```
+import { useState, useMemo } from "react";
+
+function ComputeTotal(price, count) {
+    console.log("函数运行了");
+    return price * count;
+}
+
+function App() {
+    const [price, setPrice] = useState(100);
+    const [count] = useState(1);
+    const [color, setColor] = useState("red");
+
+    // 👉 只有 price 变化时，才重新计算
+    const totalPrice = useMemo(() => ComputeTotal(price, count),[price]);
+
+    return (
+        <>
+            <p>总价：{totalPrice}</p>
+            <p>{color}</p>
+            <button onClick={() => setColor("blue")}>修改颜色</button>
+            <button onClick={() => setPrice(price + 100)}>修改价格</button>
+        </>
+    );
+}
+
+export default App;
+```
+
+✅ 当你改变颜色的时候，不会重新执行ComputeTotal。只有price变化时才会重新计算。
+
+**<font color='#00A6ED'>2️⃣ 缓存组件(不常用)</font>**
+
+```jsx
+import { useState, useMemo } from "react";
+import Child from "./Child";
+
+function App() {
+    const [price, setPrice] = useState(100);
+    const [count] = useState(1);
+    const [color, setColor] = useState("red");
+
+    const memoizedChild = useMemo(() => {
+        // 缓存组件
+        return <Child count={count} price={price} />;
+    }, [count, price]);
+
+    return (
+        <>
+            <p>{color}</p>
+            <button onClick={() => setColor("blue")}>修改颜色</button>
+            <button onClick={() => setPrice(price + 100)}>修改价格</button>
+            {/* 使用组件 */}
+            {memoizedChild}
+        </>
+    );
+}
+
+export default App;
+```
+
+
+
+#### **<font color='#10c300'>3）核心用途</font>**
+
+| 用途                 | 说明                                |
+| -------------------- | ----------------------------------- |
+| 缓存复杂计算         | 避免每次渲染都进行高耗时操作        |
+| 缓存对象或数组       | 避免对象引用变化导致子组件重新渲染  |
+| 与 `React.memo` 配合 | 保持 props 稳定，防止子组件误重渲染 |
+
+#### **<font color='#10c300'>4）缓存引用（避免重渲染）</font>**
+
+例如子组件使用 `React.memo`：
+
+```jsx
+import React, { useMemo } from "react";
+
+function Child({ options }) {
+    console.log("Child render");
+    return <div>{options.join(", ")}</div>;
+}
+const MemoChild = React.memo(Child);
+
+function Parent() {
+    // 如果不缓存，数组每次渲染都新建，导致 Child 重新渲染
+    const options = useMemo(() => ["A", "B"], []); // 👈 缓存数组引用
+
+    return <MemoChild options={options} />;
+}
+export default Parent;
+```
+
+➡️ `useMemo` 保证每次渲染中 `options` 的引用稳定，`React.memo` 会认为 props 没变，从而跳过重新渲染。
+
+#### **<font color='#10c300'>4）常见注意事项</font>**
+
+| 注意点                         | 说明                                                 |
+| ------------------------------ | ---------------------------------------------------- |
+| 不要滥用                       | 如果计算很轻量级，没必要用 `useMemo`（会增加复杂度） |
+| 依赖必须完整                   | 漏掉依赖可能导致值不同步（推荐使用 ESLint 检查）     |
+| 缓存是基于引用比较             | 数组、对象、函数引用变化 → 会重新计算                |
+| 仅缓存计算结果，不影响状态更新 | 状态变化仍然触发重新渲染                             |
+
+#### **<font color='#10c300'>5）useMemo vs useCallback</font>**
+
+| 项目     | `useMemo`                                       | `useCallback`                                       |
+| -------- | ----------------------------------------------- | --------------------------------------------------- |
+| 返回值   | 缓存**计算结果**                                | 缓存**函数引用**                                    |
+| 适用场景 | 高开销计算、缓存对象                            | 保持回调函数引用稳定                                |
+| 示例     | `const result = useMemo(() => heavyFn(x), [x])` | `const fn = useCallback(() => doSomething(x), [x])` |
+
+两者都是性能优化 Hook，但返回目标不同。
+
+#### **<font color='#10c300'>6）总结</font>**
+
+| 项目     | 说明                             |
+| -------- | -------------------------------- |
+| Hook 名  | `useMemo`                        |
+| 功能     | 缓存计算结果，依赖改变时重新计算 |
+| 返回值   | 上次计算的结果（memoized value） |
+| 主要用途 | 高性能计算缓存、稳定对象引用     |
+| 常与搭配 | `React.memo`、`useCallback`      |
+| 注意     | 不要滥用，确实有性能问题时再用   |
+
+------
+
+🌟 **一句话总结：**
+
+`useMemo(fn, deps)` = “记住 fn 的返回值”，当 deps 不变时，不再重新执行 fn。
+
+<br>
+
+### **<font color='red'>4.5 useCallback- 缓存函数引用</font>**
+
+在 React 中，每次组件渲染都会重新执行组件函数体，**里面定义的函数也会被“重新创建”**。
+如果这些函数作为 props 传给子组件，即使函数逻辑没有变，根据 **引用地址比较**，子组件会认为 props 变了而重新渲染。
+
+`useCallback` 解决了这个问题：
+
+> ✅ **让函数引用在依赖不变时保持稳定（不变）**。
+
+#### **<font color='#10c300'>1）基本语法</font>**
+
+```jsx
+const memoizedCallback = useCallback(() => {
+  // 函数逻辑
+}, [dependencies]);
+```
+
+- **第一个参数**：要缓存的回调函数
+- **第二个参数**：依赖数组，当依赖中有值变化时，返回的新函数引用会更新
+
+#### **<font color='#10c300'>2）基本示例</font>**
+
+```jsx
+import React, { useState, useCallback } from "react";
+
+function Child({ onClick }) {
+    console.log("子组件渲染了");
+    return <button onClick={onClick}>子组件按钮</button>;
+}
+
+const MemoChild = React.memo(Child); // 👈 只有 props 变了才渲染
+
+function App() {
+    const [count, setCount] = useState(0);
+    const [text, setText] = useState("");
+
+    // 只有 count 变化时才会更新函数引用(子组件渲染)
+    const handleClick = useCallback(() => {
+        console.log("Clicked:", count);
+    }, [count]); // 👈 缓存函数引用
+
+    return (
+        <div>
+            <button onClick={() => setCount(count + 1)}>count +1</button>
+            <input value={text} onChange={(e) => setText(e.target.value)} />
+            <MemoChild onClick={handleClick} />
+        </div>
+    );
+}
+
+export default App;
+```
+
+**🔍 分析：**
+
+- 如果不用 `useCallback`，每次 App 渲染都会“新建”一个 `handleClick` 函数引用；
+- `MemoChild` 会认为 props (`onClick`) 改了 → 重新渲染；
+- 用了 `useCallback` 后，在依赖不变化时，函数引用保持稳定 → 组件不重渲染。
+
+#### **<font color='#10c300'>3）什么时候用 useCallback</font>**
+
+1. 子组件使用了 `React.memo`
+   - 避免因为回调函数引用变化导致子组件重渲染
+2. 函数传递给深层子组件
+   - 不希望每次父组件渲染都改变函数引用
+3. 依赖稳定的函数
+   - 当函数依赖的状态/变量不经常变化时，缓存引用意义更大
+
+#### **<font color='#10c300'>4）依赖数组注意事项</font>**
+
+- **依赖必须包含回调内部用到的变量**（闭包变量）
+- 推荐使用 ESLint 插件 `eslint-plugin-react-hooks` 自动分析依赖
+- 如果依赖数组为空`[]`：
+  - 返回的函数引用将**永远不会变化**
+  - 适用于那些不依赖任何外部变量的回调
+
+#### **<font color='#10c300'>5）结合 React.memo的优化模式</font>**
+
+常见模式：
+
+```jsx
+const MemoChild = React.memo(Child);
+
+function Parent() {
+	const handleClick = useCallback(() => { ... }, []);
+ 	return <MemoChild onClick={handleClick} />;
+}
+```
+
+✅ 子组件 `MemoChild` 只在真正需要更新时才渲染。
+
+#### **<font color='#10c300'>6）常见误区</font>**
+
+1. **不要滥用**
+   如果子组件没有 `React.memo` 或不是性能瓶颈，没必要加 `useCallback`（增加复杂度）
+2. **缓存不是减少渲染次数的万能钥匙**
+   `useCallback` 只防止不必要的重渲染，但状态更新触发的渲染仍会发生
+3. **依赖不正确会导致逻辑错误**
+   缺少依赖可能让函数内部拿到旧的状态
+
+#### **<font color='#10c300'>7）总结</font>**
+
+| 项目    | 内容                               |
+| ------- | ---------------------------------- |
+| Hook 名 | `useCallback`                      |
+| 作用    | 缓存回调函数引用，避免不必要的渲染 |
+| 参数    | `(fn, [deps])`                     |
+| 返回值  | 稳定的函数引用                     |
+| 常搭配  | `React.memo`, `useMemo`            |
+| 注意    | 依赖完整性、勿滥用                 |
+
+------
+
+🌟 **一句话总结：**
+
+> 当你需要把回调函数作为 props 传递给 `React.memo` 子组件时，用 `useCallback` 可以避免因为函数引用变化导致子组件重复渲染。
+
+<br>
+
+### **<font color='red'>4.6 useReducer-复杂状态管理</font>**
+
+> ✅ `useReducer` 是 `useState` 的高级替代方案。
+> 当状态变化逻辑比较复杂，或者新状态依赖旧状态时，用 `useReducer` 会更晰。
+
+它和 Redux 的核心思想一样：
+**通过 “动作（action）” 和 “状态更新函数（reducer）” 来控制状态变化。**
+
+#### **<font color='#10c300'>1）基本语法</font>**
+
+```jsx
+const [state, dispatch] = useReducer(reducer, initialArg, init?)
+```
+
+- **`state`**：当前状态
+- **`dispatch`**：触发状态更新的函数
+- **`reducer`**：一个函数，负责“接收旧状态 + 动作（action）”，返回新状态
+- **`initialArg`**：初始状态
+- **`init（可选）`**：*惰性初始化函数*，用于在初始渲染时对 `initialArg` 进行加工或计算，返回真正的初始状态，只会在初始化执行一次
+
+#### **<font color='#10c300'>2）使用场景示例</font>**
+
+**<font color='#00A6ED'>1️⃣ 计数器</font>**
+
+```jsx
+import { useReducer } from "react";
+
+// 定义 reducer
+function reducer(state, action) {
+    switch (action.type) {
+        case "increment":
+            return { count: state.count + 1 };
+        case "decrement":
+            return { count: state.count - 1 };
+        default:
+            return state; // 返回原状态（防止报错）
+    }
+}
+
+function Counter() {
+    const [state, dispatch] = useReducer(reducer, { count: 0 });
+
+    return (
+        <div>
+            <p>计数：{state.count}</p>
+            <button onClick={() => dispatch({ type: "increment" })}>+1</button>
+            <button onClick={() => dispatch({ type: "decrement" })}>-1</button>
+        </div>
+    );
+}
+
+export default Counter;
+```
+
+✅ `dispatch` 类似于调用 `setState`，但语义更清晰、逻辑集中。
+
+**<font color='#00A6ED'>2️⃣ 复杂状态示例：表单管理</font>**
+
+```jsx
+import { useReducer } from 'react';
+
+const initialForm = {
+    username: '',
+    age: '',
+};
+
+function formReducer(state, action) {
+    switch (action.type) {
+        case 'CHANGE_FIELD':
+            return { ...state, [action.field]: action.value };
+        case 'RESET':
+            return initialForm;
+        default:
+            return state;
+    }
+}
+
+function Form() {
+    const [form, dispatch] = useReducer(formReducer, initialForm);
+
+    return (
+        <div>
+            <input
+                value={form.username}
+                onChange={(e) =>
+                    dispatch({ type: 'CHANGE_FIELD', field: 'username', value: e.target.value })
+                }
+                placeholder="用户名"
+            />
+            <input
+                value={form.age}
+                onChange={(e) =>
+                    dispatch({ type: 'CHANGE_FIELD', field: 'age', value: e.target.value })
+                }
+                placeholder="年龄"
+            />
+            <button onClick={() => dispatch({ type: 'RESET' })}>重置</button>
+
+            <p>{JSON.stringify(form)}</p>
+        </div>
+    );
+}
+
+
+export default Form;
+```
+
+✅ 优势：
+
+- 所有状态更新逻辑集中在 `reducer`；
+- 更容易维护、测试、调试。
+
+
+
+#### **<font color='#10c300'>3）useReducer 的执行流程图</font>**
+
+1️⃣ 组件渲染时：
+
+- React 按 `initialArg` 初始化状态。
+
+2️⃣ 调用 `dispatch(action)`：
+
+- React 会执行 `reducer(state, action)`；
+- 得到新的 state；
+- 重新渲染组件。
+
+```jsx
+dispatch(action)
+   ↓
+reducer(state, action)
+   ↓
+newState → 触发重新渲染
+```
+
+#### **<font color='#10c300'>4）相比 useState 的优势</font>**
+
+| 特点     | useState           | useReducer                   |
+| -------- | ------------------ | ---------------------------- |
+| 适用场景 | 状态简单（一个值） | 状态结构复杂，多逻辑分支     |
+| 更新方式 | 直接传值或函数     | 派发 action，由 reducer 处理 |
+| 状态结构 | 通常是单个值       | 常为对象（多个字段）         |
+| 思维方式 | “我想要一个新值”   | “我派发一个意图（action）”   |
+
+#### **<font color='#10c300'>5）、使用惰性初始化（第三个参数）</font>**
+
+`useReducer` 还支持传入一个函数，延迟计算初始状态（避免初始化开销）👇
+
+```jsx
+import { useReducer } from 'react';
+
+function init(initialCount) {
+    return { count: initialCount };
+}
+
+function reducer(state, action) {
+    switch (action.type) {
+        case 'reset':
+            return init(action.payload);
+        case 'increment':
+            return { count: state.count + 1 };
+        default:
+            return state;
+    }
+}
+
+function Counter() {
+    const [state, dispatch] = useReducer(reducer, 0, init);
+
+    return (
+        <>
+            <p>计数: {state.count}</p>
+            <button onClick={() => dispatch({ type: 'increment' })}>+</button>
+            <button onClick={() => dispatch({ type: 'reset', payload: 5 })}>重置为 5</button>
+        </>
+    );
+}
+
+export default Counter;
+```
+
+这种方式适用于初始状态计算非常复杂的情况。
+
+#### **<font color='#10c300'>6）、与 Context 结合：全局状态（Redux 思想）</font>**
+
+`useReducer` 常配合 `useContext` 使用，构建轻量“全局状态管理”：
+
+```jsx
+import { createContext, useReducer, useContext } from 'react';
+
+const CounterContext = createContext();
+
+function reducer(state, action) {
+    switch (action.type) {
+        case 'add': return state + 1;
+        default: return state;
+    }
+}
+
+function CounterProvider({ children }) {
+    const [count, dispatch] = useReducer(reducer, 0);
+    return (
+        <CounterContext.Provider value={{ count, dispatch }}>
+            {children}
+        </CounterContext.Provider>
+    );
+}
+
+function Child() {
+    const { count, dispatch } = useContext(CounterContext);
+    return (
+        <div>
+            <p>{count}</p>
+            <button onClick={() => dispatch({ type: 'add' })}>+1</button>
+        </div>
+    );
+}
+
+export default function App() {
+    return (
+        <CounterProvider>
+            <Child />
+        </CounterProvider>
+    );
+}
+```
+
+✅ 相当于一个小型 Redux。
+
+#### **<font color='#10c300'>7）、注意事项</font>**
+
+| 注意点                 | 说明                                |
+| ---------------------- | ----------------------------------- |
+| `reducer` 必须是纯函数 | 不要直接修改 state 或执行副作用     |
+| 不要频繁重建 reducer   | 通常定义在组件外或 `useCallback` 中 |
+| 与 Redux 思想相同      | 但更轻量不需要中间件                |
+| 可结合 `useContext`    | 实现全局状态共享                    |
+
+#### **<font color='#10c300'>8）、总结</font>**
+
+| 特性             | 说明                                     |
+| ---------------- | ---------------------------------------- |
+| Hook 名          | `useReducer`                             |
+| 作用             | 管理复杂的组件状态和变化逻辑             |
+| 返回值           | `[state, dispatch]`                      |
+| 与 useState 对比 | 状态逻辑更集中、可扩展性更强             |
+| 常搭配           | `useContext`（全局状态）                 |
+| 适用场景         | 复杂状态更新（表单、异步流程、全局管理） |
+
+------
+
+🌟 **一句话总结：**
+
+> `useReducer` = “复杂版 useState”
+> 当状态逻辑复杂或多步骤更新时，用 reducer 管理更干净、更可靠。
+
+
+
+
+
+
+
+## 五、 HOC 高阶组件
 
 ### **<font color='red'>5.1 React.memo</font>**
 
