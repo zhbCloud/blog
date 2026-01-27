@@ -20,7 +20,7 @@ date: 2025-12-02 10:28:38
 2. [环境搭建](#二-环境搭建)
 3. [核心概念](#三-核心概念)
 4. [React Hooks 详解](#四-react-hooks-详解)
-5. [HOC 高阶组件](#五-HOC 高阶组件)
+5. [HOC 高阶组件](#五-hoc-高阶组件)
 6. [React 18 新特性](#5-react-18-新特性)
 7. [React 19 新特性](#6-react-19-新特性)
 8. [最佳实践](#7-最佳实践)
@@ -1485,7 +1485,140 @@ export default function App() {
 
 
 
+### **<font color='red'>4.20 Hooks 组合实战</font>**
 
+#### **<font color='#10c300'>1）useReducer + useContext</font>**
+
+用 **`useReducer` + `useContext`** 实现一个**全局状态管理系统**，就像一个轻量版 Redux。
+
+我们以“主题切换（深色 / 浅色）”为例 👇
+
+##### **<font color='cornflowerblue'>🎯 功能目标</font>**
+
+- 页面上有多个组件；
+- 这些组件都能感知当前主题；
+- 点击按钮可以在浅色/深色模式之间切换；
+- 所有组件自动更新，**不用手动传 props**。
+
+##### **<font color='cornflowerblue'>🧱项目结构</font>**
+
+```
+├── 📁 components/                   # 组件
+│   ├── 📄 Header.jsx               # 子组件，读取主题并展示
+│   ├── 📄 Content.jsx              # 子组件，读取主题并展示
+├── 📁 context/                      # Context
+│   ├── 📄 index.js                 # 创建 Context + Reducer
+└── 📄 App.jsx            
+```
+
+`src\App.jsx`
+
+```jsx
+import { ThemeProvider } from './context/index'; // 引入上面的 Provider
+import Header from './components/Header';
+import Content from './components/Content';
+
+function App() {
+    return (
+        <ThemeProvider>
+            <div>
+                <Header />
+                <Content />
+            </div>
+        </ThemeProvider>
+    );
+}
+
+export default App;
+```
+
+`src\context\index.js`
+
+```jsx
+import { createContext, useReducer, useContext } from 'react';
+
+// 1️⃣ 初始状态
+const initialState = { theme: 'light' };
+
+// 2️⃣ 定义 reducer：根据 action.type 决定如何更新状态
+function themeReducer(state, action) {
+    switch (action.type) {
+        case 'TOGGLE_THEME':
+            return { theme: state.theme === 'light' ? 'dark' : 'light' };
+        default:
+            return state;
+    }
+}
+
+// 3️⃣ 创建 Context
+const ThemeContext = createContext(null);
+
+// 4️⃣ 创建 Provider 组件（状态提供者）
+export function ThemeProvider({ children }) {
+    const [state, dispatch] = useReducer(themeReducer, initialState);
+    return (
+        <ThemeContext.Provider value={{ state, dispatch }}>
+            {children}
+        </ThemeContext.Provider>
+    );
+}
+
+// 5️⃣ 自定义 Hook，方便子组件使用
+export function useTheme() {
+    return useContext(ThemeContext);
+}
+```
+
+`src\components\Header.jsx`
+
+```jsx
+import { useTheme } from '../context/index';
+
+export default function Header() {
+    const { state, dispatch } = useTheme();
+
+    return (
+        <header
+            style={{
+                background: state.theme === 'light' ? '#f0f0f0' : '#222',
+                color: state.theme === 'light' ? '#000' : '#fff',
+                padding: '10px',
+                textAlign: 'center'
+            }}
+        >
+            <h1>当前主题：{state.theme}</h1>
+            <button onClick={() => dispatch({ type: 'TOGGLE_THEME' })}>
+                切换主题
+            </button>
+        </header>
+    );
+}
+```
+
+`src\components\Content.jsx`
+
+```jsx
+import { useTheme } from '../context/index';
+
+export default function Content() {
+    const { state } = useTheme();
+
+    return (
+        <div
+            style={{
+                background: state.theme === 'light' ? '#fff' : '#333',
+                color: state.theme === 'light' ? '#000' : '#fff',
+                padding: '20px',
+                textAlign: 'center',
+            }}
+        >
+            <p>这里是主要内容区 —— 当前是 {state.theme} 模式</p>
+        </div>
+    );
+}
+```
+
+<br>
 
 ## 五、 HOC 高阶组件
 
