@@ -385,6 +385,8 @@ Hooks 是 React 16.8 引入的特性，让你在函数组件中使用状态和�
 
 `useState` 是一个 React Hook，用于在函数组件中声明和管理**状态（state）**（ 一定要在**`组件顶层`**调用）
 
+---
+
 #### **<font color='#10c300'>1）基本语法</font>**
 
 ```js
@@ -556,11 +558,15 @@ const [data, setData] = useState(() => {
 
 <br>
 
+
+
 ### **<font color='red'>4.2 useEffect-副作用处理</font>**
 
 它让函数组件能够在**渲染后执行副作用操作（side effects）**，比如：网络请求、DOM 操作、事件监听、定时器、数据订阅等。
 
 函数组件里没有生命周期方法（像类组件的 `componentDidMount`、`componentWillUnmount`）；React 提供 `useEffect` 来替代它们。
+
+---
 
 #### **<font color='#10c300'>1）基本语法</font>**
 
@@ -596,6 +602,8 @@ useEffect(() => {
 - 每次组件**挂载和更新**都会运行。
   ⚠️ 如无必要，不建议省略依赖数组，会影响性能。
 
+------
+
 **<font color='#00A6ED'>2️⃣ 组件挂载时执行（只执行一次）</font>**
 
 ```jsx
@@ -622,6 +630,8 @@ function Hello() {
 
 - 挂载时执行：`componentDidMount`
 - 卸载时清理：`componentWillUnmount`
+
+------
 
 **<font color='#00A6ED'>3️⃣ 依赖特定状态更新时执行</font>**
 
@@ -697,6 +707,8 @@ useEffect(() => {
 | 组件卸载     | `componentWillUnmount` | `useEffect(() => { return () => {} }, [])` |
 
 <br>
+
+
 
 ### **<font color='red'>4.3 useContext - 跨组件共享状态</font>**
 
@@ -844,7 +856,7 @@ function Profile() {
 
 ➡️ 子组件不仅能读到状态，还能调用 `setUser()` 修改它，所有使用此上下文的组件都会同步更新。
 
-<br>
+------
 
 **<font color='#00A6ED'>2️⃣ 主题切换示例</font>**
 
@@ -944,6 +956,8 @@ export default App;
 
 <br>
 
+
+
 ### **<font color='red'>4.4 useMemo- 缓存计算结果</font>**
 
 **让 React 记住一个计算值（memoized value）**，只有在依赖项变化时才重新计算。
@@ -956,6 +970,8 @@ export default App;
 它可以帮你显著减少不必要的计算或对象重建。
 
 `useMemo`的理念是同步的，useMemo不能进行一些额外的副操作，比如网络请求等。
+
+---
 
 #### **<font color='#10c300'>1）基本语法</font>**
 
@@ -1005,6 +1021,8 @@ export default App;
 
 ✅ 当你改变颜色的时候，不会重新执行ComputeTotal。只有price变化时才会重新计算。
 
+------
+
 **<font color='#00A6ED'>2️⃣ 缓存组件(不常用)</font>**
 
 ```jsx
@@ -1045,6 +1063,8 @@ export default App;
 | 缓存对象或数组       | 避免对象引用变化导致子组件重新渲染  |
 | 与 `React.memo` 配合 | 保持 props 稳定，防止子组件误重渲染 |
 
+
+
 #### **<font color='#10c300'>4）缓存引用（避免重渲染）</font>**
 
 例如子组件使用 `React.memo`：
@@ -1069,6 +1089,8 @@ export default Parent;
 
 ➡️ `useMemo` 保证每次渲染中 `options` 的引用稳定，`React.memo` 会认为 props 没变，从而跳过重新渲染。
 
+
+
 #### **<font color='#10c300'>4）常见注意事项</font>**
 
 | 注意点                         | 说明                                                 |
@@ -1077,6 +1099,8 @@ export default Parent;
 | 依赖必须完整                   | 漏掉依赖可能导致值不同步（推荐使用 ESLint 检查）     |
 | 缓存是基于引用比较             | 数组、对象、函数引用变化 → 会重新计算                |
 | 仅缓存计算结果，不影响状态更新 | 状态变化仍然触发重新渲染                             |
+
+
 
 #### **<font color='#10c300'>5）useMemo vs useCallback</font>**
 
@@ -1088,6 +1112,8 @@ export default Parent;
 
 两者都是性能优化 Hook，但返回目标不同。
 
+
+
 #### **<font color='#10c300'>6）总结</font>**
 
 | 项目     | 说明                             |
@@ -1098,8 +1124,6 @@ export default Parent;
 | 主要用途 | 高性能计算缓存、稳定对象引用     |
 | 常与搭配 | `React.memo`、`useCallback`      |
 | 注意     | 不要滥用，确实有性能问题时再用   |
-
-------
 
 🌟 **一句话总结：**
 
@@ -1114,7 +1138,9 @@ export default Parent;
 
 `useCallback` 解决了这个问题：
 
-> ✅ **让函数引用在依赖不变时保持稳定（不变）**。
+✅ **让函数引用在依赖不变时保持稳定（不变）**。
+
+---
 
 #### **<font color='#10c300'>1）基本语法</font>**
 
@@ -1126,6 +1152,8 @@ const memoizedCallback = useCallback(() => {
 
 - **第一个参数**：要缓存的回调函数
 - **第二个参数**：依赖数组，当依赖中有值变化时，返回的新函数引用会更新
+
+
 
 #### **<font color='#10c300'>2）基本示例</font>**
 
@@ -1166,6 +1194,8 @@ export default App;
 - `MemoChild` 会认为 props (`onClick`) 改了 → 重新渲染；
 - 用了 `useCallback` 后，在依赖不变化时，函数引用保持稳定 → 组件不重渲染。
 
+
+
 #### **<font color='#10c300'>3）什么时候用 useCallback</font>**
 
 1. 子组件使用了 `React.memo`
@@ -1175,6 +1205,8 @@ export default App;
 3. 依赖稳定的函数
    - 当函数依赖的状态/变量不经常变化时，缓存引用意义更大
 
+
+
 #### **<font color='#10c300'>4）依赖数组注意事项</font>**
 
 - **依赖必须包含回调内部用到的变量**（闭包变量）
@@ -1182,6 +1214,8 @@ export default App;
 - 如果依赖数组为空`[]`：
   - 返回的函数引用将**永远不会变化**
   - 适用于那些不依赖任何外部变量的回调
+
+
 
 #### **<font color='#10c300'>5）结合 React.memo的优化模式</font>**
 
@@ -1198,6 +1232,8 @@ function Parent() {
 
 ✅ 子组件 `MemoChild` 只在真正需要更新时才渲染。
 
+
+
 #### **<font color='#10c300'>6）常见误区</font>**
 
 1. **不要滥用**
@@ -1206,6 +1242,8 @@ function Parent() {
    `useCallback` 只防止不必要的重渲染，但状态更新触发的渲染仍会发生
 3. **依赖不正确会导致逻辑错误**
    缺少依赖可能让函数内部拿到旧的状态
+
+
 
 #### **<font color='#10c300'>7）总结</font>**
 
@@ -1218,11 +1256,9 @@ function Parent() {
 | 常搭配  | `React.memo`, `useMemo`            |
 | 注意    | 依赖完整性、勿滥用                 |
 
-------
-
 🌟 **一句话总结：**
 
-> 当你需要把回调函数作为 props 传递给 `React.memo` 子组件时，用 `useCallback` 可以避免因为函数引用变化导致子组件重复渲染。
+当你需要把回调函数作为 props 传递给 `React.memo` 子组件时，用 `useCallback` 可以避免因为函数引用变化导致子组件重复渲染。
 
 <br>
 
@@ -1233,6 +1269,8 @@ function Parent() {
 
 它和 Redux 的核心思想一样：
 **通过 “动作（action）” 和 “状态更新函数（reducer）” 来控制状态变化。**
+
+---
 
 #### **<font color='#10c300'>1）基本语法</font>**
 
@@ -1245,6 +1283,8 @@ const [state, dispatch] = useReducer(reducer, initialArg, init?)
 - **`reducer`**：一个函数，负责“接收旧状态 + 动作（action）”，返回新状态
 - **`initialArg`**：初始状态
 - **`init（可选）`**：*惰性初始化函数*，用于在初始渲染时对 `initialArg` 进行加工或计算，返回真正的初始状态，只会在初始化执行一次
+
+
 
 #### **<font color='#10c300'>2）使用场景示例</font>**
 
@@ -1281,6 +1321,8 @@ export default Counter;
 ```
 
 ✅ `dispatch` 类似于调用 `setState`，但语义更清晰、逻辑集中。
+
+------
 
 **<font color='#00A6ED'>2️⃣ 复杂状态示例：表单管理</font>**
 
@@ -1360,6 +1402,8 @@ reducer(state, action)
 newState → 触发重新渲染
 ```
 
+
+
 #### **<font color='#10c300'>4）相比 useState 的优势</font>**
 
 | 特点     | useState           | useReducer                   |
@@ -1368,6 +1412,8 @@ newState → 触发重新渲染
 | 更新方式 | 直接传值或函数     | 派发 action，由 reducer 处理 |
 | 状态结构 | 通常是单个值       | 常为对象（多个字段）         |
 | 思维方式 | “我想要一个新值”   | “我派发一个意图（action）”   |
+
+
 
 #### **<font color='#10c300'>5）、使用惰性初始化（第三个参数）</font>**
 
@@ -1408,7 +1454,11 @@ export default Counter;
 
 这种方式适用于初始状态计算非常复杂的情况。
 
-#### **<font color='#10c300'>6）、与 Context 结合：全局状态（Redux 思想）</font>**
+
+
+#### **<font color='#10c300'>6）、与 Context 结合</font>**
+
+全局状态（Redux 思想）
 
 `useReducer` 常配合 `useContext` 使用，构建轻量“全局状态管理”：
 
@@ -1454,6 +1504,8 @@ export default function App() {
 
 ✅ 相当于一个小型 Redux。
 
+
+
 #### **<font color='#10c300'>7）、注意事项</font>**
 
 | 注意点                 | 说明                                |
@@ -1462,6 +1514,8 @@ export default function App() {
 | 不要频繁重建 reducer   | 通常定义在组件外或 `useCallback` 中 |
 | 与 Redux 思想相同      | 但更轻量不需要中间件                |
 | 可结合 `useContext`    | 实现全局状态共享                    |
+
+
 
 #### **<font color='#10c300'>8）、总结</font>**
 
@@ -1478,12 +1532,415 @@ export default function App() {
 
 🌟 **一句话总结：**
 
-> `useReducer` = “复杂版 useState”
-> 当状态逻辑复杂或多步骤更新时，用 reducer 管理更干净、更可靠。
+`useReducer` = “复杂版 useState”
+当状态逻辑复杂或多步骤更新时，用 reducer 管理更干净、更可靠。
+
+<br>
+
+### **<font color='red'>4.7 useRef - 引用 DOM 和保存可变值</font>**
+
+✅ `useRef` 返回一个 **可变的 ref 对象** `{ current: ... }`
+这个对象的 `.current` 属性可以存储任何值（DOM 元素、定时器 ID、普通变量等），**改变 `.current` 不会触发组件重渲染**。
+
+它的两个主要用途：
+
+1. **访问 DOM 元素**（函数组件中替代 `document.querySelector`）
+2. **保存任意变量值**（这个值在组件的整个生命周期内保持不变，不会因重新渲染而丢失）
+
+---
+
+#### **<font color='#10c300'>1）基本语法</font>**
+
+```js
+const refContainer = useRef(initialValue);
+```
+
+- `initialValue` 是初始值
+- `refContainer.current` 是存放值的地方
+- 改变 `refContainer.current` **不会触发组件重新渲染**
+
+
+
+#### **<font color='#10c300'>2）使用场景示例</font>**
+
+**<font color='#00A6ED'>1️⃣ 操作 DOM 元素</font>**
+
+```jsx
+import { useRef } from 'react';
+
+function InputFocus() {
+  const inputRef = useRef(null); // 初始 current = null
+
+  const focusInput = () => {
+    inputRef.current.focus(); // 获取 DOM 节点并聚焦
+  };
+
+  return (
+    <div>
+      <input ref={inputRef} type="text" placeholder="点击按钮聚焦我" />
+      <button onClick={focusInput}>聚焦输入框</button>
+    </div>
+  );
+}
+
+export default InputFocus;
+```
+
+- `ref={inputRef}` 将 DOM 节点绑定到 `inputRef.current`
+- 点击按钮时执行 `inputRef.current.focus()` 来让输入框获得焦点
+
+------
+
+**<font color='#00A6ED'>2️⃣ 用来存储可变值</font>**
+
+`useRef` 可以用来存储任意可变值，而且即使组件重新渲染，这个值仍然保留。
+
+```jsx
+import { useState, useRef, useEffect } from 'react';
+
+function RenderCount() {
+    const [count, setCount] = useState(0);
+    const renderTimes = useRef(0);
+
+    useEffect(() => {
+        renderTimes.current += 1;  // 每次渲染 +1
+    });
+    console.log('组件渲染');
+
+    return (
+        <div>
+            <p>按钮点击次数：{count}</p>
+            <p>组件渲染次数：{renderTimes.current}</p>
+            {/* 这里点击调用了useState，导致页面重新渲染，但是useRef一直处于叠加状态，没有初始到0 说明具有持久性 */}
+            <button onClick={() => setCount(count + 1)}>点击</button>
+        </div>
+    );
+}
+
+export default RenderCount;
+```
+
+- `renderTimes.current` 是一个持久化引用，组件每次渲染都会累加，但不会引起额外的渲染
+- 对 `useRef` 变量的修改不会触发 UI 更新
+
+------
+
+**<font color='#00A6ED'>3️⃣记住上一次渲染的值</font>**
+
+```jsx
+import { useState, useRef, useEffect } from 'react';
+
+function PrevValueExample() {
+    const [value, setValue] = useState('');
+    const prevValueRef = useRef('');
+
+    useEffect(() => {
+        prevValueRef.current = value; // 更新保存的值
+    }, [value]);
+
+    return (
+        <div>
+            <input value={value} onChange={(e) => setValue(e.target.value)} />
+            <p>当前值: {value}</p>
+            <p>上一次的值: {prevValueRef.current}</p>
+        </div>
+    );
+}
+
+export default PrevValueExample;
+```
+
+✅ 使用 `.current` 保存上一次更新前的值 —— 不会触发额外渲染。
+
+
+
+#### **<font color='#10c300'>3）、注意事项</font>**
+
+1. **不要用它来代替 state**，除非你不需要触发渲染。
+2. `.current` 修改不会更新 UI，只有 `state` 更新会触发渲染。
+3. 访问 DOM 节点要确保该节点已经渲染到页面上（通常在 `useEffect` 中使用）。
+
+
+
+#### **<font color='#10c300'>4）、和 forwardRef 搭配</font>**
+
+**`useRef`** 配合 **`forwardRef`** 可以将 ref 传给子组件中的 DOM 元素：
+
+```jsx
+import { useRef, forwardRef } from 'react';
+
+const CustomInput = forwardRef((props, ref) => {
+  return <input ref={ref} {...props} />;
+});
+
+function App() {
+  const myInputRef = useRef();
+
+  return (
+    <div>
+      <CustomInput ref={myInputRef} placeholder="自定义组件中的输入框" />
+      <button onClick={() => myInputRef.current.focus()}>聚焦</button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+✅ 这样可以让父组件直接操作子组件内部的 DOM 元素。
+
+
+
+#### **<font color='#10c300'>5）、总结</font>**
+
+| 用途                    | 示意                        |
+| ----------------------- | --------------------------- |
+| 获取 DOM 节点           | `ref={domRef}`              |
+| 保存跨渲染变量          | 保存定时器 ID、上次值等     |
+| 自定义组件中转 DOM 操作 | 结合 `forwardRef`           |
+| 避免重复渲染            | `.current` 变化不会触发渲染 |
+
+📌 **一句话总结：**
+
+`useRef` 就像一个不会变的盒子，`.current` 可存任何值，对它的修改不会让组件重新渲染，它非常适合保存 DOM 节点或跨渲染的变量。
+
+<br>
+
+### **<font color='red'>4.8 useRef - 生成唯一 ID</font>**
+
+`useId` 是一个 React 内置 Hook，用来生成一个稳定且唯一的 ID 字符串，通常用于：
+
+- **无障碍（a11y）场景**：让 `label` 和表单控件配对使用；
+- **服务端渲染（SSR）**：防止客户端与服务器渲染的 ID 不一致；
+- **生成稳定唯一 key/id**（每次渲染保持不变）。
+
+---
+
+#### **<font color='#10c300'>1）基本语法</font>**
+
+```js
+const id = useId();
+```
+
+- 返回一个在当前组件作用域内 **唯一且稳定** 的字符串，例如：`"r1:0"`。
+- 每次渲染都保证相同组件中的 id 一致。
+- 不会在不同组件之间重复。
+
+
+
+#### **<font color='#10c300'>2）使用场景示例</font>**
+
+**<font color='#00A6ED'>1️⃣ 关联 `<label>` 与 `<input>`</font>**
+
+```jsx
+jsximport React, { useId } from 'react';
+
+function NameField() {
+  const id = useId();
+
+  return (
+    <div>
+      <label htmlFor={id}>姓名：</label>
+      <input id={id} type="text" placeholder="请输入姓名" />
+    </div>
+  );
+}
+
+export default NameField;
+```
+
+✅ 在这里：
+
+- `useId` 生成一个唯一 id；
+- `label` 的 `htmlFor` 与 `input` 的 `id` 一致；
+- 当多个 `NameField` 组件同时存在时，每个组件生成的 id 不会冲突。
+
+------
+
+**<font color='#00A6ED'>2️⃣ 组合前缀使用（推荐）</font>**
+
+为了更明确区分不同控件，可以加上自定义前缀：
+
+```jsx
+jsxconst id = useId();
+
+<input id={`email-${id}`} />
+<label htmlFor={`email-${id}`}>邮箱</label>
+```
+
+结果类比：`id="email-r1:0"`, `email-r1:1` 等。
+
+
+
+#### **<font color='#10c300'>3）与 SSR 配合</font>**
+
+React 18 引入了 `useId`，是为了解决 **服务端渲染（Server Side Rendering）** 时生成的 ID 不一致问题：
+
+- SSR 阶段会生成稳定的 ID。
+- Hydration（客户端激活）时，React 会保证客户端生成的 id 与服务端的一致。
+
+✅ 所以 `useId` 是 **SSR 安全的唯一 ID**。
+
+
+
+#### **<font color='#10c300'>4）注意事项</font>**
+
+1. `useId` **不适合当作列表 key 的唯一标识**，因为它只在组件作用域独立唯一，不是数据层唯一。
+2. 每次调用 `useId` 都会生成一个不同的子 ID，React 内部有机制确保组合时不冲突。
+3. 只可在 **组件初始化阶段调用一次**，即让 `id` 在整个组件生命周期内稳定。
+
+<br>
+
+### **<font color='red'>4.9 useDeferredValue - 延迟更新值</font>**
+
+当你更新某个状态时，React 不一定立刻同步渲染使用这个值的部分，而是会**优先渲染更紧急的更新（交互、输入）**，稍后再更新那些耗时的渲染部分。
+
+✅ 简单理解：让页面中不太重要的部分“晚一点更新”，以保证用户操作更流畅。
+
+---
+
+#### **<font color='#10c300'>1）基本语法</font>**
+
+```js
+const deferredValue = useDeferredValue(value);
+```
+
+- `value`：原始的值（可能变化频繁）
+- `deferredValue`：React 返回的延迟更新的值
+
+当 `value` 改变时，React **不会立即**让 `deferredValue` 同步，而是“稍后”更新它（基于调度优先级），如果更新非常快，比如频繁输入，`deferredValue` 会滞后一点跟上。
+
+
+
+#### **<font color='#10c300'>2）使用场景示例</font>**
+
+**<font color='#00A6ED'>1️⃣ 搜索过滤（大列表）</font>**
+
+假设我们有一个输入框用于搜索大量数据，输入过程中你不希望每个字母都立即导致昂贵的渲染：
+
+```jsx
+import React, { useState, useDeferredValue, useMemo } from 'react';
+
+function SlowList({ input }) {
+  // 模拟大数据过滤（耗时） 要配合useMemo使用，要不然子组件每次渲染，也会导致输入卡顿
+  const list = useMemo(() => {
+    const items = [];
+    for (let i = 0; i < 10000; i++) {
+      items.push(<div key={i}>{input} - 项 {i}</div>);
+    }
+    return items;
+  }, [input]);
+
+  return <div>{list}</div>;
+}
+
+function SearchPage() {
+  const [query, setQuery] = useState('');
+  const deferredQuery = useDeferredValue(query); // 👈 延迟使用 query
+
+  return (
+    <div>
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="输入搜索关键词..."
+      />
+      {/* 使用延迟的状态值渲染大列表 */}
+      <SlowList input={deferredQuery} />
+    </div>
+  );
+}
+
+export default SearchPage;
+```
+
+**🔍 效果：**
+
+- 输入框响应非常顺畅；
+- 列表渲染稍微滞后一点更新（不会阻塞输入）；
+- React 自动安排较低优先级的渲染任务。
+
+
+
+#### **<font color='#10c300'>3）useDeferredValue的本质</font>**
+
+它利用了 **React 的并发特性（Concurrent Rendering）**
+让某些更新以较低优先级进行：
+
+- 用户输入 → 高优先级；
+- 列表更新 → 低优先级；
+- React 内部可在合适时机处理低优先级更新。
+
+所以它非常适合：
+
+- 输入搜索时展示结果；
+- 大量数据过滤；
+- 复杂渲染场景中保持 UI 互动流畅。
+
+
+
+#### **<font color='#10c300'>4）注意事项</font>**
+
+| 注意点                          | 说明                               |
+| ------------------------------- | ---------------------------------- |
+| 不会跳过更新                    | 只是延迟执行，最终仍会同步到最新值 |
+| 不建议用于关键 UI 状态          | 因为它可能暂时落后于真实值         |
+| 需要 React 18+                  | 属于并发系统的功能                 |
+| 可搭配 `useTransition` 一起使用 | 共同控制更新优先级更加灵活         |
+
+
+
+#### **<font color='#10c300'>5） 总结</font>**
+
+| 属性       | 说明                                       |
+| ---------- | ------------------------------------------ |
+| Hook 名    | `useDeferredValue(value)`                  |
+| React 版本 | 18+                                        |
+| 主要作用   | 延迟低优先级渲染以保持交互流畅             |
+| 常见场景   | 搜索、大列表、性能优化                     |
+| 特点       | 返回一个“稍后更新”的值；不影响高优先级响应 |
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br>
 
 ### **<font color='red'>4.20 Hooks 组合实战</font>**
 
@@ -1617,6 +2074,12 @@ export default function Content() {
     );
 }
 ```
+
+- 页面加载时默认“浅色”；
+- 点击“切换主题”按钮；
+- `dispatch` 触发 `TOGGLE_THEME`；
+- `reducer` 更新 theme → 所有使用该状态的组件自动重新渲染；
+- 所有组件同步变成“深色模式”。
 
 <br>
 
