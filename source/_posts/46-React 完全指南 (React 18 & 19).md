@@ -1657,10 +1657,31 @@ export default PrevValueExample;
 #### **<font color='#10c300'>3）、注意事项</font>**
 
 1. **不要用它来代替 state**，除非你不需要触发渲染。
+
 2. `.current` 修改不会更新 UI，只有 `state` 更新会触发渲染。
+
 3. 访问 DOM 节点要确保该节点已经渲染到页面上（通常在 `useEffect` 中使用）。
 
+4. 函数组件不能使用ref，因为函数组件没有实例（和 forwardRef 搭配可使用ref）
 
+   ```jsx
+   import { useRef } from "react";
+   import Child from "./child";
+   function App() {
+       const domRef = useRef();
+       return (
+           <div>
+               {/* 错误写法，函数组件不能使用ref，因为函数组件没有实例 */}
+               <Child ref = {domRef} />
+               <button>父组件的按钮</button>
+           </div>
+       );
+   }
+   export default App;
+   
+   ```
+
+   
 
 #### **<font color='#10c300'>4）、和 forwardRef 搭配</font>**
 
@@ -1673,7 +1694,7 @@ const CustomInput = forwardRef((props, ref) => {
   return <input ref={ref} {...props} />;
 });
 
-function App() {
+function App() {	
   const myInputRef = useRef();
 
   return (
@@ -1688,6 +1709,30 @@ export default App;
 ```
 
 ✅ 这样可以让父组件直接操作子组件内部的 DOM 元素。
+
+**<font color='red'>🚫在react19中已废弃forwardRef </font>**
+
+```jsx
+import { useRef } from 'react';
+
+// ✅ React 19 写法：直接从 props 中获取 ref
+function CustomInput({ placeholder, ref, ...props }) {
+  return <input ref={ref} placeholder={placeholder} {...props} />;
+}
+
+function App() {	
+  const myInputRef = useRef();
+
+  return (
+    <div>
+      <CustomInput ref={myInputRef} placeholder="自定义组件中的输入框" />
+      <button onClick={() => myInputRef.current.focus()}>聚焦</button>
+    </div>
+  );
+}
+
+export default App;
+```
 
 
 
@@ -1706,7 +1751,7 @@ export default App;
 
 <br>
 
-### **<font color='red'>4.8 useRef - 生成唯一 ID</font>**
+### **<font color='red'>4.8 useId - 生成唯一 ID</font>**
 
 `useId` 是一个 React 内置 Hook，用来生成一个稳定且唯一的 ID 字符串，通常用于：
 
@@ -1819,36 +1864,36 @@ const deferredValue = useDeferredValue(value);
 假设我们有一个输入框用于搜索大量数据，输入过程中你不希望每个字母都立即导致昂贵的渲染：
 
 ```jsx
-import React, { useState, useDeferredValue, useMemo } from 'react';
+import { useState, useDeferredValue, useMemo } from 'react';
 
 function SlowList({ input }) {
-  // 模拟大数据过滤（耗时） 要配合useMemo使用，要不然子组件每次渲染，也会导致输入卡顿
-  const list = useMemo(() => {
-    const items = [];
-    for (let i = 0; i < 10000; i++) {
-      items.push(<div key={i}>{input} - 项 {i}</div>);
-    }
-    return items;
-  }, [input]);
+    // 模拟大数据过滤（耗时） 要配合useMemo使用，要不然子组件每次渲染，也会导致输入卡顿
+    const list = useMemo(() => {
+        const items = [];
+        for (let i = 0; i < 10000; i++) {
+            items.push(<div key={i}>{input} - 项 {i}</div>);
+        }
+        return items;
+    }, [input]);
 
-  return <div>{list}</div>;
+    return <div>{list}</div>;
 }
 
 function SearchPage() {
-  const [query, setQuery] = useState('');
-  const deferredQuery = useDeferredValue(query); // 👈 延迟使用 query
+    const [query, setQuery] = useState('');
+    const deferredQuery = useDeferredValue(query); // 👈 延迟使用 query
 
-  return (
-    <div>
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="输入搜索关键词..."
-      />
-      {/* 使用延迟的状态值渲染大列表 */}
-      <SlowList input={deferredQuery} />
-    </div>
-  );
+    return (
+        <div>
+            <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="输入搜索关键词..."
+            />
+            {/* 使用延迟的状态值渲染大列表 */}
+            <SlowList input={deferredQuery} />
+        </div>
+    );
 }
 
 export default SearchPage;
@@ -1900,29 +1945,150 @@ export default SearchPage;
 | 常见场景   | 搜索、大列表、性能优化                     |
 | 特点       | 返回一个“稍后更新”的值；不影响高优先级响应 |
 
+<br>
+
+### **<font color='red'>4.10 useTransition - 非阻塞状态更新</font>**
+
+用来将某些状态更新标记为“过渡更新（transition update）”。
+
+简单来说，它告诉 React：
+
+> “这类更新不用立刻执行，可以稍后完成，让用户交互不要被卡顿。”
+
+在 React 18 的 **并发渲染模式** 下，更新有优先级区分：
+
+- **紧急更新（Urgent）**：立刻执行，比如输入框、点击。
+- **过渡更新（Transition）**：可以延后，比如筛选、分页、排序、大列表渲染。
 
 
 
+#### **<font color='#10c300'>1）基本语法</font>**
+
+```jsx
+const [isPending, startTransition] = useTransition();
+```
+
+- `isPending` ：布尔值：表示过渡更新是否正在进行中，可用于显示“加载中...”
+
+- `startTransition()`：函数：用于包裹属于过渡更新的代码（例如 setState）
 
 
 
+#### **<font color='#10c300'>2）使用场景示例</font>**
+
+```jsx
+import { useState, useTransition } from 'react';
+
+const allItems = Array.from({ length: 20000 }, (_, i) => `Item ${i + 1}`);
+
+function List({ list }) {
+    return (
+        <ul>
+            {list.map((item) => (
+                <li key={item}>{item}</li>
+            ))}
+        </ul>
+    );
+}
+
+function App() {
+    const [query, setQuery] = useState('');
+    const [list, setList] = useState(allItems);
+    const [isPending, startTransition] = useTransition(); // 👈 使用 useTransition
+
+    function handleChange(e) {
+        const newQuery = e.target.value;
+        setQuery(newQuery); // 紧急更新（立即响应输入）
+
+        // 过滤操作标记为“过渡更新”，不会阻塞输入
+        startTransition(() => {
+            const filtered = allItems.filter(item =>
+                item.toLowerCase().includes(newQuery.toLowerCase())
+            );
+            setList(filtered);
+        });
+    }
+
+    return (
+        <div style={{ padding: 20 }}>
+            <h2>useTransition 优化的搜索示例</h2>
+            <input
+                value={query}
+                onChange={handleChange}
+                placeholder="输入关键字过滤列表…"
+            />
+            {isPending && <span style={{ color: 'orange' }}>正在过滤数据…</span>}
+            <p>匹配到 {list.length} 条结果</p>
+            <List list={list} />
+        </div>
+    );
+}
+
+export default App;
+```
+
+✅ 体验：
+输入框输入即时响应；
+列表过滤是延后执行的，界面不会卡顿。
 
 
 
+#### **<font color='#10c300'>3）工作原理</font>**
+
+```
+用户输入 → 立即更新输入框（紧急更新）
+        ↓
+React 空闲时 → 执行过滤逻辑（过渡更新）
+        ↓
+过渡完成 → isPending = false，列表更新
+```
+
+当 `startTransition` 内的更新在进行时：
+
+- React 会优先处理交互事件（比如输入框），
+- 暂缓其他较慢的渲染任务，
+- 确保界面流畅。
 
 
 
+#### **<font color='#10c300'>4）与useDeferredValue的对比</font>**
 
+- **`useDeferredValue`** 主要用于延迟单个值的更新，适用于值的变化直接影响到 UI 渲染但又不是立即必要的更新。
+- **`useTransition`** 用于告诉 React 哪些更新是低优先级的，并可使用 `isPending` 状态反馈更新是否处于等待状态，适用于控制大块区域或复杂状态的更新行为，允许你在触发更新时提供更自然的用户体验。
 
+| 对比项         | `useTransition`                | `useDeferredValue`     |
+| -------------- | ------------------------------ | ---------------------- |
+| 控制对象       | 一整段状态更新（`setState`）   | 一个状态值             |
+| 延迟方式       | 手动包裹更新                   | 自动使值延迟生效       |
+| 返回值         | `[isPending, startTransition]` | `deferredValue`        |
+| 是否有加载状态 | ✅ 有 `isPending`               | ❌ 需手动比较           |
+| 使用场景       | 你要延迟执行某个更新逻辑       | 你要延迟某个值传递下去 |
 
+#### **<font color='#10c300'>5）注意事项</font>**
 
+- `useTransition` 只在 React 18+ 有效果；
+- 它不会跳过渲染，只是调度顺序不同；
+- 不适用于动画或时间延迟，只改变更新优先级；
+- 不要滥用——仅在性能瓶颈或卡顿时使用。
 
+#### **<font color='#10c300'>6）总结</font>**
 
+| 项目     | 内容                                     |
+| -------- | ---------------------------------------- |
+| Hook 名  | `useTransition()`                        |
+| 返回值   | `[isPending, startTransition]`           |
+| 主要作用 | 将状态更新标记为“过渡更新”               |
+| 优点     | 减少卡顿、提高交互响应                   |
+| 应用场景 | 搜索、筛选、大量渲染、分页、异步数据加载 |
+| 特点     | 并发渲染特性，不阻塞用户输入             |
 
+<br>
 
+### **<font color='red'>4.11 useImperativeHandle - 自定义 ref 暴露的方法</font>**
 
+`useImperativeHandle` 让你自定义通过 ref 暴露给父组件的实例值，通常与 `forwardRef` 配合使用：
 
-
+[forwardRef用法](#forwardRef)
 
 
 
@@ -2084,6 +2250,8 @@ export default function Content() {
 <br>
 
 ## 五、 HOC 高阶组件
+
+高阶组件是一个**函数**，它接收一个组件并返回一个新的组件，例如：
 
 ### **<font color='red'>5.1 React.memo</font>**
 
@@ -2291,3 +2459,11 @@ export default Parent;
 
 > `React.memo` 就像是函数组件的“PureComponent”。
 > 当 props 没变时，跳过渲染，提高性能。
+
+---
+
+<br>
+
+## 六、React API
+
+### **<font color='red'>6.1 forwardRef</font>**
