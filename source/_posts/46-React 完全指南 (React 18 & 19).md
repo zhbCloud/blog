@@ -426,6 +426,8 @@ export default Counter
 
 每个组件实例拥有独立的状态，互不影响。
 
+---
+
 **2️⃣ 状态更新是替换而非合并**
 
 与 class 组件的 `setState` 不同，`useState` 不会自动合并对象：
@@ -439,6 +441,8 @@ setUser({ name: '李四' });
 // ✅ 正确：需要手动展开
 setUser({ ...user, name: '李四' });
 ```
+
+---
 
 **3️⃣ 函数式更新（解决闭包问题）**
 
@@ -462,6 +466,8 @@ function Counter() {
 }
 ```
 
+---
+
 **4️⃣惰性初始化**
 
 如果初始状态需要复杂计算，使用函数避免每次渲染都执行：
@@ -473,6 +479,8 @@ const [data, setData] = useState(heavyComputation());
 // ✅ 只在初始渲染执行一次，因为初始化的时候函数都会创建新的引用地址
 const [data, setData] = useState(() => heavyComputation());
 ```
+
+---
 
 **5️⃣数组/对象更新技巧**
 
@@ -535,6 +543,8 @@ useEffect(() => {
 }, []);
 ```
 
+---
+
 **陷阱 2️⃣：异步更新特性**
 
 状态更新是异步且批处理的，不能立即获取新值：
@@ -547,6 +557,8 @@ const handleClick = () => {
     // 如需基于新值操作，使用 useEffect 或函数式更新
 };
 ```
+
+---
 
 **陷阱 3️⃣：对象引用不变不触发更新**
 
@@ -567,7 +579,7 @@ const correctUpdate = () => {
 
 #### **<font color='#10c300'>6）最佳实践</font>**
 
-**1️⃣ 合理拆分状态：**不要把所有状态塞在一个对象里，独立变化的状态应该独立声明
+**1️⃣ 合理拆分状态：** 不要把所有状态塞在一个对象里，独立变化的状态应该独立声明
 
 ```jsx
 // ❌ 过度聚合
@@ -578,6 +590,8 @@ const [user, setUser] = useState(null);
 const [posts, setPosts] = useState([]);
 const [loading, setLoading] = useState(false);
 ```
+
+---
 
 **2️⃣ 使用自定义 Hook 封装状态逻辑**：
 
@@ -590,6 +604,8 @@ function useCounter(initial = 0) {
     return { count, inc, dec, reset };
 }
 ```
+
+---
 
 **3️⃣ 避免深层嵌套状态**：复杂状态考虑使用 `useReducer`
 
@@ -717,6 +733,8 @@ useEffect(() => {
 }, [userId]);
 ```
 
+---
+
 **2️⃣事件监听**
 
 ```jsx
@@ -734,6 +752,8 @@ useEffect(() => {
 }, []);
 ```
 
+---
+
 **3️⃣DOM 操作**
 
 ```jsx
@@ -750,24 +770,210 @@ useEffect(() => {
 
 
 
-#### **<font color='#10c300'>5）常见坑和注意事项</font>**
+#### **<font color='#10c300'>5）常见陷阱</font>**
 
-1. 依赖遗漏会导致逻辑错误。
-   - 推荐使用 ESLint 插件：`eslint-plugin-react-hooks` 自动检查依赖。
-2. 清理函数非常重要。
-   - 不清理定时器或监听可能造成内存泄漏。
-3. 不要在 useEffect 内直接修改状态导致无限循环。
-   - React 会重复渲染；必须控制好条件。
+**1️⃣无限循环**
+
+```jsx
+// ❌ 错误：setState 导致渲染，渲染触发 effect，effect 又 setState
+useEffect(() => {
+    setCount(count + 1);
+}, [count]);
+
+// ✅ 正确：使用函数式更新或条件判断
+useEffect(() => {
+    const timer = setTimeout(() => setCount(c => c + 1), 1000);
+    return () => clearTimeout(timer);
+}, []); // 或 [count] 如果需要响应外部 count 变化
+```
+
+---
+
+**2️⃣依赖缺失（ ESLint 会警告）**
+
+`eslint-plugin-react-hooks` 自动检查依赖。
+
+```js
+// ❌ 遗漏依赖：callback 变化时 effect 不会更新
+useEffect(() => {
+    fetchData(query, callback);
+}, [query]); // 缺少 callback
+
+// ✅ 解决方案 1：添加所有依赖
+useEffect(() => {
+    fetchData(query, callback);
+}, [query, callback]);
+
+// ✅ 解决方案 2：如果 callback 不稳定，使用 ref
+const callbackRef = useRef(callback);
+useEffect(() => {
+    callbackRef.current = callback;
+}, [callback]);
+
+useEffect(() => {
+    fetchData(query, (data) => callbackRef.current(data));
+}, [query]);
+```
+
+---
+
+**3️⃣闭包陷阱（stale closure）**
+
+```js
+useEffect(() => {
+    const timer = setInterval(() => {
+        console.log(count); // 永远是旧值！
+    }, 1000);
+}, []); // 空依赖导致闭包捕获初始 count
+
+// ✅ 解决方案 1：添加依赖
+useEffect(() => {
+    const timer = setInterval(() => {
+        console.log(count);
+    }, 1000);
+}, [count]);
+
+// ✅ 解决方案 2：使用 ref 获取最新值
+const countRef = useRef(count);
+useEffect(() => {
+    countRef.current = count;
+}, [count]);
+
+useEffect(() => {
+    const timer = setInterval(() => {
+        console.log(countRef.current); // 总是最新值
+    }, 1000);
+}, []);
+```
+
+---
+
+**4️⃣async/await 直接使用**
+
+```jsx
+// ❌ 错误：useEffect 不能返回 Promise（async 函数隐式返回 Promise）
+useEffect(async () => {
+    const data = await fetchData();
+}, []);
+
+// ✅ 正确：内部定义 async 函数
+useEffect(() => {
+    async function loadData() {
+        const data = await fetchData();
+        setData(data);
+    }
+    loadData();
+}, []);
+```
 
 
 
-#### **<font color='#10c300'>6）总结对比</font>**
+#### **<font color='#10c300'>6）useEffect vs useLayoutEffect</font>**
 
-| 生命周期行为 | 类组件写法             | 函数组件写法                               |
-| ------------ | ---------------------- | ------------------------------------------ |
-| 组件挂载     | `componentDidMount`    | `useEffect(() => {}, [])`                  |
-| 组件更新     | `componentDidUpdate`   | `useEffect(() => {}, [某状态])`            |
-| 组件卸载     | `componentWillUnmount` | `useEffect(() => { return () => {} }, [])` |
+```jsx
+import { useLayoutEffect } from 'react';
+
+// useEffect：浏览器绘制完成后执行（不阻塞渲染）
+// useLayoutEffect：浏览器绘制之前执行（阻塞渲染，避免闪烁）
+useLayoutEffect(() => {
+  // 用于需要同步执行且影响视觉的 DOM 操作
+  const width = element.getBoundingClientRect().width;
+  setWidth(width);
+}, []);
+```
+
+**使用建议**：
+
+- 优先使用 `useEffect`
+- 仅在出现视觉闪烁（如从服务端渲染恢复时需要同步计算布局）时使用 `useLayoutEffect`
+
+
+
+#### **<font color='#10c300'>7）TypeScript 支持</font>**
+
+```tsx
+// 清理函数类型会自动推断
+useEffect(() => {
+    const subscription = api.subscribe();
+  
+    return () => {
+        subscription.unsubscribe(); // 类型安全
+    };
+}, []);
+
+// 依赖数组严格类型检查
+useEffect(() => {
+    console.log(name);
+}, [name]); // name 必须是依赖项
+```
+
+
+
+#### **<font color='#10c300'>8）最佳实践</font>**
+
+1️⃣**单一职责**：一个 `useEffect` 只做一件事，便于管理和清理
+
+```js
+// ❌ 混合多个不相关逻辑
+useEffect(() => {
+    fetchUser();
+    const timer = setInterval(poll, 5000);
+    document.title = 'New Page';
+  
+    return () => {
+        clearInterval(timer);
+    };
+}, []);
+
+// ✅ 分离成多个 effect
+useEffect(() => { fetchUser(); }, []);
+useEffect(() => { 
+    const timer = setInterval(poll, 5000);
+    return () => clearInterval(timer);
+}, []);
+useEffect(() => { document.title = 'New Page'; }, []);
+```
+
+---
+
+2️⃣**自定义 Hook 封装副作用**
+
+```jsx
+function useWindowSize() {
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  
+  useEffect(() => {
+    const update = () => setSize({ 
+      width: window.innerWidth, 
+      height: window.innerHeight 
+    });
+    
+    window.addEventListener('resize', update);
+    update();
+    
+    return () => window.removeEventListener('resize', update);
+  }, []);
+  
+  return size;
+}
+```
+
+---
+
+3️⃣**对象/数组依赖使用 useMemo**
+
+```
+// ❌ 每次渲染都是新对象，导致 effect 每次都执行
+useEffect(() => {
+    fetchData(options);
+}, [{ page: 1, size: 10 }]);
+
+// ✅ 使用 useMemo 稳定引用
+const options = useMemo(() => ({ page: 1, size: 10 }), []);
+useEffect(() => {
+    fetchData(options);
+}, [options]);
+```
 
 <br>
 
@@ -793,7 +999,7 @@ useEffect(() => {
 
 React 提供 **Context**，可以让你在组件树间**直接共享数据，不必层层传递**。
 
-#### **<font color='#10c300'>1）使用步骤</font>**
+#### **<font color='#10c300'>1）基础用法(使用步骤)</font>**
 
 **Step 1️⃣：创建 Context**
 
@@ -867,167 +1073,335 @@ export defau lt GrandChild
 
 
 
-#### **<font color='#10c300'>2）语法总结</font>**
+#### **<font color='#10c300'>2）自定义 Hook 封装（推荐）</font>**
 
-```js
-const value = useContext(MyContext);
-```
-
-- 参数：你创建的 context 对象（由 `React.createContext()` 生成）
-- 返回值：最近一层匹配的 `MyContext.Provider` 中的 `value`
-
-React 会自动：
-
-- 找到离当前组件最近的 Provider；
-- 读取它的 `value`；
-- 如果找不到 Provider，返回 `createContext(defaultValue)` 里定义的默认值。
-
-
-
-#### **<font color='#10c300'>3）使用场景示例</font>**
-
-**<font color='#00A6ED'>1️⃣ 状态共享示例</font>**
-
-可以结合 `useState` 在顶层定义共享状态：
-
-```js
-import React, { createContext, useContext, useState } from 'react';
-
-const UserContext = createContext(null);
-
-function App() {
-  const [user, setUser] = useState({ name: 'Alice', age: 20 });
-
-  return (
-    <UserContext.Provider value={{ user, setUser }}>
-      <Profile />
-    </UserContext.Provider>
-  );
-}
-
-function Profile() {
-  const { user, setUser } = useContext(UserContext);
-
-  return (
-    <div>
-      <p>用户名：{user.name}</p>
-      <button onClick={() => setUser({ ...user, name: 'Bob' })}>改名</button>
-    </div>
-  );
-}
-```
-
-➡️ 子组件不仅能读到状态，还能调用 `setUser()` 修改它，所有使用此上下文的组件都会同步更新。
-
-------
-
-**<font color='#00A6ED'>2️⃣ 主题切换示例</font>**
+直接 `useContext` 需要在每个组件处理 `null`，封装更安全：
 
 ```jsx
-import { createContext, useContext, useState } from 'react';
+// contexts/ThemeContext.js
+import { createContext, useState, useContext, useMemo } from 'react';
 
-// 1. 创建 Context
-const ThemeContext = createContext();
+const ThemeContext = createContext(null);
 
-// 2. 创建 Provider 组件
-function ThemeProvider({ children }) {
-    console.log(children);
+// 自定义 Hook，内置错误处理
+export function useTheme() {
+    const context = useContext(ThemeContext);
+    if (!context) {
+        throw new Error('useTheme 必须在 ThemeProvider 内部使用');
+    }
+    return context;
+}
 
+export function ThemeProvider({ children }) {
     const [theme, setTheme] = useState('light');
 
-    const toggleTheme = () => {
-        setTheme(prev => prev === 'light' ? 'dark' : 'light');
-    };
+    // 使用 useMemo 防止不必要的重渲染
+    const value = useMemo(() => ({
+        theme,
+        setTheme,
+        toggle: () => setTheme(t => t === 'light' ? 'dark' : 'light')
+    }), [theme]);
 
     return (
-        <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <ThemeContext.Provider value={value}>
             {children}
         </ThemeContext.Provider>
     );
 }
+```
 
-// 3. 在组件中使用
-function ThemedButton() {
-    const { theme, toggleTheme } = useContext(ThemeContext);
+```jsx
+// app.vue 使用：
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 
-    return (
-        <button
-            onClick={toggleTheme}
-            style={{
-                background: theme === 'dark' ? '#333' : '#fff',
-                color: theme === 'dark' ? '#fff' : '#333'
-            }}
-        >
-            当前主题: {theme}
-        </button>
-    );
+function Button() {
+    const { theme, toggle } = useTheme(); // 直接使用，类型安全
+    return <button onClick={toggle}>{theme}</button>;
 }
 
-// 4. 在 App 中使用 Provider 包裹
-function App() {
+export default function App() {
     return (
         <ThemeProvider>
-            <ThemedButton />
+            <Button />
         </ThemeProvider>
     );
 }
-
-export default App;
 ```
 
 
 
-#### **<font color='#10c300'>4）应用场景</font>**
+#### **<font color='#10c300'>3）性能优化（关键）</font>**
 
-`useContext` 常用于：
+**Context 的问题**：一旦 `value` 变化，**所有**消费组件都会重渲染，即使只使用了部分数据。
 
-| 场景             | 举例               |
-| ---------------- | ------------------ |
-| 主题切换         | 深色 / 浅色主题    |
-| 用户登录信息     | 全局用户状态       |
-| 多语言（国际化） | 当前语言、翻译函数 |
-| 全局设置         | 比如 App 配置对象  |
+**方案1️⃣：拆分 Context（推荐）**
 
-通常配合：
+将高频变化和低频变化分离：
 
-- `createContext()` 创建上下文；
-- `<Context.Provider>` 提供数据；
-- `useContext()` 消费数据。
+```jsx
+// ❌ 避免单一 Context 包含所有状态
+const AppContext = createContext({
+    user: {},
+    theme: '',
+    notifications: [],
+    // ... 所有状态
+});
+
+// ✅ 拆分为多个 Context
+const UserContext = createContext(null);
+const ThemeContext = createContext(null);
+const NotificationContext = createContext(null);
+
+// 组件只订阅需要的 Context
+function UserAvatar() {
+    const user = useContext(UserContext); // 只有 user 变化时重渲染
+    return <img src={user.avatar} />;
+}
+```
+
+---
+
+**方案2️⃣：使用 React.memo**
+
+```jsx
+function ExpensiveComponent() {
+    const { theme } = useContext(ThemeContext);
+    return <div className={theme}>...</div>;
+}
+
+// 虽然 context 变化，但 props 没变时跳过渲染
+export default React.memo(ExpensiveComponent);
+```
+
+---
+
+**方案3️⃣：使用第三方状态管理**
+
+如果频繁更新（如滚动位置、动画状态），使用 Zustand、Jotai 或 Redux，它们支持细粒度订阅。
+
+**useContext + useReducer（简易 Redux）**
+
+```jsx
+// contexts/StoreContext.js
+import { createContext, useReducer, useContext, useMemo } from 'react';
+
+const StoreContext = createContext(null);
+
+const initialState = { count: 0, user: null };
+
+function reducer(state, action) {
+    switch (action.type) {
+        case 'increment': return { ...state, count: state.count + 1 };
+        case 'setUser': return { ...state, user: action.payload };
+        default: return state;
+    }
+}
+
+// 自定义 Hooks
+export function useStore() {
+    const [state, dispatch] = useContext(StoreContext);
+    return { state, dispatch };
+}
+
+export function StoreProvider({ children }) {
+    const [state, dispatch] = useReducer(reducer, initialState);
+
+    // 将 state 和 dispatch 都放入 context
+    const value = useMemo(() => [state, dispatch], [state]);
+
+    return (
+        <StoreContext.Provider value={value}>
+            {children}
+        </StoreContext.Provider>
+    );
+}
+
+
+// app.jsx
+import { StoreProvider, useStore } from './contexts/ThemeContext';
+
+// 使用
+function Counter() {
+    const { state, dispatch } = useStore();
+    return (
+        <button onClick={() => dispatch({ type: 'increment' })}>
+            {state.count}
+        </button>
+    );
+}
+
+export default function App() {
+    return (
+        <StoreProvider>
+            <Counter />
+        </StoreProvider>
+    );
+}
+```
 
 
 
-#### **<font color='#10c300'>5）注意事项</font>**
+#### **<font color='#10c300'>4）TypeScript 支持</font>**
 
-| 注意点                        | 说明                                           |
-| ----------------------------- | ---------------------------------------------- |
-| 必须在 Provider 范围内使用    | 否则返回默认值（不是报错）                     |
-| 不要滥用 Context              | 太多全局状态会降低可维护性                     |
-| 每当 Provider 的 value 改变时 | 所有使用该 Context 的组件都会重新渲染          |
-| 不支持选择性订阅              | 所以大型状态可以考虑使用 Zustand、Redux 等方案 |
+```tsx
+interface User {
+  id: number;
+  name: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  login: (user: User) => void;
+  logout: () => void;
+  isLoading: boolean;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+// 类型安全的自定义 Hook
+export function useAuth() {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within AuthProvider');
+    }
+    return context;
+}
+
+// Provider 组件
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+    const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+  
+    const value = useMemo(() => ({
+        user,
+        isLoading,
+        login: (u: User) => { setUser(u); },
+        logout: () => { setUser(null); }
+    }), [user, isLoading]);
+  
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
+}
+```
 
 
 
-#### **<font color='#10c300'>6）总结</font>**
+#### **<font color='#10c300'>5）常见陷阱</font>**
 
-| 项目     | 说明                                          |
-| -------- | --------------------------------------------- |
-| Hook 名  | `useContext(MyContext)`                       |
-| 功能     | 在组件树中直接获取 Context 数据               |
-| 替代了   | 类组件的 `contextType` / `<Context.Consumer>` |
-| 搭配使用 | `createContext()` + `<Context.Provider>`      |
-| 场景     | 全局状态共享（主题、用户、语言等）            |
+**1️⃣Context 默认值陷阱**
+
+```jsx
+// 如果不提供 Provider，会使用默认值
+const MyContext = createContext({ value: 0 });
+
+function Component() {
+    const ctx = useContext(MyContext);
+    // 如果忘记包裹 Provider，ctx 是 { value: 0 }
+    // 这可能隐藏错误，建议默认值设为 null 并检查
+}
+```
+
+---
+
+**2️⃣不必要的重渲染**
+
+```jsx
+function App() {
+    const [count, setCount] = useState(0);
+  
+    // ❌ 每次渲染都是新对象，导致所有消费者重渲染
+    return (
+        <ThemeContext.Provider value={{ theme: 'dark', count }}>
+            <Child />
+        </ThemeContext.Provider>
+    );
+  
+    // ✅ 使用 useMemo 缓存
+    const value = useMemo(() => ({ theme: 'dark', count }), [count]);
+    return (
+        <ThemeContext.Provider value={value}>
+            <Child />
+        </ThemeContext.Provider>
+    );
+}
+```
+
+---
+
+**3️⃣在条件语句中使用**
+
+```jsx
+function Component() {
+    if (condition) {
+        const ctx = useContext(MyContext); // ❌ Hook 必须在顶层调用
+    }
+    // ✅ 始终在组件顶层调用
+    const ctx = useContext(MyContext);
+    if (!ctx) return null;
+}
+```
+
+
+
+#### **<font color='#10c300'>6）何时使用 vs 不用</font>**
+
+**1️⃣适合使用：**
+
+- 主题、语言等全局配置
+- 认证状态（用户登录信息）
+- 路由状态
+- 需要在深层组件访问的共享状态
+
+**2️⃣避免使用：**
+
+- 仅父子组件通信（直接用 props）
+- 频繁更新的状态（如滚动、输入、动画，考虑使用订阅模式或外部状态管理）
+- 简单表单状态（用本地 useState）
+
+**替代方案👇**
+
+- 简单共享：props drilling、组合组件（composition）
+- 高频更新：Zustand、Jotai、Recoil、Redux
+- 服务端状态：React Query、SWR
+
+
+
+#### **<font color='#10c300'>7）高级模式：Render Props 转 Context</font>**
+
+将旧版 Render Props 组件转为 Hook：
+
+```jsx
+// 旧方式
+<MouseTracker>
+    {({ x, y }) => <div>{x}, {y}</div>}
+</MouseTracker>
+
+// 新方式：结合 Context 和 Hook
+const MouseContext = createContext({ x: 0, y: 0 });
+
+function useMouse() {
+    return useContext(MouseContext);
+}
+
+// 使用
+function Component() {
+    const { x, y } = useMouse(); // 更简洁的 API
+    return <div>{x}, {y}</div>;
+}
+```
 
 <br>
 
-
-
 ### **<font color='red'>4.4 useMemo- 缓存计算结果</font>**
 
-**让 React 记住一个计算值（memoized value）**，只有在依赖项变化时才重新计算。
+`useMemo` 用于缓存昂贵的计算结果，避免每次渲染都重新计算，同时保持对象/数组的引用稳定。。
 
 换句话说：
 
-- 如果依赖没变 → 直接用上次计算的结果；
+-  如果依赖没变 → 直接用上次计算的结果；
 - 如果依赖变了 → 重新计算并返回新结果。
 
 它可以帮你显著减少不必要的计算或对象重建。
@@ -1042,18 +1416,18 @@ export default App;
 useMemo(()=>{return 值},[依赖项])
 ```
 
-- 参数1 (函数)：一个返回值的函数（执行计算）
-- 参数2 (依赖项)：依赖数组，当其中某项改变时才重新计算
+- 参数1 (工厂函数)：一个返回值的函数（执行计算）
+- 参数2 (依赖数组)：依赖数组，当其中某项改变时才重新计算
 
 返回值：**缓存的计算结果**。
 
 #### **<font color='#10c300'>2）使用场景示例</font>**
 
-**<font color='#00A6ED'>1️⃣ 计算缓存</font>**
+**1️⃣ 复杂计算缓存**
 
 未使用`useMemo`的时候改变颜色，也会执行ComputeTotal价格的计算。
 
-```
+```jsx
 import { useState, useMemo } from "react";
 
 function ComputeTotal(price, count) {
@@ -1086,49 +1460,35 @@ export default App;
 
 ------
 
-**<font color='#00A6ED'>2️⃣ 缓存组件(不常用)</font>**
+**2️⃣ 保持引用稳定（关键用途）**
+
+**示例一：**
 
 ```jsx
-import { useState, useMemo } from "react";
-import Child from "./Child";
-
-function App() {
-    const [price, setPrice] = useState(100);
-    const [count] = useState(1);
-    const [color, setColor] = useState("red");
-
-    const memoizedChild = useMemo(() => {
-        // 缓存组件
-        return <Child count={count} price={price} />;
-    }, [count, price]);
-
-    return (
-        <>
-            <p>{color}</p>
-            <button onClick={() => setColor("blue")}>修改颜色</button>
-            <button onClick={() => setPrice(price + 100)}>修改价格</button>
-            {/* 使用组件 */}
-            {memoizedChild}
-        </>
-    );
+function ChartComponent({ data, options }) {
+  // ❌ 每次渲染都是新对象，导致 useEffect 无限循环或 Chart 组件重渲染
+  const config = { type: 'line', data, ...options };
+  
+  // ✅ 依赖不变时保持同一引用
+  const config = useMemo(() => ({
+    type: 'line',
+    data,
+    options: {
+      responsive: true,
+      ...options
+    }
+  }), [data, options]);
+  
+  useEffect(() => {
+    // 现在只在 config 真正变化时执行
+    chartRef.current.update(config);
+  }, [config]);
+  
+  return <canvas ref={canvasRef} />;
 }
-
-export default App;
 ```
 
-
-
-#### **<font color='#10c300'>3）核心用途</font>**
-
-| 用途                 | 说明                                |
-| -------------------- | ----------------------------------- |
-| 缓存复杂计算         | 避免每次渲染都进行高耗时操作        |
-| 缓存对象或数组       | 避免对象引用变化导致子组件重新渲染  |
-| 与 `React.memo` 配合 | 保持 props 稳定，防止子组件误重渲染 |
-
-
-
-#### **<font color='#10c300'>4）缓存引用（避免重渲染）</font>**
+**示例二：**
 
 例如子组件使用 `React.memo`：
 
@@ -1150,7 +1510,57 @@ function Parent() {
 export default Parent;
 ```
 
-➡️ `useMemo` 保证每次渲染中 `options` 的引用稳定，`React.memo` 会认为 props 没变，从而跳过重新渲染。
+ `useMemo` 保证每次渲染中 `options` 的引用稳定，`React.memo` 会认为 props 没变，从而跳过重新渲染。
+
+---
+
+**3️⃣ 缓存组件(极少用)**
+
+```jsx
+import { useState, useMemo } from "react";
+import Child from "./Child";
+
+function App() {
+    const [price, setPrice] = useState(100);
+    const [count] = useState(1);
+    const [color, setColor] = useState("red");
+
+    const memoizedChild = useMemo(() => (
+    	<Child count={count} price={price} />
+    ), [count, price]);
+
+    return (
+        <>
+            <p>{color}</p>
+            <button onClick={() => setColor("blue")}>修改颜色</button>
+            <button onClick={() => setPrice(price + 100)}>修改价格</button>
+            {/* 使用组件 */}
+            {memoizedChild}
+        </>
+    );
+}
+
+export default App;
+```
+
+
+
+#### **<font color='#10c300'>3）与 useCallback 的关系</font>**
+
+`useCallback` 本质上是 `useMemo` 的语法糖：
+
+```jsx
+// 这两者是等价的
+useCallback(fn, deps);
+useMemo(() => fn, deps);
+```
+
+**选择原则**：
+
+- 缓存**函数** → `useCallback`
+- 缓存**值**（对象、数组、计算结果）→ `useMemo`
+
+#### **<font color='#10c300'>4）缓存引用（避免重渲染）</font>**
 
 
 
