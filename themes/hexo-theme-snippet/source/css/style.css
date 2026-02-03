@@ -1124,7 +1124,7 @@ pre {
   list-style: none;
 }
 #article-toc .toc {
-  padding-left: 2em;
+  padding-left: 0;
 }
 #article-toc .toc .toc-item .toc-link {
   display: block;

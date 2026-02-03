@@ -524,7 +524,7 @@ useEffect(() => {
         console.log(count); // 永远是旧值
         setCount(count + 1); // 永远基于初始值
     }, 1000);
-}, []); // 空依赖导致闭包陷阱(可添加依赖项count解决，但是性能没有如下方法好)
+}, []); // 空依赖导致闭包陷阱
 
 // 解决：使用函数式更新或正确设置依赖
 useEffect(() => {
@@ -567,7 +567,7 @@ const correctUpdate = () => {
 
 #### **<font color='#10c300'>6）最佳实践</font>**
 
-1️⃣**合理拆分状态：**不要把所有状态塞在一个对象里，独立变化的状态应该独立声明
+**1️⃣ 合理拆分状态：**不要把所有状态塞在一个对象里，独立变化的状态应该独立声明
 
 ```jsx
 // ❌ 过度聚合
@@ -579,7 +579,7 @@ const [posts, setPosts] = useState([]);
 const [loading, setLoading] = useState(false);
 ```
 
-2️⃣**使用自定义 Hook 封装状态逻辑**：
+**2️⃣ 使用自定义 Hook 封装状态逻辑**：
 
 ```jsx
 function useCounter(initial = 0) {
@@ -591,7 +591,7 @@ function useCounter(initial = 0) {
 }
 ```
 
-3️⃣**避免深层嵌套状态**：复杂状态考虑使用 `useReducer`
+**3️⃣ 避免深层嵌套状态**：复杂状态考虑使用 `useReducer`
 
 `useState` 适用于简单状态管理，当状态逻辑复杂或多个状态相互关联时，考虑升级到 `useReducer`。
 
@@ -616,17 +616,17 @@ useEffect(() => {
 }, [dependencies]);
 ```
 
-- 参数1 (函数)：定义的初始值，可以是任意数据，像数字，字符串或者数组和对象。
-- 参数2 (依赖项)：
+- **参数1 (函数)：**定义的初始值，可以是任意数据，像数字，字符串或者数组和对象。
+- **参数2 (依赖项)：**
   1. `无参数`：每次渲染后都执行。
   2. `空数组`：仅在挂载时执行一次。
   3. `依赖参数`：依赖参数变化时执行。
 
 
 
-#### **<font color='#10c300'>2）使用场景示例</font>**
+#### **<font color='#10c300'>2）三种执行时机</font>**
 
-**<font color='#00A6ED'>1️⃣ 不带依赖 → 每次渲染都执行</font>**
+**1️⃣ 不带依赖 → 每次渲染都执行**
 
 ```js
 useEffect(() => {
@@ -641,27 +641,16 @@ useEffect(() => {
 
 ------
 
-**<font color='#00A6ED'>2️⃣ 组件挂载时执行（只执行一次）</font>**
+**2️⃣ 组件挂载时执行（只执行一次）**
 
 ```jsx
-import { useEffect } from 'react';
-
-function Hello() {
-  useEffect(() => {
+useEffect(() => {
     console.log('组件挂载');
-
     return () => {
-      console.log('组件卸载');
+        console.log('组件卸载');
     };
-  }, []); // 空数组 → 只执行一次
-  return <h1>Hello React!</h1>;
-}
+}, []); // 空依赖数组 → 只执行一次
 ```
-
-**🔍 解释：**
-
-- `[]` 表示该副作用没有依赖，只在组件**首次渲染**和**卸载**时执行；
-- 清理函数返回部分 (`return () => …`) 会在组件卸载时调用。
 
 可类比于：
 
@@ -670,57 +659,94 @@ function Hello() {
 
 ------
 
-**<font color='#00A6ED'>3️⃣ 依赖特定状态更新时执行</font>**
+**3️⃣ 特定依赖变化时执行**
 
 ```jsx
-import { useState, useEffect } from 'react';
-
-function Counter() {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    console.log(`count 更新了：${count}`);
-  }, [count]); // 👈 当 count 改变时触发
-
-  return (
-    <div>
-      <p>计数：{count}</p>
-      <button onClick={() => setCount(count + 1)}>+1</button>
-    </div>
-  );
-}
+useEffect(() => {
+	console.log(`count 更新了：${count}`);
+}, [count]); // 👈 当 count 改变重新运行副作用逻辑
 ```
 
-✅ 当 `count` 改变时，`useEffect` 会重新运行副作用逻辑。
 
 
+#### **<font color='#10c300'>3）清理函数（Cleanup）</font>**
 
-#### **<font color='#10c300'>3）清理副作用（如事件、定时器）</font>**
+当**`取消订阅`**、**`清除定时器`**等，应该在组件卸载时清理，以防止内存泄漏。
 
-当副作用涉及**订阅或注册资源**时，应该在组件卸载时清理，以防止内存泄漏。
-
-```js
+```jsx
 useEffect(() => {
-  const timer = setInterval(() => {
-    console.log('定时器在运行');
-  }, 1000);
-
-  // 清理函数（组件卸载时调用）
-  return () => clearInterval(timer);
+    const timer = setInterval(() => {
+        console.log('tick');
+    }, 1000);
+  
+    // 清理函数：组件卸载或依赖变化前执行
+    return () => {
+        clearInterval(timer);
+        console.log('定时器已清理');
+    };
 }, []);
 ```
 
+**🔍执行时机**：
 
+- 组件卸载时
+- 依赖变化导致重新执行 effect 之前
 
-#### **<font color='#10c300'>4）常见用途总结</font>**
+#### **<font color='#10c300'>4）实际应用场景</font>**
 
-| 用途      | 示例                                     |
-| --------- | ---------------------------------------- |
-| 数据请求  | `fetch(url)`、`axios.get(...)`           |
-| 事件监听  | `window.addEventListener('scroll', ...)` |
-| DOM 操作  | `document.title = ...`                   |
-| 定时器    | `setInterval()` / `setTimeout()`         |
-| 订阅/清理 | WebSocket、Observer 模式等               |
+**1️⃣ 数据获取（需处理竞态）**
+
+```jsx
+useEffect(() => {
+    let cancelled = false;
+
+    async function fetchData() {
+        const data = await api.getUser(userId);
+
+        // 防止竞态条件：如果组件已卸载或 userId 已变，忽略结果
+        if (!cancelled) {
+            setUser(data);
+        }
+    }
+
+    fetchData();
+
+    return () => {
+        cancelled = true; // 取消标志
+    };
+}, [userId]);
+```
+
+**2️⃣事件监听**
+
+```jsx
+useEffect(() => {
+  const handleScroll = () => {
+    setScrollY(window.scrollY);
+  };
+  
+  window.addEventListener('scroll', handleScroll);
+  
+  // 必须清理，否则重复挂载会添加多个监听器
+  return () => {
+    window.removeEventListener('scroll', handleScroll);
+  };
+}, []);
+```
+
+**3️⃣DOM 操作**
+
+```jsx
+useEffect(() => {
+  // 直接操作 DOM（应尽量避免，但在与第三方库集成时有用）
+  const element = document.getElementById('modal');
+  element?.classList.add('active');
+  
+  return () => {
+    element?.classList.remove('active');
+  };
+}, []);
+```
 
 
 

@@ -1301,7 +1301,7 @@ pre {
     }
 
     .toc {
-        padding-left: 2em;
+        padding-left: 0;
 
         .toc-item {
             .toc-link {
@@ -1318,6 +1318,9 @@ pre {
                     color: @theme_color;
                     .transition(.15s);
                 }
+            }
+            .toc-child {
+                padding-left: 2em;
             }
 
             &.toc-level-2 {
