@@ -1143,6 +1143,9 @@ pre {
   -webkit-transition: 0.15s;
   transition: 0.15s;
 }
+#article-toc .toc .toc-item .toc-child {
+  padding-left: 2em;
+}
 #article-toc .toc .toc-item.toc-level-2 > .toc-link {
   font-size: 15px;
 }
