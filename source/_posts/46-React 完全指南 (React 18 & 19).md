@@ -20,12 +20,13 @@ date: 2025-12-02 10:28:38
 2. [环境搭建](#二-环境搭建)
 3. [核心概念](#三-核心概念)
 4. [React Hooks 详解](#四-react-hooks-详解)
-5. [HOC 高阶组件](#五-hoc-高阶组件)
-6. [React 18 新特性](#5-react-18-新特性)
-7. [React 19 新特性](#6-react-19-新特性)
-8. [最佳实践](#7-最佳实践)
-9. [常见问题与解决方案](#8-常见问题与解决方案)
-10. [学习资源推荐](#9-学习资源推荐)
+5. [Hooks 组合实战](#五-hooks 组合实战)
+6. [HOC 高阶组件](#六-hoc-高阶组件)
+7. [React 18 新特性](#5-react-18-新特性)
+8. [React 19 新特性](#6-react-19-新特性)
+9. [最佳实践](#7-最佳实践)
+10. [常见问题与解决方案](#8-常见问题与解决方案)
+11. [学习资源推荐](#9-学习资源推荐)
 
 <br>
 
@@ -1397,7 +1398,7 @@ function Component() {
 
 ### **<font color='red'>4.4 useMemo- 缓存计算结果</font>**
 
-`useMemo` 用于缓存昂贵的计算结果，避免每次渲染都重新计算，同时保持对象/数组的引用稳定。。
+`useMemo` 用于缓存昂贵的计算结果，避免每次渲染都重新计算，同时保持**对象/数组的引用**稳定。
 
 换句话说：
 
@@ -1406,7 +1407,7 @@ function Component() {
 
 它可以帮你显著减少不必要的计算或对象重建。
 
-`useMemo`的理念是同步的，useMemo不能进行一些额外的副操作，比如网络请求等。
+`useMemo`的理念是同步的，**useMemo不能进行一些额外的副操作，比如网络请求等**。
 
 ---
 
@@ -1460,7 +1461,7 @@ export default App;
 
 ------
 
-**2️⃣ 保持引用稳定（关键用途）**
+**2️⃣ 保持引用稳定，避免重渲染（关键用途）**
 
 **示例一：**
 
@@ -1560,47 +1561,183 @@ useMemo(() => fn, deps);
 - 缓存**函数** → `useCallback`
 - 缓存**值**（对象、数组、计算结果）→ `useMemo`
 
-#### **<font color='#10c300'>4）缓存引用（避免重渲染）</font>**
+#### **<font color='#10c300'>4）实际示例：搜索过滤</font>**
+
+**完整案例：**[搜索过滤](https://www.yuque.com/zhbiao/qr34us/qk5da4gmpqzhat4s?singleDoc#wkQxl)
+
+```jsx
+function SearchResults({ query, items }) {
+    const [highlightIndex, setHighlightIndex] = useState(0);
+    
+    // 搜索结果缓存
+    const results = useMemo(() => {
+        if (!query) return [];
+      
+        const startTime = performance.now();
+        const filtered = items.filter(item => 
+            item.text.toLowerCase().includes(query.toLowerCase())
+        );
+      
+        console.log(`搜索耗时: ${performance.now() - startTime}ms`);
+        return filtered;
+    }, [query, items]);
+    
+    // 高亮项缓存（基于 results，形成计算链）
+    const highlightedItem = useMemo(() => {
+        return results[highlightIndex] || null;
+    }, [results, highlightIndex]);
+    
+    return (
+        <div>
+            {results.map((item, idx) => (
+                <div key={item.id} className={idx === highlightIndex ? 'highlight' : ''}>
+                    {item.text}
+                </div>
+            ))}
+            <Preview data={highlightedItem} />
+        </div>
+    );
+}
+```
 
 
 
-#### **<font color='#10c300'>4）常见注意事项</font>**
+#### **<font color='#10c300'>4）TypeScript 支持</font>**
 
-| 注意点                         | 说明                                                 |
-| ------------------------------ | ---------------------------------------------------- |
-| 不要滥用                       | 如果计算很轻量级，没必要用 `useMemo`（会增加复杂度） |
-| 依赖必须完整                   | 漏掉依赖可能导致值不同步（推荐使用 ESLint 检查）     |
-| 缓存是基于引用比较             | 数组、对象、函数引用变化 → 会重新计算                |
-| 仅缓存计算结果，不影响状态更新 | 状态变化仍然触发重新渲染                             |
+```jsx
+interface User {
+    id: number;
+    name: string;
+    score: number;
+  }
+  
+  // 自动推断返回类型为 number
+  const averageScore = useMemo(() => {
+    if (users.length === 0) return 0;
+    return users.reduce((sum, u) => sum + u.score, 0) / users.length;
+  }, [users]);
+  
+  // 复杂对象类型
+  const processedData = useMemo<{ labels: string[]; values: number[] }>(() => {
+    return {
+      labels: data.map(d => d.date),
+      values: data.map(d => d.value)
+    };
+  }, [data]);
+```
 
 
 
-#### **<font color='#10c300'>5）useMemo vs useCallback</font>**
+#### **<font color='#10c300'>5）常见陷阱</font>**
 
-| 项目     | `useMemo`                                       | `useCallback`                                       |
-| -------- | ----------------------------------------------- | --------------------------------------------------- |
-| 返回值   | 缓存**计算结果**                                | 缓存**函数引用**                                    |
-| 适用场景 | 高开销计算、缓存对象                            | 保持回调函数引用稳定                                |
-| 示例     | `const result = useMemo(() => heavyFn(x), [x])` | `const fn = useCallback(() => doSomething(x), [x])` |
+**1️⃣过度使用（负优化）**
 
-两者都是性能优化 Hook，但返回目标不同。
+`useMemo` 本身也有开销（依赖比较、缓存存储），简单计算无需缓存：
+
+```jsx
+// ❌ 没必要：加法计算比 useMemo 开销更小
+const sum = useMemo(() => a + b, [a, b]);
+
+// ✅ 直接使用
+const sum = a + b;
+```
+
+**使用时机**：
+
+- 计算复杂度 > O(n) 且 n 较大
+- 需要保持对象引用稳定（用于 props 或依赖数组）
+- 明确测量到性能瓶颈（React DevTools Profiler）
+
+---
+
+**2️⃣依赖数组遗漏**
+
+```jsx
+// ❌ 遗漏 user，导致使用旧的 user 数据
+const fullName = useMemo(() => {
+  return `${user.firstName} ${lastName}`; // user 来自外层作用域
+}, [lastName]); // 缺少 user
+
+// ✅ 完整依赖
+const fullName = useMemo(() => {
+  return `${user.firstName} ${lastName}`;
+}, [user, lastName]);
+```
+
+---
+
+**3️⃣在 useMemo 里执行副作用**
+
+```jsx
+// ❌ 错误：useMemo 应该纯函数，不执行副作用
+const data = useMemo(() => {
+  localStorage.setItem('key', value); // 副作用！
+  return process(value);
+}, [value]);
+
+// ✅ 副作用放在 useEffect
+useEffect(() => {
+  localStorage.setItem('key', value);
+}, [value]);
+
+const data = useMemo(() => process(value), [value]);
+```
+
+**4️⃣ 返回函数时的混淆**
+
+```jsx
+// ❌ 这样缓存的是函数的返回值，不是函数本身
+const handler = useMemo(() => {
+  return () => console.log('clicked'); // 返回一个函数
+}, []);
+
+// ✅ 如果真要缓存函数，直接用 useCallback
+const handler = useCallback(() => {
+  console.log('clicked');
+}, []);
+```
 
 
 
-#### **<font color='#10c300'>6）总结</font>**
+#### **<font color='#10c300'>6）高级模式</font>**
 
-| 项目     | 说明                             |
-| -------- | -------------------------------- |
-| Hook 名  | `useMemo`                        |
-| 功能     | 缓存计算结果，依赖改变时重新计算 |
-| 返回值   | 上次计算的结果（memoized value） |
-| 主要用途 | 高性能计算缓存、稳定对象引用     |
-| 常与搭配 | `React.memo`、`useCallback`      |
-| 注意     | 不要滥用，确实有性能问题时再用   |
+**1️⃣计算链**
+
+`useMemo` 可以依赖其他 `useMemo` 的结果，形成计算链：
+
+```jsx
+const rawData = useMemo(() => fetchData(), []);
+const processedData = useMemo(() => cleanData(rawData), [rawData]);
+const statistics = useMemo(() => calculateStats(processedData), [processedData]);
+```
+
+---
+
+**2️⃣条件性缓存**
+
+```jsx
+const value = useMemo(() => {
+  if (!enabled) return null; // 提前返回
+  return heavyComputation(data);
+}, [enabled, data]);
+```
+
+---
+
+**3️⃣与 useEffect 配合防止无限循环**
+
+```jsx
+const userIds = useMemo(() => users.map(u => u.id), [users]);
+
+// 现在 userIds 引用稳定，不会导致 effect 每次都执行
+useEffect(() => {
+  fetchDetails(userIds);
+}, [userIds]);
+```
 
 🌟 **一句话总结：**
 
-`useMemo(fn, deps)` = “记住 fn 的返回值”，当 deps 不变时，不再重新执行 fn。
+`useMemo` 用来解决"因为对象引用变化导致的无效重渲染"比解决"重复计算"更常见
 
 <br>
 
@@ -1611,7 +1748,7 @@ useMemo(() => fn, deps);
 
 `useCallback` 解决了这个问题：
 
-✅ **让函数引用在依赖不变时保持稳定（不变）**。
+✅ **让函数引用在依赖不变时保持稳定（不变）**语义上，`useCallback` 明确表示"缓存函数"，而 `useMemo` 用于缓存任意计算值。
 
 ---
 
@@ -1628,7 +1765,11 @@ const memoizedCallback = useCallback(() => {
 
 
 
-#### **<font color='#10c300'>2）基本示例</font>**
+#### **<font color='#10c300'>2）核心使用场景</font>**
+
+**1️⃣传递给优化后的子组件（最常见）**
+
+配合 `React.memo` 防止子组件因父组件渲染而重渲染：
 
 ```jsx
 import React, { useState, useCallback } from "react";
@@ -1667,43 +1808,160 @@ export default App;
 - `MemoChild` 会认为 props (`onClick`) 改了 → 重新渲染；
 - 用了 `useCallback` 后，在依赖不变化时，函数引用保持稳定 → 组件不重渲染。
 
+---
+
+**2️⃣作为 useEffect 的依赖**
+
+当 `useEffect` 依赖某个函数时，必须用 `useCallback` 保持引用稳定
+
+```jsx
+function Search({ query }) {
+    const [results, setResults] = useState([]);
+    
+    // ❌ 每次渲染都是新函数，导致 effect 每次都要执行
+    const fetchData = async () => {
+      const res = await api.search(query);
+      setResults(res);
+    };
+    
+    // ✅ fetchData 引用稳定，只有 query 变化时才重新触发 effect
+    const fetchData = useCallback(async () => {
+      const res = await api.search(query);
+      setResults(res);
+    }, [query]);
+    
+    useEffect(() => {
+      fetchData();
+    }, [fetchData]); // 现在可以安全地将函数放入依赖数组
+    
+    return <Results data={results} />;
+  }
+```
+
+---
+
+**3️⃣自定义 Hook 中返回的回调**
+
+确保 Hook 使用者可以获得稳定的函数引用：
+
+```js
+function useDebounce(callback, delay) {
+    const [debouncedCallback] = useState(() =>
+        debounce(callback, delay)
+    );
+
+    // 返回稳定的函数引用
+    return useCallback((...args) => {
+        debouncedCallback(...args);
+    }, [debouncedCallback]);
+}
+```
+
 
 
 #### **<font color='#10c300'>3）什么时候用 useCallback</font>**
 
-1. 子组件使用了 `React.memo`
-   - 避免因为回调函数引用变化导致子组件重渲染
-2. 函数传递给深层子组件
-   - 不希望每次父组件渲染都改变函数引用
-3. 依赖稳定的函数
-   - 当函数依赖的状态/变量不经常变化时，缓存引用意义更大
+1. 函数作为 props 传递给 `React.memo` 包裹的子组件
+2. 函数作为其他 Hook（`useEffect`、`useMemo`）的依赖
+3. 函数是自定义 Hook 的返回值，供外部使用
 
 
 
-#### **<font color='#10c300'>4）依赖数组注意事项</font>**
+#### **<font color='#10c300'>4）TypeScript 支持</font>**
 
-- **依赖必须包含回调内部用到的变量**（闭包变量）
-- 推荐使用 ESLint 插件 `eslint-plugin-react-hooks` 自动分析依赖
-- 如果依赖数组为空`[]`：
-  - 返回的函数引用将**永远不会变化**
-  - 适用于那些不依赖任何外部变量的回调
+```tsx
+// 基础类型推断
+const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value);
+}, []);
 
+  // 泛型约束
+  type FetchFn = (id: string) => Promise<User>;
 
+const fetchUser = useCallback<FetchFn>(async (id) => {
+    const res = await api.getUser(id);
+    return res.data;
+}, []);
 
-#### **<font color='#10c300'>5）结合 React.memo的优化模式</font>**
+// 返回元组（常见于自定义 Hook）
+function useToggle(initial = false) {
+    const [state, setState] = useState(initial);
 
-常见模式：
+    const toggle = useCallback(() => {
+        setState(s => !s);
+    }, []);
 
-```jsx
-const MemoChild = React.memo(Child);
+    const setTrue = useCallback(() => setState(true), []);
+    const setFalse = useCallback(() => setState(false), []);
 
-function Parent() {
-	const handleClick = useCallback(() => { ... }, []);
- 	return <MemoChild onClick={handleClick} />;
+    // 类型自动推断为 [boolean, () => void, () => void, () => void]
+    return [state, toggle, setTrue, setFalse] as const;
 }
 ```
 
-✅ 子组件 `MemoChild` 只在真正需要更新时才渲染。
+
+
+#### **<font color='#10c300'>5）高级模式</font>**
+
+**1️⃣结合 useRef 解决过期闭包（稳定引用 + 最新值）**
+
+```js
+function useStableCallback(fn) {
+    const ref = useRef(fn);
+    ref.current = fn; // 每次渲染更新 ref
+    
+    // 返回稳定引用，但始终调用最新函数
+    return useCallback((...args) => ref.current(...args), []);
+}
+  
+// 使用：可以放入 useEffect 依赖而不触发重新执行，且能访问最新 props/state
+function Component({ onUpdate }) {
+    const stableCallback = useStableCallback(() => {
+        console.log('最新状态'); // 永远能访问最新值，无需依赖数组
+    });
+    
+    useEffect(() => {
+        const timer = setInterval(stableCallback, 1000);
+        return () => clearInterval(timer);
+    }, [stableCallback]); // 永远不会变，effect 只执行一次
+}
+```
+
+**2️⃣ 记忆化事件处理器工厂**
+
+```js
+function List({ items }) {
+    // ❌ 每次渲染都创建 N 个新函数
+    return items.map(item => (
+        <button onClick={() => handleItemClick(item.id)}>{item.name}</button>
+    ));
+    
+    // ✅ 使用 useCallback 缓存每个处理器（配合 memo）
+    return items.map(item => (
+        <MemoItem 
+            key={item.id}
+            item={item}
+            onClick={useCallback(
+                () => handleItemClick(item.id), 
+                [item.id] // 只有当 item.id 变化时才更新
+            )}
+        />
+    ));
+}
+```
+
+**3️⃣依赖注入模式**
+
+```js
+function useApi(api) {
+    // 即使 api 对象变化，只要 endpoint 不变，fetchData 引用稳定
+    const fetchData = useCallback((endpoint) => {
+        return api.request(endpoint);
+    }, [api]); // api 通常是稳定的单例
+    
+    return fetchData;
+}
+```
 
 
 
@@ -1717,21 +1975,6 @@ function Parent() {
    缺少依赖可能让函数内部拿到旧的状态
 
 
-
-#### **<font color='#10c300'>7）总结</font>**
-
-| 项目    | 内容                               |
-| ------- | ---------------------------------- |
-| Hook 名 | `useCallback`                      |
-| 作用    | 缓存回调函数引用，避免不必要的渲染 |
-| 参数    | `(fn, [deps])`                     |
-| 返回值  | 稳定的函数引用                     |
-| 常搭配  | `React.memo`, `useMemo`            |
-| 注意    | 依赖完整性、勿滥用                 |
-
-🌟 **一句话总结：**
-
-当你需要把回调函数作为 props 传递给 `React.memo` 子组件时，用 `useCallback` 可以避免因为函数引用变化导致子组件重复渲染。
 
 <br>
 
@@ -1877,14 +2120,18 @@ newState → 触发重新渲染
 
 
 
-#### **<font color='#10c300'>4）相比 useState 的优势</font>**
+#### **<font color='#10c300'>4）useState vs useReducer 选择指南</font>**
 
-| 特点     | useState           | useReducer                   |
-| -------- | ------------------ | ---------------------------- |
-| 适用场景 | 状态简单（一个值） | 状态结构复杂，多逻辑分支     |
-| 更新方式 | 直接传值或函数     | 派发 action，由 reducer 处理 |
-| 状态结构 | 通常是单个值       | 常为对象（多个字段）         |
-| 思维方式 | “我想要一个新值”   | “我派发一个意图（action）”   |
+| 场景     | useState                          | useReducer                               |
+| :------- | :-------------------------------- | :--------------------------------------- |
+| 状态类型 | 简单值（string, number, boolean） | 复杂对象（含多个字段）                   |
+| 更新逻辑 | 直接设置新值                      | 基于动作（action）计算新状态             |
+| 状态关联 | 独立状态                          | 多状态相互依赖（如表单校验影响提交按钮） |
+| 状态转换 | 少（< 3 种变化）                  | 多（增删改查、加载、错误处理）           |
+| 可测试性 | 一般                              | 高（reducer 是纯函数）                   |
+| 团队协作 | 快速开发                          | 大型项目易维护                           |
+
+**转换信号**：当 `useState` 出现多个 `setXxx` 连续调用，或状态逻辑超过 5 行时，考虑改用 `useReducer`。
 
 
 
@@ -1979,29 +2226,49 @@ export default function App() {
 
 
 
-#### **<font color='#10c300'>7）、注意事项</font>**
+#### **<font color='#10c300'>7）、TypeScript 最佳实践</font>**
 
-| 注意点                 | 说明                                |
-| ---------------------- | ----------------------------------- |
-| `reducer` 必须是纯函数 | 不要直接修改 state 或执行副作用     |
-| 不要频繁重建 reducer   | 通常定义在组件外或 `useCallback` 中 |
-| 与 Redux 思想相同      | 但更轻量不需要中间件                |
-| 可结合 `useContext`    | 实现全局状态共享                    |
-
-
-
-#### **<font color='#10c300'>8）、总结</font>**
-
-| 特性             | 说明                                     |
-| ---------------- | ---------------------------------------- |
-| Hook 名          | `useReducer`                             |
-| 作用             | 管理复杂的组件状态和变化逻辑             |
-| 返回值           | `[state, dispatch]`                      |
-| 与 useState 对比 | 状态逻辑更集中、可扩展性更强             |
-| 常搭配           | `useContext`（全局状态）                 |
-| 适用场景         | 复杂状态更新（表单、异步流程、全局管理） |
-
-------
+```tsx
+// 1. 定义 State 和 Action 类型
+interface State {
+    count: number;
+    error: string | null;
+    status: 'idle' | 'loading' | 'success';
+  }
+  
+  type Action =
+    | { type: 'increment' }
+    | { type: 'decrement' }
+    | { type: 'reset'; payload: number }
+    | { type: 'setError'; error: string };
+  
+// 2. Reducer 类型推断
+function reducer(state: State, action: Action): State {
+    switch (action.type) {
+        case 'increment':
+            return { ...state, count: state.count + 1 };
+        case 'reset':
+            return { ...state, count: action.payload, status: 'idle' };
+            // TypeScript 会检查是否处理了所有 action type
+        default:
+            return state;
+    }
+}
+  
+// 3. 在组件中使用
+function Counter() {
+    const [state, dispatch] = useReducer(reducer, {
+        count: 0,
+        error: null,
+        status: 'idle'
+    });
+    
+    // dispatch 类型安全，错误的 action 会报错
+    dispatch({ type: 'increment' }); // ✅
+    dispatch({ type: 'reset', payload: 10 }); // ✅
+    dispatch({ type: 'unknown' }); // ❌ TypeScript 错误
+}
+```
 
 🌟 **一句话总结：**
 
@@ -2096,35 +2363,6 @@ export default RenderCount;
 - `renderTimes.current` 是一个持久化引用，组件每次渲染都会累加，但不会引起额外的渲染
 - 对 `useRef` 变量的修改不会触发 UI 更新
 
-------
-
-**<font color='#00A6ED'>3️⃣记住上一次渲染的值</font>**
-
-```jsx
-import { useState, useRef, useEffect } from 'react';
-
-function PrevValueExample() {
-    const [value, setValue] = useState('');
-    const prevValueRef = useRef('');
-
-    useEffect(() => {
-        prevValueRef.current = value; // 更新保存的值
-    }, [value]);
-
-    return (
-        <div>
-            <input value={value} onChange={(e) => setValue(e.target.value)} />
-            <p>当前值: {value}</p>
-            <p>上一次的值: {prevValueRef.current}</p>
-        </div>
-    );
-}
-
-export default PrevValueExample;
-```
-
-✅ 使用 `.current` 保存上一次更新前的值 —— 不会触发额外渲染。
-
 
 
 #### **<font color='#10c300'>3）、注意事项</font>**
@@ -2209,18 +2447,25 @@ export default App;
 
 
 
-#### **<font color='#10c300'>5）、总结</font>**
+#### **<font color='#10c300'>5）、TypeScript 支持</font>**
 
-| 用途                    | 示意                        |
-| ----------------------- | --------------------------- |
-| 获取 DOM 节点           | `ref={domRef}`              |
-| 保存跨渲染变量          | 保存定时器 ID、上次值等     |
-| 自定义组件中转 DOM 操作 | 结合 `forwardRef`           |
-| 避免重复渲染            | `.current` 变化不会触发渲染 |
+```tsx
+// DOM 元素引用（自动推断类型）
+const inputRef = useRef<HTMLInputElement>(null);
+inputRef.current?.focus();
 
-📌 **一句话总结：**
+// 非 DOM 引用需要显式类型
+const timerRef = useRef<number | null>(null);
+timerRef.current = window.setTimeout(() => {}, 1000);
 
-`useRef` 就像一个不会变的盒子，`.current` 可存任何值，对它的修改不会让组件重新渲染，它非常适合保存 DOM 节点或跨渲染的变量。
+// 确保有初始值（非 null）
+const countRef = useRef<number>(0);
+countRef.current += 1;
+
+// MutableRefObject vs RefObjectD
+// useRef<T>(null) -> RefObject<T>（current 只读，用于 DOM）
+// useRef<T>(undefined) 或 useRef<T>(initial) -> MutableRefObject<T>（current 可写）
+```
 
 <br>
 
@@ -2622,7 +2867,7 @@ import { useRef, useImperativeHandle } from 'react';
 function Child({ ref }) {
     const inputRef = useRef(null);
 
-    useImperativeHandle(ref, () => ({
+    useImperativeHandle(ref, () => ({ // 返回一个对象
         focus: () => inputRef.current?.focus(),
         clear: () => { if (inputRef.current) inputRef.current.value = ''; }
     }), []);
@@ -2637,6 +2882,7 @@ function Parent() {
     const handleClick = () => {
     // 调用子组件暴露的方法
         childRef.current.focus();
+        childRef.current.clear();
     };
 
     return (
@@ -2718,25 +2964,392 @@ const AnimatedBox = forwardRef((props, ref) => {
 
 这个模式适用于需要**命令式操作**（如聚焦、播放、滚动、触发动画）但不想暴露整个 DOM 节点的场景。
 
+<br>
+
+### **<font color='red'>4.12 useLayoutEffect - 同步执行的副作用</font>**
+
+> `useLayoutEffect` 可能会影响性能。尽可能使用 [`useEffect`](https://zh-hans.react.dev/reference/react/useEffect)
+
+`useLayoutEffect` 与 `useEffect` 签名完全相同，但执行时机不同：**在浏览器绘制（paint）之前同步执行**，用于避免视觉闪烁。
+
+---
+
+#### **<font color='#10c300'>1）执行时机对比</font>**
+
+```
+组件渲染完成
+    ↓
+useLayoutEffect（同步执行，阻塞绘制）← 在这里修改 DOM，用户看不到中间态
+    ↓
+浏览器绘制（Paint）到屏幕
+    ↓
+useEffect（异步执行，不阻塞绘制）
+```
 
 
 
+#### **<font color='#10c300'>2）核心使用场景</font>**
+
+**1️⃣测量 DOM 并同步修改（防止闪烁）**
+
+```jsx
+import { useLayoutEffect, useRef, useState } from 'react';
+
+function Tooltip({ children, content }) {
+    const [isVisible, setIsVisible] = useState(false);
+    // 初始位置设为 -9999 或者 0 都可以，因为 useLayoutEffect 会在绘制前修正
+    // 这里设为 0 是因为我们会根据 isVisible 控制渲染
+    const [position, setPosition] = useState({ top: 0, left: 0 });
+
+    const triggerRef = useRef(null);
+    const tooltipRef = useRef(null);
+
+    useLayoutEffect(() => {
+        // 如果 tooltip 没有显示（即 DOM 未挂载），直接返回
+        if (!isVisible || !triggerRef.current || !tooltipRef.current) return;
+
+        const triggerRect = triggerRef.current.getBoundingClientRect();
+        const tooltipRect = tooltipRef.current.getBoundingClientRect();
+        console.log(triggerRect);
+        console.log(tooltipRect);
 
 
+        // 核心逻辑：根据尺寸计算位置（居中显示在上方）
+        const top = triggerRect.top - tooltipRect.height - 10;
+        const left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
 
+        // 设置准确位置
+        // 关键点：useLayoutEffect 也是在这里同步运行的
+        // React 这里的状态更新会触发同步重渲染
+        // 浏览器会在这个重渲染完成后才进行屏幕绘制
+        // 因此用户永远不会看到位置错误的一帧（即不会闪烁）
+        setPosition({ top, left });
+    }, [isVisible, content]); // 依赖：可见性或内容变化时重新计算
 
+    return (
+        <span
+            ref={triggerRef}
+            onMouseEnter={() => setIsVisible(true)}
+            onMouseLeave={() => setIsVisible(false)}
+            style={{
+                cursor: 'pointer',
+                borderBottom: '1px dashed #666',
+                position: 'relative' // 保持相对定位，作为锚点参考（虽然我们用了 fixed）
+            }}
+        >
+            {children}
 
+            {isVisible && (
+                <span
+                    ref={tooltipRef}
+                    style={{
+                        position: 'fixed', // 使用 fixed 脱离流，简化层级问题
+                        top: position.top,
+                        left: position.left,
+                        background: '#222',
+                        color: '#fff',
+                        padding: '6px 10px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        whiteSpace: 'nowrap', // 防止换行影响宽度计算
+                        pointerEvents: 'none', // 避免遮挡鼠标导致 flicker
+                        zIndex: 9999,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                        display: 'block' // 显式块级化（虽然 fixed 会自动块级化）
+                    }}
+                >
+                    {content}
+                    {/* 小三角箭头 (纯 CSS 装饰) */}
+                    <span style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        borderWidth: '5px',
+                        borderStyle: 'solid',
+                        borderColor: '#222 transparent transparent transparent',
+                        display: 'block', // 确保宽高生效（absolute 也会自动块级化）
+                        width: 0,
+                        height: 0
+                    }} />
+                </span>
+            )}
+        </span>
+    );
+}
 
+export default function App() {
+    return (
+        <div style={{ padding: '100px', fontFamily: 'sans-serif' }}>
+            <h2>UseLayoutEffect 避免闪烁示例</h2>
+            <p>
+                当你把鼠标悬停在 <Tooltip content="✨ Hi! 我是对齐的浮层"><b>这里</b></Tooltip> 时，
+                你会发现浮层是瞬间出现在正确位置的，没有任何跳动。
+            </p>
+        </div>
+    );
+}
+```
 
+**如果用 `useEffect` 会怎样？**
 
+- 浏览器先绘制 tooltip 在默认位置（例如 0,0）
+- 用户看到一闪而过的错位
+- 然后 `useEffect` 执行，跳转到正确位置
 
+---
 
+**2️⃣从服务端渲染恢复（SSR Hydration）**
+
+当服务端渲染的 HTML 与客户端首次渲染不一致时，用 `useLayoutEffect` 在绘制前修正，避免 hydration 不匹配警告：
+
+```jsx
+function ClientOnlyComponent() {
+  const [width, setWidth] = useState(0);
+  
+  // 服务端没有 window，默认渲染为 0
+  // 客户端在绘制前同步计算实际宽度，防止闪烁
+  useLayoutEffect(() => {
+    setWidth(window.innerWidth);
+  }, []);
+  
+  return <div>窗口宽度: {width}</div>;
+}
+```
+
+#### **<font color='#10c300'>3）与 useEffect 的选择指南</font>**
+
+| 场景                  | 推荐              | 原因                           |
+| :-------------------- | :---------------- | :----------------------------- |
+| 数据获取              | `useEffect`       | 不阻塞绘制，用户更快看到内容   |
+| 事件监听              | `useEffect`       | 不阻塞绘制                     |
+| 基于 DOM 测量调整布局 | `useLayoutEffect` | 防止闪烁                       |
+| 动画初始状态          | `useLayoutEffect` | 防止闪烁                       |
+| DOM 修改（如聚焦）    | `useEffect`       | 通常不需要同步，除非有视觉问题 |
+
+**黄金法则**：先使用 `useEffect`，如果出现**视觉闪烁**（flicker）再改为 `useLayoutEffect`
+
+#### **<font color='#10c300'>4）性能警告 ⚠️</font>**
+
+`useLayoutEffect` **会阻塞浏览器绘制**，执行时间过长会导致：
+
+1. **掉帧/卡顿**：用户感觉到界面卡住
+
+2. **延迟交互**：无法响应用户输入
+
+3. **影响用户体验**：比轻微的视觉闪烁更糟糕
+
+   ```js
+   // ❌ 错误：在 useLayoutEffect 中执行耗时操作
+   useLayoutEffect(() => {
+     // 大数据处理会阻塞绘制
+     const processed = heavyDataProcessing(data);
+     setData(processed);
+   }, []);
+   
+   // ✅ 正确：耗时操作应在 useEffect 中
+   useEffect(() => {
+     const processed = heavyDataProcessing(data);
+     setData(processed);
+   }, []);
+   ```
 
 <br>
 
-### **<font color='red'>4.20 Hooks 组合实战</font>**
+### **<font color='red'>4.13 自定义 Hooks</font>**
 
-#### **<font color='#10c300'>1）useReducer + useContext</font>**
+自定义 Hook 是**提取组件逻辑到可复用函数**的机制，解决 React 中状态逻辑复用问题（替代高阶组件 HOC 和 Render Props）。
+
+#### **<font color='#10c300'>1）核心规则</font>**
+
+**1️⃣ 命名必须以 `use` 开头**
+
+```js
+// ✅ 正确：React 识别为 Hook，会检查规则
+function useWindowSize() { ... }
+
+// ❌ 错误：普通函数，React 不会应用 Hook 规则
+function getWindowSize() { ... }
+```
+
+**2️⃣遵循 Hooks 规则**
+
+- 只在顶层调用（不在循环、条件、嵌套函数中）
+- 只在 React 函数或自定义 Hook 中调用
+
+
+
+#### **<font color='#10c300'>2）基础模板</font>**
+
+```jsx
+import { useState, useEffect } from 'react';
+
+function useCustomHook(arg) {
+  // 可以使用其他 Hooks
+  const [state, setState] = useState(initialValue);
+  
+  useEffect(() => {
+    // 副作用逻辑
+    return () => {
+      // 清理逻辑
+    };
+  }, [arg]);
+  
+  // 返回状态、方法或计算值
+  return [state, setState]; // 或返回对象 { state, action }
+}
+```
+
+
+
+#### **<font color='#10c300'>3）实战示例</font>**
+
+**1️⃣useLocalStorage（持久化状态）**
+
+```js
+// app.jsx
+import useLocalStorage from "./Hooks/useLocalStorage"
+
+function App() {
+    const [name, setName] = useLocalStorage('name', 'Guest');
+
+    return <input value={name} onChange={e => setName(e.target.value)} />;
+}
+export default App
+
+
+
+// src\Hooks\useLocalStorage.js
+import { useState } from "react";
+
+function useLocalStorage(key, initialValue) {
+    // 惰性初始化：从 localStorage 读取
+    const [storedValue, setStoredValue] = useState(() => {
+        try {
+            const item = window.localStorage.getItem(key);
+            return item ? JSON.parse(item) : initialValue;
+        } catch (error) {
+            console.error(error);
+            return initialValue;
+        }
+    });
+
+    // 更新 localStorage 当状态变化
+    const setValue = (value) => {
+        try {
+            const valueToStore = value instanceof Function ? value(storedValue) : value;
+            setStoredValue(valueToStore);
+            window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    return [storedValue, setValue];
+}
+
+export default useLocalStorage
+```
+
+---
+
+**2️⃣useDebounce（防抖）**
+
+```js
+// app.jsx
+import useDebounce from "./Hooks/useDebounce"
+import { useState, useEffect } from "react"
+
+function SearchInput() {
+    const [text, setText] = useState('');
+    const debouncedText = useDebounce(text, 500); // 500ms 防抖
+
+    useEffect(() => {
+        if (debouncedText) {
+            console.log(debouncedText); // 只在停止输入 500ms 后搜索
+        }
+    }, [debouncedText]);
+
+    return <input value={text} onChange={e => setText(e.target.value)} />;
+}
+export default SearchInput
+
+
+// src\Hooks\useDebounce.js
+import { useState, useEffect } from "react";
+
+function useDebounce(value, delay) {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler); // 清除上一次的定时器
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+}
+
+export default useDebounce
+```
+
+**3️⃣useFetch（数据获取）**
+
+```js
+function useFetch(url) {
+    const [state, setState] = useState({
+        data: null,
+        isLoading: true,
+        error: null
+    });
+
+    useEffect(() => {
+        let cancelled = false;
+    
+        setState(prev => ({ ...prev, isLoading: true }));
+    
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                if (!cancelled) {
+                    setState({ data, isLoading: false, error: null });
+                }
+            })
+            .catch(error => {
+                if (!cancelled) {
+                    setState({ data: null, isLoading: false, error });
+                }
+            });
+      
+        return () => { cancelled = true; };
+    }, [url]);
+
+    return state;
+}
+
+// 使用
+function UserProfile({ userId }) {
+    const { data: user, isLoading, error } = useFetch(`/api/users/${userId}`);
+
+    if (isLoading) return <Spinner />;
+    if (error) return <Error message={error.message} />;
+    return <div>{user.name}</div>;
+}
+```
+
+
+
+#### **<font color='#10c300'>4）高级模式</font>**
+
+<br>
+
+## 五、 Hooks 组合实战
+
+### **<font color='red'>5.1 useReducer + useContext</font>**
 
 用 **`useReducer` + `useContext`** 实现一个**全局状态管理系统**，就像一个轻量版 Redux。
 
@@ -2875,11 +3488,11 @@ export default function Content() {
 
 <br>
 
-## 五、 HOC 高阶组件
+## 六、 HOC 高阶组件
 
 高阶组件是一个**函数**，它接收一个组件并返回一个新的组件，例如：
 
-### **<font color='red'>5.1 React.memo</font>**
+### **<font color='red'>6.1 React.memo</font>**
 
 `memo` 是一个 **高阶组件**，用于**优化函数组件的重新渲染**。只有当它的 **props 发生变化** 时，React 才会重新渲染这个组件。否则，它会直接复用上一次的渲染结果，提高性能。
 
