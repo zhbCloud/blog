@@ -4,6 +4,7 @@ img: /static/45.webp
 categories: 框架与生态
 tags:
   - react18
+  - react19
 abbrlink: 4179c0b9
 date: 2025-12-02 10:28:38
 ---
@@ -20,7 +21,7 @@ date: 2025-12-02 10:28:38
 2. [环境搭建](#二-环境搭建)
 3. [核心概念](#三-核心概念)
 4. [React Hooks 详解](#四-react-hooks-详解)
-5. [Hooks 组合实战](#五-hooks 组合实战)
+5. [Hooks 组合实战](#五-hooks-组合实战)
 6. [HOC 高阶组件](#六-hoc-高阶组件)
 7. [React 18 新特性](#5-react-18-新特性)
 8. [React 19 新特性](#6-react-19-新特性)
@@ -523,7 +524,7 @@ const [user, setUser] = useState<User | null>(null);
 const [value, setValue] = useState<string>();
 ```
 
-#### **<font color='#10c300'>5）常见陷阱与解决方案</font>**
+#### **<font color='#10c300'>5）常见陷阱与解决方案⚠️</font>**
 
 **陷阱 1️⃣：闭包过期**
 
@@ -771,7 +772,7 @@ useEffect(() => {
 
 
 
-#### **<font color='#10c300'>5）常见陷阱</font>**
+#### **<font color='#10c300'>5）常见陷阱⚠️</font>**
 
 **1️⃣无限循环**
 
@@ -977,8 +978,6 @@ useEffect(() => {
 ```
 
 <br>
-
-
 
 ### **<font color='red'>4.3 useContext - 跨组件共享状态</font>**
 
@@ -1290,7 +1289,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
 
-#### **<font color='#10c300'>5）常见陷阱</font>**
+#### **<font color='#10c300'>5）常见陷阱⚠️</font>**
 
 **1️⃣Context 默认值陷阱**
 
@@ -1563,7 +1562,7 @@ useMemo(() => fn, deps);
 
 #### **<font color='#10c300'>4）实际示例：搜索过滤</font>**
 
-**完整案例：**[搜索过滤](https://www.yuque.com/zhbiao/qr34us/qk5da4gmpqzhat4s?singleDoc#wkQxl)
+**完整案例：**https://www.yuque.com/zhbiao/qr34us/qk5da4gmpqzhat4s?singleDoc#wkQxl
 
 ```jsx
 function SearchResults({ query, items }) {
@@ -1628,7 +1627,7 @@ interface User {
 
 
 
-#### **<font color='#10c300'>5）常见陷阱</font>**
+#### **<font color='#10c300'>5）常见陷阱⚠️</font>**
 
 **1️⃣过度使用（负优化）**
 
@@ -1683,6 +1682,8 @@ useEffect(() => {
 const data = useMemo(() => process(value), [value]);
 ```
 
+---
+
 **4️⃣ 返回函数时的混淆**
 
 ```jsx
@@ -1734,6 +1735,8 @@ useEffect(() => {
   fetchDetails(userIds);
 }, [userIds]);
 ```
+
+<br>
 
 🌟 **一句话总结：**
 
@@ -1927,6 +1930,8 @@ function Component({ onUpdate }) {
 }
 ```
 
+---
+
 **2️⃣ 记忆化事件处理器工厂**
 
 ```js
@@ -1950,6 +1955,8 @@ function List({ items }) {
 }
 ```
 
+---
+
 **3️⃣依赖注入模式**
 
 ```js
@@ -1965,7 +1972,7 @@ function useApi(api) {
 
 
 
-#### **<font color='#10c300'>6）常见误区</font>**
+#### **<font color='#10c300'>6）常见误区⚠️</font>**
 
 1. **不要滥用**
    如果子组件没有 `React.memo` 或不是性能瓶颈，没必要加 `useCallback`（增加复杂度）
@@ -2270,6 +2277,8 @@ function Counter() {
 }
 ```
 
+<br>
+
 🌟 **一句话总结：**
 
 `useReducer` = “复杂版 useState”
@@ -2365,7 +2374,7 @@ export default RenderCount;
 
 
 
-#### **<font color='#10c300'>3）、注意事项</font>**
+#### **<font color='#10c300'>3）、注意事项⚠️</font>**
 
 1. **不要用它来代替 state**，除非你不需要触发渲染。
 
@@ -2546,7 +2555,7 @@ React 18 引入了 `useId`，是为了解决 **服务端渲染（Server Side Ren
 
 
 
-#### **<font color='#10c300'>4）注意事项</font>**
+#### **<font color='#10c300'>4）注意事项⚠️</font>**
 
 1. `useId` **不适合当作列表 key 的唯一标识**，因为它只在组件作用域独立唯一，不是数据层唯一。
 2. 每次调用 `useId` 都会生成一个不同的子 ID，React 内部有机制确保组合时不冲突。
@@ -2642,7 +2651,7 @@ export default SearchPage;
 
 
 
-#### **<font color='#10c300'>4）注意事项</font>**
+#### **<font color='#10c300'>4）注意事项⚠️</font>**
 
 | 注意点                          | 说明                               |
 | ------------------------------- | ---------------------------------- |
@@ -2650,18 +2659,6 @@ export default SearchPage;
 | 不建议用于关键 UI 状态          | 因为它可能暂时落后于真实值         |
 | 需要 React 18+                  | 属于并发系统的功能                 |
 | 可搭配 `useTransition` 一起使用 | 共同控制更新优先级更加灵活         |
-
-
-
-#### **<font color='#10c300'>5） 总结</font>**
-
-| 属性       | 说明                                       |
-| ---------- | ------------------------------------------ |
-| Hook 名    | `useDeferredValue(value)`                  |
-| React 版本 | 18+                                        |
-| 主要作用   | 延迟低优先级渲染以保持交互流畅             |
-| 常见场景   | 搜索、大列表、性能优化                     |
-| 特点       | 返回一个“稍后更新”的值；不影响高优先级响应 |
 
 <br>
 
@@ -2680,7 +2677,7 @@ export default SearchPage;
 
 
 
-#### **<font color='#10c300'>1）基本语法</font>**
+#### **<font color='#10c300'>1）基本语法搜索过滤</font>**
 
 ```jsx
 const [isPending, startTransition] = useTransition();
@@ -2782,23 +2779,12 @@ React 空闲时 → 执行过滤逻辑（过渡更新）
 | 是否有加载状态 | ✅ 有 `isPending`               | ❌ 需手动比较           |
 | 使用场景       | 你要延迟执行某个更新逻辑       | 你要延迟某个值传递下去 |
 
-#### **<font color='#10c300'>5）注意事项</font>**
+#### **<font color='#10c300'>5）注意事项⚠️</font>**
 
 - `useTransition` 只在 React 18+ 有效果；
 - 它不会跳过渲染，只是调度顺序不同；
 - 不适用于动画或时间延迟，只改变更新优先级；
 - 不要滥用——仅在性能瓶颈或卡顿时使用。
-
-#### **<font color='#10c300'>6）总结</font>**
-
-| 项目     | 内容                                     |
-| -------- | ---------------------------------------- |
-| Hook 名  | `useTransition()`                        |
-| 返回值   | `[isPending, startTransition]`           |
-| 主要作用 | 将状态更新标记为“过渡更新”               |
-| 优点     | 减少卡顿、提高交互响应                   |
-| 应用场景 | 搜索、筛选、大量渲染、分页、异步数据加载 |
-| 特点     | 并发渲染特性，不阻塞用户输入             |
 
 <br>
 
@@ -2914,6 +2900,8 @@ const FancyInput = forwardRef((props, ref) => {
 });
 ```
 
+---
+
 **2️⃣动画控制**
 
 ```jsx
@@ -2936,7 +2924,7 @@ const AnimatedBox = forwardRef((props, ref) => {
 });
 ```
 
-#### **<font color='#10c300'>5）注意事项</font>**
+#### **<font color='#10c300'>5）注意事项⚠️</font>**
 
 1. **避免过度使用**：优先通过 props 和 state 进行数据流通信，refs 是"逃生舱"
 
@@ -2992,102 +2980,43 @@ useEffect（异步执行，不阻塞绘制）
 
 **1️⃣测量 DOM 并同步修改（防止闪烁）**
 
+**完整案例：**https://www.yuque.com/zhbiao/qr34us/qk5da4gmpqzhat4s/edit#fdd2408c
+
 ```jsx
 import { useLayoutEffect, useRef, useState } from 'react';
 
 function Tooltip({ children, content }) {
-    const [isVisible, setIsVisible] = useState(false);
-    // 初始位置设为 -9999 或者 0 都可以，因为 useLayoutEffect 会在绘制前修正
-    // 这里设为 0 是因为我们会根据 isVisible 控制渲染
-    const [position, setPosition] = useState({ top: 0, left: 0 });
-
-    const triggerRef = useRef(null);
-    const tooltipRef = useRef(null);
-
-    useLayoutEffect(() => {
-        // 如果 tooltip 没有显示（即 DOM 未挂载），直接返回
-        if (!isVisible || !triggerRef.current || !tooltipRef.current) return;
-
-        const triggerRect = triggerRef.current.getBoundingClientRect();
-        const tooltipRect = tooltipRef.current.getBoundingClientRect();
-        console.log(triggerRect);
-        console.log(tooltipRect);
-
-
-        // 核心逻辑：根据尺寸计算位置（居中显示在上方）
-        const top = triggerRect.top - tooltipRect.height - 10;
-        const left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
-
-        // 设置准确位置
-        // 关键点：useLayoutEffect 也是在这里同步运行的
-        // React 这里的状态更新会触发同步重渲染
-        // 浏览器会在这个重渲染完成后才进行屏幕绘制
-        // 因此用户永远不会看到位置错误的一帧（即不会闪烁）
-        setPosition({ top, left });
-    }, [isVisible, content]); // 依赖：可见性或内容变化时重新计算
-
-    return (
-        <span
-            ref={triggerRef}
-            onMouseEnter={() => setIsVisible(true)}
-            onMouseLeave={() => setIsVisible(false)}
-            style={{
-                cursor: 'pointer',
-                borderBottom: '1px dashed #666',
-                position: 'relative' // 保持相对定位，作为锚点参考（虽然我们用了 fixed）
-            }}
-        >
-            {children}
-
-            {isVisible && (
-                <span
-                    ref={tooltipRef}
-                    style={{
-                        position: 'fixed', // 使用 fixed 脱离流，简化层级问题
-                        top: position.top,
-                        left: position.left,
-                        background: '#222',
-                        color: '#fff',
-                        padding: '6px 10px',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        whiteSpace: 'nowrap', // 防止换行影响宽度计算
-                        pointerEvents: 'none', // 避免遮挡鼠标导致 flicker
-                        zIndex: 9999,
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                        display: 'block' // 显式块级化（虽然 fixed 会自动块级化）
-                    }}
-                >
-                    {content}
-                    {/* 小三角箭头 (纯 CSS 装饰) */}
-                    <span style={{
-                        position: 'absolute',
-                        top: '100%',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        borderWidth: '5px',
-                        borderStyle: 'solid',
-                        borderColor: '#222 transparent transparent transparent',
-                        display: 'block', // 确保宽高生效（absolute 也会自动块级化）
-                        width: 0,
-                        height: 0
-                    }} />
-                </span>
-            )}
-        </span>
-    );
-}
-
-export default function App() {
-    return (
-        <div style={{ padding: '100px', fontFamily: 'sans-serif' }}>
-            <h2>UseLayoutEffect 避免闪烁示例</h2>
-            <p>
-                当你把鼠标悬停在 <Tooltip content="✨ Hi! 我是对齐的浮层"><b>这里</b></Tooltip> 时，
-                你会发现浮层是瞬间出现在正确位置的，没有任何跳动。
-            </p>
-        </div>
-    );
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const triggerRef = useRef(null);
+  const tooltipRef = useRef(null);
+  
+  useLayoutEffect(() => {
+    const triggerRect = triggerRef.current.getBoundingClientRect();
+    const tooltipRect = tooltipRef.current.getBoundingClientRect();
+    
+    // 计算 tooltip 位置（例如显示在 trigger 上方）
+    const top = triggerRect.top - tooltipRect.height - 8;
+    const left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
+    
+    // 同步设置位置，用户不会看到 tooltip 先出现在错误位置
+    setPosition({ top, left });
+  }, []);
+  
+  return (
+    <>
+      <span ref={triggerRef}>{children}</span>
+      <div 
+        ref={tooltipRef}
+        style={{ 
+          position: 'fixed', 
+          top: position.top, 
+          left: position.left 
+        }}
+      >
+        {content}
+      </div>
+    </>
+  );
 }
 ```
 
@@ -3171,6 +3100,8 @@ function useWindowSize() { ... }
 // ❌ 错误：普通函数，React 不会应用 Hook 规则
 function getWindowSize() { ... }
 ```
+
+---
 
 **2️⃣遵循 Hooks 规则**
 
@@ -3297,6 +3228,8 @@ function useDebounce(value, delay) {
 export default useDebounce
 ```
 
+---
+
 **3️⃣useFetch（数据获取）**
 
 ```js
@@ -3341,13 +3274,50 @@ function UserProfile({ userId }) {
 }
 ```
 
+---
+
+**4️⃣useMediaQuery（响应式）**
+
+```jsx
+import { useState, useEffect } from 'react';
+
+function useMediaQuery(query) {
+    const [matches, setMatches] = useState(false);
+
+    useEffect(() => {
+        const media = window.matchMedia(query);
+
+        if (media.matches !== matches) {
+            setMatches(media.matches);
+        }
+
+        const listener = () => setMatches(media.matches);
+        media.addEventListener('change', listener);
+
+        return () => media.removeEventListener('change', listener);
+    }, [matches, query]);
+
+    return matches;
+}
+
+// 使用
+function ResponsiveComponent() {
+    const isMobile = useMediaQuery('(max-width: 768px)');
+    const isTablet = useMediaQuery('(min-width: 769px) and (max-width: 1024px)');
+
+    return <div>{isMobile ? '手机视图' : isTablet ? '平板视图' : '桌面视图'}</div>;
+}
+
+export default ResponsiveComponent;
+```
+
 
 
 #### **<font color='#10c300'>4）高级模式</font>**
 
 <br>
 
-## 五、 Hooks 组合实战
+## **五、 Hooks 组合实战**
 
 ### **<font color='red'>5.1 useReducer + useContext</font>**
 
@@ -3355,14 +3325,14 @@ function UserProfile({ userId }) {
 
 我们以“主题切换（深色 / 浅色）”为例 👇
 
-##### **<font color='cornflowerblue'>🎯 功能目标</font>**
+**<font color='cornflowerblue'>🎯 功能目标</font>**
 
 - 页面上有多个组件；
 - 这些组件都能感知当前主题；
 - 点击按钮可以在浅色/深色模式之间切换；
 - 所有组件自动更新，**不用手动传 props**。
 
-##### **<font color='cornflowerblue'>🧱项目结构</font>**
+**<font color='cornflowerblue'>🧱项目结构</font>**
 
 ```
 ├── 📁 components/                   # 组件
@@ -3488,13 +3458,15 @@ export default function Content() {
 
 <br>
 
-## 六、 HOC 高阶组件
+## **六、 HOC 高阶组件**
 
 高阶组件是一个**函数**，它接收一个组件并返回一个新的组件，例如：
 
 ### **<font color='red'>6.1 React.memo</font>**
 
 `memo` 是一个 **高阶组件**，用于**优化函数组件的重新渲染**。只有当它的 **props 发生变化** 时，React 才会重新渲染这个组件。否则，它会直接复用上一次的渲染结果，提高性能。
+
+---
 
 #### **<font color='#10c300'>1）基本语法</font>**
 
