@@ -638,7 +638,7 @@ useEffect(() => {
 - **参数2 (依赖项)：**
   1. `无参数`：每次渲染后都执行。
   2. `空数组`：仅在挂载时执行一次。
-  3. `依赖参数`：依赖参数变化时执行。
+  3. `依赖参数`：依赖参数变化时执行（首次渲染也会执行一次）。
 
 
 
@@ -3282,20 +3282,17 @@ function UserProfile({ userId }) {
 import { useState, useEffect } from 'react';
 
 function useMediaQuery(query) {
-    const [matches, setMatches] = useState(false);
+    const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
 
     useEffect(() => {
         const media = window.matchMedia(query);
 
-        if (media.matches !== matches) {
-            setMatches(media.matches);
-        }
-
         const listener = () => setMatches(media.matches);
         media.addEventListener('change', listener);
+        setMatches(media.matches);
 
         return () => media.removeEventListener('change', listener);
-    }, [matches, query]);
+    }, [query]); // 不必依赖 matches
 
     return matches;
 }
