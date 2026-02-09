@@ -21,12 +21,11 @@ date: 2025-12-02 10:28:38
 2. [环境搭建](#二-环境搭建)
 3. [核心概念](#三-核心概念)
 4. [React Hooks 详解](#四-react-hooks-详解)
-5. [Hooks 组合实战](#五-hooks-组合实战)
-6. [HOC 高阶组件](#六-hoc-高阶组件)
-7. [React 18 新特性](#5-react-18-新特性)
-8. [React 19 新特性](#6-react-19-新特性)
-9. [最佳实践](#7-最佳实践)
-10. [常见问题与解决方案](#8-常见问题与解决方案)
+5. [HOC 高阶组件](#五-hoc-高阶组件)
+6. [React 18 新特性](#5-react-18-新特性)
+7. [React 19 新特性](#6-react-19-新特性)
+8. [最佳实践](#7-最佳实践)
+9. [常见问题与解决方案](#8-常见问题与解决方案)
 11. [学习资源推荐](#9-学习资源推荐)
 
 <br>
@@ -2183,9 +2182,9 @@ export default Counter;
 
 
 
-#### **<font color='#10c300'>6）、与 Context 结合</font>**
+#### **<font color='#10c300'>6）、useReducer + useContext</font>**
 
-全局状态（Redux 思想）
+**1️⃣全局状态（Redux 思想）**
 
 `useReducer` 常配合 `useContext` 使用，构建轻量“全局状态管理”：
 
@@ -2230,6 +2229,40 @@ export default function App() {
 ```
 
 ✅ 相当于一个小型 Redux。
+
+---
+
+**2️⃣主题切换**
+
+用 **`useReducer` + `useContext`** 实现一个**全局状态管理系统**，就像一个轻量版 Redux。
+
+我们以“主题切换（深色 / 浅色）”为例 👇
+
+**<font color='cornflowerblue'>🎯 功能目标</font>**
+
+- 页面上有多个组件；
+- 这些组件都能感知当前主题；
+- 点击按钮可以在浅色/深色模式之间切换；
+- 所有组件自动更新，**不用手动传 props**。
+
+**<font color='cornflowerblue'>🧱项目结构</font>**
+
+```
+├── 📁 components/                   # 组件
+│   ├── 📄 Header.jsx               # 子组件，读取主题并展示
+│   ├── 📄 Content.jsx              # 子组件，读取主题并展示
+├── 📁 context/                      # Context
+│   ├── 📄 index.js                 # 创建 Context + Reducer
+└── 📄 App.jsx            
+```
+
+完整案例：https://www.yuque.com/zhbiao/qr34us/qk5da4gmpqzhat4s/edit#S3pEZ
+
+- 页面加载时默认“浅色”；
+- 点击“切换主题”按钮；
+- `dispatch` 触发 `TOGGLE_THEME`；
+- `reducer` 更新 theme → 所有使用该状态的组件自动重新渲染；
+- 所有组件同步变成“深色模式”。
 
 
 
@@ -2788,7 +2821,7 @@ React 空闲时 → 执行过滤逻辑（过渡更新）
 
 <br>
 
-### **<font color='red'>4.11 useImperativeHandle - 自定义 ref 暴露的方法</font>**
+### **<font color='red'>4.11 useImperativeHandle - 暴露自定义ref</font>**
 
 `useImperativeHandle` 用于自定义通过 ref 暴露给父组件的实例值。它通常与 `forwardRef` 配合使用（React 19 后 ref 可作为 prop 直接传递）。[forwardRef用法](#forwardRef)
 
@@ -3312,154 +3345,154 @@ export default ResponsiveComponent;
 
 #### **<font color='#10c300'>4）高级模式</font>**
 
-<br>
-
-## **五、 Hooks 组合实战**
-
-### **<font color='red'>5.1 useReducer + useContext</font>**
-
-用 **`useReducer` + `useContext`** 实现一个**全局状态管理系统**，就像一个轻量版 Redux。
-
-我们以“主题切换（深色 / 浅色）”为例 👇
-
-**<font color='cornflowerblue'>🎯 功能目标</font>**
-
-- 页面上有多个组件；
-- 这些组件都能感知当前主题；
-- 点击按钮可以在浅色/深色模式之间切换；
-- 所有组件自动更新，**不用手动传 props**。
-
-**<font color='cornflowerblue'>🧱项目结构</font>**
-
-```
-├── 📁 components/                   # 组件
-│   ├── 📄 Header.jsx               # 子组件，读取主题并展示
-│   ├── 📄 Content.jsx              # 子组件，读取主题并展示
-├── 📁 context/                      # Context
-│   ├── 📄 index.js                 # 创建 Context + Reducer
-└── 📄 App.jsx            
-```
-
-`src\App.jsx`
+**1️⃣组合多个 Hooks（自定义 Hook 使用其他自定义 Hook）**
 
 ```jsx
-import { ThemeProvider } from './context/index'; // 引入上面的 Provider
-import Header from './components/Header';
-import Content from './components/Content';
+
+import { useState, useEffect, useMemo } from 'react';
+
+function useWindowSize() {
+    const [size, setSize] = useState({ width: 0, height: 0 });
+    useEffect(() => {
+        const update = () => setSize({
+            width: window.innerWidth,
+            height: window.innerHeight
+        });
+
+        window.addEventListener('resize', update);
+        update();
+        return () => window.removeEventListener('resize', update);
+    }, []);
+
+    return size;
+}
+
+// 组合使用
+function useBreakpoint() {
+    const { width } = useWindowSize();
+    return useMemo(() => {
+        return {
+            isMobile: width < 768,
+            isTablet: width >= 768 && width < 1024,
+            isDesktop: width >= 1024
+        }
+    }, [width]);
+}
 
 function App() {
+    const breakpoints = useBreakpoint();
     return (
-        <ThemeProvider>
-            <div>
-                <Header />
-                <Content />
-            </div>
-        </ThemeProvider>
+        <div>
+            <h1>Current Breakpoints</h1>
+            <pre>{JSON.stringify(breakpoints, null, 4)}</pre>
+        </div>
     );
 }
 
 export default App;
 ```
 
-`src\context\index.js`
+**2️⃣返回稳定引用（防止无限重渲染）**
+
+**完整案例：**https://www.yuque.com/zhbiao/qr34us/qk5da4gmpqzhat4s/edit#Xexzy
 
 ```jsx
-import { createContext, useReducer, useContext } from 'react';
+function useAuth() {
+    const [user, setUser] = useState(null);
+  
+    // 使用 useCallback 保持方法引用稳定
+    const login = useCallback(async (credentials) => {
+        const user = await api.login(credentials);
+        setUser(user);
+    }, []);
+  
+    const logout = useCallback(() => {
+        api.logout();
+        setUser(null);
+    }, []);
+  
+    // 使用 useMemo 保持对象引用稳定
+    const value = useMemo(() => ({
+        user,
+        isAuthenticated: !!user,
+        login,
+        logout
+    }), [user, login, logout]);
+  
+    return value;
+}
 
-// 1️⃣ 初始状态
-const initialState = { theme: 'light' };
-
-// 2️⃣ 定义 reducer：根据 action.type 决定如何更新状态
-function themeReducer(state, action) {
-    switch (action.type) {
-        case 'TOGGLE_THEME':
-            return { theme: state.theme === 'light' ? 'dark' : 'light' };
-        default:
-            return state;
+// 现在可以安全地用于 useEffect 依赖
+useEffect(() => {
+    if (auth.isAuthenticated) {
+    // 不会导致无限循环，因为 auth 引用稳定
     }
-}
-
-// 3️⃣ 创建 Context
-const ThemeContext = createContext(null);
-
-// 4️⃣ 创建 Provider 组件（状态提供者）
-export function ThemeProvider({ children }) {
-    const [state, dispatch] = useReducer(themeReducer, initialState);
-    return (
-        <ThemeContext.Provider value={{ state, dispatch }}>
-            {children}
-        </ThemeContext.Provider>
-    );
-}
-
-// 5️⃣ 自定义 Hook，方便子组件使用
-export function useTheme() {
-    return useContext(ThemeContext);
-}
+}, [auth]);
 ```
-
-`src\components\Header.jsx`
-
-```jsx
-import { useTheme } from '../context/index';
-
-export default function Header() {
-    const { state, dispatch } = useTheme();
-
-    return (
-        <header
-            style={{
-                background: state.theme === 'light' ? '#f0f0f0' : '#222',
-                color: state.theme === 'light' ? '#000' : '#fff',
-                padding: '10px',
-                textAlign: 'center'
-            }}
-        >
-            <h1>当前主题：{state.theme}</h1>
-            <button onClick={() => dispatch({ type: 'TOGGLE_THEME' })}>
-                切换主题
-            </button>
-        </header>
-    );
-}
-```
-
-`src\components\Content.jsx`
-
-```jsx
-import { useTheme } from '../context/index';
-
-export default function Content() {
-    const { state } = useTheme();
-
-    return (
-        <div
-            style={{
-                background: state.theme === 'light' ? '#fff' : '#333',
-                color: state.theme === 'light' ? '#000' : '#fff',
-                padding: '20px',
-                textAlign: 'center',
-            }}
-        >
-            <p>这里是主要内容区 —— 当前是 {state.theme} 模式</p>
-        </div>
-    );
-}
-```
-
-- 页面加载时默认“浅色”；
-- 点击“切换主题”按钮；
-- `dispatch` 触发 `TOGGLE_THEME`；
-- `reducer` 更新 theme → 所有使用该状态的组件自动重新渲染；
-- 所有组件同步变成“深色模式”。
 
 <br>
 
-## **六、 HOC 高阶组件**
+#### **<font color='#10c300'>5）常见陷阱</font>**
+
+**1️⃣依赖数组遗漏**
+
+```jsx
+// ❌ 错误：handler 变化时不会更新
+function useEventListener(eventName, handler) {
+    useEffect(() => {
+        window.addEventListener(eventName, handler);
+        return () => window.removeEventListener(eventName, handler);
+    }, []); // 缺少 handler
+}
+
+// ✅ 正确：但要求使用者使用 useCallback 包裹 handler
+useEffect(() => {
+    window.addEventListener(eventName, handler);
+    return () => window.removeEventListener(eventName, handler);
+}, [eventName, handler]);
+```
+
+**2️⃣返回不稳定引用导致重渲染**
+
+```jsx
+// ❌ 错误：每次返回新数组
+function useData() {
+  const data = fetchData();
+  return [data, data.length]; // 新数组引用
+}
+
+// ✅ 正确：保持引用稳定
+function useData() {
+  const data = fetchData();
+  return useMemo(() => [data, data.length], [data]);
+}
+```
+
+**3️⃣在条件语句中使用 Hook**
+
+```jsx
+// ❌ 错误
+function useConditionalHook(condition) {
+  if (condition) {
+    const [state, setState] = useState(0); // Hook 在条件中！
+  }
+}
+
+// ✅ 正确
+function useConditionalHook(condition) {
+  const [state, setState] = useState(0);
+  // 根据 condition 决定是否使用 state
+  return condition ? state : null;
+}
+```
+
+<br>
+
+## **五、 HOC 高阶组件**
 
 高阶组件是一个**函数**，它接收一个组件并返回一个新的组件，例如：
 
-### **<font color='red'>6.1 React.memo</font>**
+### **<font color='red'>5.1 React.memo</font>**
 
 `memo` 是一个 **高阶组件**，用于**优化函数组件的重新渲染**。只有当它的 **props 发生变化** 时，React 才会重新渲染这个组件。否则，它会直接复用上一次的渲染结果，提高性能。
 
