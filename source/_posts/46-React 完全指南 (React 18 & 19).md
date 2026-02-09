@@ -2141,7 +2141,7 @@ newState → 触发重新渲染
 
 
 
-#### **<font color='#10c300'>5）、使用惰性初始化（第三个参数）</font>**
+#### **<font color='#10c300'>5）使用惰性初始化（第三个参数）</font>**
 
 `useReducer` 还支持传入一个函数，延迟计算初始状态（避免初始化开销）👇
 
@@ -2182,7 +2182,7 @@ export default Counter;
 
 
 
-#### **<font color='#10c300'>6）、useReducer + useContext</font>**
+#### **<font color='#10c300'>6）useReducer + useContext</font>**
 
 **1️⃣全局状态（Redux 思想）**
 
@@ -2266,7 +2266,7 @@ export default function App() {
 
 
 
-#### **<font color='#10c300'>7）、TypeScript 最佳实践</font>**
+#### **<font color='#10c300'>7）TypeScript 最佳实践</font>**
 
 ```tsx
 // 1. 定义 State 和 Action 类型
@@ -2407,7 +2407,7 @@ export default RenderCount;
 
 
 
-#### **<font color='#10c300'>3）、注意事项⚠️</font>**
+#### **<font color='#10c300'>3）注意事项⚠️</font>**
 
 1. **不要用它来代替 state**，除非你不需要触发渲染。
 
@@ -2436,7 +2436,7 @@ export default RenderCount;
 
    
 
-#### **<font color='#10c300'>4）、和 forwardRef 搭配</font>**
+#### **<font color='#10c300'>4）和 forwardRef 搭配</font>**
 
 <a name="forwardRef">**`useRef`** 配合 **`forwardRef`** 可以将 ref 传给子组件中的 DOM 元素：</a>
 
@@ -2489,7 +2489,7 @@ export default App;
 
 
 
-#### **<font color='#10c300'>5）、TypeScript 支持</font>**
+#### **<font color='#10c300'>5）TypeScript 支持</font>**
 
 ```tsx
 // DOM 元素引用（自动推断类型）
