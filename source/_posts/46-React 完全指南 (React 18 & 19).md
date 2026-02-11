@@ -26,7 +26,6 @@ date: 2025-12-02 10:28:38
 7. [React 19 新特性](#6-react-19-新特性)
 8. [最佳实践](#7-最佳实践)
 9. [常见问题与解决方案](#8-常见问题与解决方案)
-11. [学习资源推荐](#9-学习资源推荐)
 
 <br>
 
@@ -42,8 +41,8 @@ React 是由 Facebook（现 Meta）开发的一个用于构建用户界面的 Ja
 
 ### **<font color='red'>1.2 为什么选择 React？</font>**
 
-| 优势       | 说明                         |
-| ---------- | ---------------------------- |
+| 优势        | 说明                         |
+| ----------- | ---------------------------- |
 | 🚀 高性能   | 虚拟 DOM 最小化真实 DOM 操作 |
 | 🧩 组件复用 | 一次编写，多处使用           |
 | 🌐 生态丰富 | 大量第三方库和工具支持       |
@@ -109,12 +108,12 @@ vite-react-app/
 
 ```
 webpack-react-app/
-├── 📁 public/                 # 公共资源目录 
+├── 📁 public/                 # 公共资源目录
 │   ├── favicon.ico            # 网站图标
 │   ├── index.html             # HTML 入口文件
 │   ├── manifest.json          # Web App 清单文件
 │   └── robots.txt             # 搜索引擎爬虫规则
-├── 📁 src/                    # 源代码目录 
+├── 📁 src/                    # 源代码目录
 │   ├── App.css                # App 组件样式文件
 │   ├── App.js                 # 根组件
 │   ├── App.test.js            # App 组件测试文件
@@ -122,8 +121,8 @@ webpack-react-app/
 │   ├── index.js               # 应用入口文件
 │   ├── reportWebVitals.js     # 性能检测文件
 │   └── setupTests.js          # 测试设置文件
-├── .gitignore                 # Git 忽略配置文件 
-├── README.md                  # 项目说明文档 
+├── .gitignore                 # Git 忽略配置文件
+├── README.md                  # 项目说明文档
 ├── package-lock.json          # npm 依赖锁定文件
 └── package.json               # 项目配置文件
 ```
@@ -143,15 +142,15 @@ JSX 是 JavaScript 的语法扩展，让你可以在 JS 中编写类似 HTML 的
 function Welcome() {
   const name = "React";
   const isLoggedIn = true;
-  
+
   return (
     <div className="welcome">
       {/* 使用花括号嵌入表达式 */}
       <h1>Hello, {name}!</h1>
-      
+
       {/* 条件渲染 */}
       {isLoggedIn ? <p>欢迎回来</p> : <p>请登录</p>}
-      
+
       {/* 注意：class 要写成 className */}
       <button className="btn">点击我</button>
     </div>
@@ -189,7 +188,7 @@ const Greeting = ({ name }) => {
 #### **<font color='#10c300'>2）类组件（了解即可）</font>**
 
 ```jsx
-import { Component } from 'react';
+import { Component } from "react";
 
 class Greeting extends Component {
   render() {
@@ -208,12 +207,7 @@ Props 是父组件传递给子组件的数据：
 // 父组件
 function App() {
   return (
-    <UserCard 
-      name="张三"
-      age={25}
-      isAdmin={true}
-      hobbies={['读书', '游戏']}
-    />
+    <UserCard name="张三" age={25} isAdmin={true} hobbies={["读书", "游戏"]} />
   );
 }
 
@@ -223,7 +217,7 @@ function UserCard({ name, age, isAdmin, hobbies }) {
     <div className="card">
       <h2>{name}</h2>
       <p>年龄: {age}</p>
-      <p>身份: {isAdmin ? '管理员' : '普通用户'}</p>
+      <p>身份: {isAdmin ? "管理员" : "普通用户"}</p>
       <ul>
         {hobbies.map((hobby, index) => (
           <li key={index}>{hobby}</li>
@@ -249,12 +243,12 @@ function Button({ text = "点击", type = "primary" }) {
 State 是组件内部的可变数据：
 
 ```jsx
-import { useState } from 'react';
+import { useState } from "react";
 
 function Counter() {
   // 声明状态：[当前值, 更新函数] = useState(初始值)
   const [count, setCount] = useState(0);
-  
+
   return (
     <div>
       <p>当前计数: {count}</p>
@@ -270,22 +264,22 @@ function Counter() {
 
 ```jsx
 function Example() {
-  const [user, setUser] = useState({ name: '张三', age: 25 });
-  
+  const [user, setUser] = useState({ name: "张三", age: 25 });
+
   // ❌ 错误：直接修改状态
   const wrongUpdate = () => {
     user.age = 26; // 不会触发重新渲染
   };
-  
+
   // ✅ 正确：创建新对象
   const correctUpdate = () => {
     setUser({ ...user, age: 26 });
   };
-  
+
   // ✅ 使用函数式更新（基于前一个状态）
   const [count, setCount] = useState(0);
   const increment = () => {
-    setCount(prevCount => prevCount + 1);
+    setCount((prevCount) => prevCount + 1);
   };
 }
 ```
@@ -298,20 +292,20 @@ function Example() {
 function EventExample() {
   // 点击事件
   const handleClick = (e) => {
-    console.log('按钮被点击', e);
+    console.log("按钮被点击", e);
   };
-  
+
   // 带参数的事件处理
   const handleDelete = (id) => {
-    console.log('删除项目:', id);
+    console.log("删除项目:", id);
   };
-  
+
   // 表单输入
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
   const handleChange = (e) => {
     setValue(e.target.value);
   };
-  
+
   return (
     <div>
       <button onClick={handleClick}>点击我</button>
@@ -332,10 +326,10 @@ function ConditionalExample({ isLoggedIn, messages }) {
     <div>
       {/* 方式1: 三元运算符 */}
       {isLoggedIn ? <LogoutButton /> : <LoginButton />}
-      
+
       {/* 方式2: && 短路运算 */}
       {messages.length > 0 && <Badge count={messages.length} />}
-      
+
       {/* 方式3: if-else 提前返回 */}
       {(() => {
         if (messages.length === 0) return <p>暂无消息</p>;
@@ -354,16 +348,16 @@ function ConditionalExample({ isLoggedIn, messages }) {
 ```jsx
 function TodoList() {
   const todos = [
-    { id: 1, text: '学习 React', done: false },
-    { id: 2, text: '写代码', done: true },
-    { id: 3, text: '看文档', done: false },
+    { id: 1, text: "学习 React", done: false },
+    { id: 2, text: "写代码", done: true },
+    { id: 3, text: "看文档", done: false },
   ];
-  
+
   return (
     <ul>
-      {todos.map(todo => (
+      {todos.map((todo) => (
         // key 必须是唯一且稳定的标识符
-        <li key={todo.id} className={todo.done ? 'completed' : ''}>
+        <li key={todo.id} className={todo.done ? "completed" : ""}>
           {todo.text}
         </li>
       ))}
@@ -399,27 +393,19 @@ const [state, setState] = useState(initialValue);
   1. `state`：当前状态值：在首次渲染时，它将与你传递的 `initialArg` 相匹配。
   2. `setState`：更新状态的函数：它可以让你将 state 更新为不同的值并触发重新渲染。
 
-
-
 #### **<font color='#10c300'>2）基本用法</font>**
 
 ```js
-import { useState } from 'react';
+import { useState } from "react";
 
 function Counter() {
-    const [count, setCount] = useState(0);
+  const [count, setCount] = useState(0);
 
-    return (
-        <button onClick={() => setCount(count + 1)}>
-            点击了 {count} 次
-        </button>
-    );
+  return <button onClick={() => setCount(count + 1)}>点击了 {count} 次</button>;
 }
 
-export default Counter
+export default Counter;
 ```
-
-
 
 #### **<font color='#10c300'>3）核心特性详解</font>**
 
@@ -434,13 +420,13 @@ export default Counter
 与 class 组件的 `setState` 不同，`useState` 不会自动合并对象：
 
 ```jsx
-const [user, setUser] = useState({ name: '张三', age: 20 });
+const [user, setUser] = useState({ name: "张三", age: 20 });
 
 // ❌ 错误：这会丢失 age 字段
-setUser({ name: '李四' });
+setUser({ name: "李四" });
 
 // ✅ 正确：需要手动展开
-setUser({ ...user, name: '李四' });
+setUser({ ...user, name: "李四" });
 ```
 
 ---
@@ -452,17 +438,17 @@ setUser({ ...user, name: '李四' });
 ```jsx
 function Counter() {
   const [count, setCount] = useState(0);
-  
+
   const incrementTwice = () => {
     // ❌ 问题：两次都基于 count=0，结果还是 1
     setCount(count + 1);
     setCount(count + 1);
-    
+
     // ✅ 正确：基于最新状态更新
-    setCount(prev => prev + 1);
-    setCount(prev => prev + 1);
+    setCount((prev) => prev + 1);
+    setCount((prev) => prev + 1);
   };
-  
+
   return <button onClick={incrementTwice}>+2</button>;
 }
 ```
@@ -493,13 +479,13 @@ const [map, setMap] = useState(new Map());
 const addItem = (item) => setList([...list, item]);
 const removeItem = (index) => setList(list.filter((_, i) => i !== index));
 const updateItem = (index, value) =>
-    setList(list.map((item, i) => i === index ? value : item));
+  setList(list.map((item, i) => (i === index ? value : item)));
 
 // Map/Set 操作（需要新引用才会触发更新）
 const addToMap = (k, v) => {
-    const newMap = new Map(map);
-    newMap.set(k, v);
-    setMap(newMap);
+  const newMap = new Map(map);
+  newMap.set(k, v);
+  setMap(newMap);
 };
 ```
 
@@ -510,7 +496,7 @@ const addToMap = (k, v) => {
 const [count, setCount] = useState(0); // number
 
 // 联合类型
-const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
 
 // 对象类型
 interface User {
@@ -529,18 +515,18 @@ const [value, setValue] = useState<string>();
 
 ```jsx
 useEffect(() => {
-    const timer = setInterval(() => {
-        console.log(count); // 永远是旧值
-        setCount(count + 1); // 永远基于初始值
-    }, 1000);
+  const timer = setInterval(() => {
+    console.log(count); // 永远是旧值
+    setCount(count + 1); // 永远基于初始值
+  }, 1000);
 }, []); // 空依赖导致闭包陷阱
 
 // 解决：使用函数式更新或正确设置依赖
 useEffect(() => {
-    const timer = setInterval(() => {
-        setCount(c => c + 1); // 总是获取最新值
-    }, 1000);
-    return () => clearInterval(timer);
+  const timer = setInterval(() => {
+    setCount((c) => c + 1); // 总是获取最新值
+  }, 1000);
+  return () => clearInterval(timer);
 }, []);
 ```
 
@@ -552,10 +538,10 @@ useEffect(() => {
 
 ```jsx
 const handleClick = () => {
-    setCount(count + 1);
-    console.log(count); // 还是旧值！
-  
-    // 如需基于新值操作，使用 useEffect 或函数式更新
+  setCount(count + 1);
+  console.log(count); // 还是旧值！
+
+  // 如需基于新值操作，使用 useEffect 或函数式更新
 };
 ```
 
@@ -567,16 +553,14 @@ const handleClick = () => {
 const [items, setItems] = useState([1, 2, 3]);
 
 const wrongUpdate = () => {
-    items.push(4); // 修改原数组
-    setItems(items); // 引用相同，React 不重新渲染
+  items.push(4); // 修改原数组
+  setItems(items); // 引用相同，React 不重新渲染
 };
 
 const correctUpdate = () => {
-    setItems([...items, 4]); // 新数组引用
+  setItems([...items, 4]); // 新数组引用
 };
 ```
-
-
 
 #### **<font color='#10c300'>6）最佳实践</font>**
 
@@ -598,11 +582,11 @@ const [loading, setLoading] = useState(false);
 
 ```jsx
 function useCounter(initial = 0) {
-    const [count, setCount] = useState(initial);
-    const inc = () => setCount(c => c + 1);
-    const dec = () => setCount(c => c - 1);
-    const reset = () => setCount(initial);
-    return { count, inc, dec, reset };
+  const [count, setCount] = useState(initial);
+  const inc = () => setCount((c) => c + 1);
+  const dec = () => setCount((c) => c - 1);
+  const reset = () => setCount(initial);
+  return { count, inc, dec, reset };
 }
 ```
 
@@ -639,15 +623,13 @@ useEffect(() => {
   2. `空数组`：仅在挂载时执行一次。
   3. `依赖参数`：依赖参数变化时执行（首次渲染也会执行一次）。
 
-
-
 #### **<font color='#10c300'>2）三种执行时机</font>**
 
 **1️⃣ 不带依赖 → 每次渲染都执行**
 
 ```js
 useEffect(() => {
-  console.log('每次渲染都执行');
+  console.log("每次渲染都执行");
 });
 ```
 
@@ -656,16 +638,16 @@ useEffect(() => {
 - 每次组件**挂载和更新**都会运行。
   ⚠️ 如无必要，不建议省略依赖数组，会影响性能。
 
-------
+---
 
 **2️⃣ 组件挂载时执行（只执行一次）**
 
 ```jsx
 useEffect(() => {
-    console.log('组件挂载');
-    return () => {
-        console.log('组件卸载');
-    };
+  console.log("组件挂载");
+  return () => {
+    console.log("组件卸载");
+  };
 }, []); // 空依赖数组 → 只执行一次
 ```
 
@@ -674,17 +656,15 @@ useEffect(() => {
 - 挂载时执行：`componentDidMount`
 - 卸载时清理：`componentWillUnmount`
 
-------
+---
 
 **3️⃣ 特定依赖变化时执行**
 
 ```jsx
 useEffect(() => {
-	console.log(`count 更新了：${count}`);
+  console.log(`count 更新了：${count}`);
 }, [count]); // 👈 当 count 改变重新运行副作用逻辑
 ```
-
-
 
 #### **<font color='#10c300'>3）清理函数（Cleanup）</font>**
 
@@ -692,15 +672,15 @@ useEffect(() => {
 
 ```jsx
 useEffect(() => {
-    const timer = setInterval(() => {
-        console.log('tick');
-    }, 1000);
-  
-    // 清理函数：组件卸载或依赖变化前执行
-    return () => {
-        clearInterval(timer);
-        console.log('定时器已清理');
-    };
+  const timer = setInterval(() => {
+    console.log("tick");
+  }, 1000);
+
+  // 清理函数：组件卸载或依赖变化前执行
+  return () => {
+    clearInterval(timer);
+    console.log("定时器已清理");
+  };
 }, []);
 ```
 
@@ -715,22 +695,22 @@ useEffect(() => {
 
 ```jsx
 useEffect(() => {
-    let cancelled = false;
+  let cancelled = false;
 
-    async function fetchData() {
-        const data = await api.getUser(userId);
+  async function fetchData() {
+    const data = await api.getUser(userId);
 
-        // 防止竞态条件：如果组件已卸载或 userId 已变，忽略结果
-        if (!cancelled) {
-            setUser(data);
-        }
+    // 防止竞态条件：如果组件已卸载或 userId 已变，忽略结果
+    if (!cancelled) {
+      setUser(data);
     }
+  }
 
-    fetchData();
+  fetchData();
 
-    return () => {
-        cancelled = true; // 取消标志
-    };
+  return () => {
+    cancelled = true; // 取消标志
+  };
 }, [userId]);
 ```
 
@@ -743,12 +723,12 @@ useEffect(() => {
   const handleScroll = () => {
     setScrollY(window.scrollY);
   };
-  
-  window.addEventListener('scroll', handleScroll);
-  
+
+  window.addEventListener("scroll", handleScroll);
+
   // 必须清理，否则重复挂载会添加多个监听器
   return () => {
-    window.removeEventListener('scroll', handleScroll);
+    window.removeEventListener("scroll", handleScroll);
   };
 }, []);
 ```
@@ -760,16 +740,14 @@ useEffect(() => {
 ```jsx
 useEffect(() => {
   // 直接操作 DOM（应尽量避免，但在与第三方库集成时有用）
-  const element = document.getElementById('modal');
-  element?.classList.add('active');
-  
+  const element = document.getElementById("modal");
+  element?.classList.add("active");
+
   return () => {
-    element?.classList.remove('active');
+    element?.classList.remove("active");
   };
 }, []);
 ```
-
-
 
 #### **<font color='#10c300'>5）常见陷阱⚠️</font>**
 
@@ -778,13 +756,13 @@ useEffect(() => {
 ```jsx
 // ❌ 错误：setState 导致渲染，渲染触发 effect，effect 又 setState
 useEffect(() => {
-    setCount(count + 1);
+  setCount(count + 1);
 }, [count]);
 
 // ✅ 正确：使用函数式更新或条件判断
 useEffect(() => {
-    const timer = setTimeout(() => setCount(c => c + 1), 1000);
-    return () => clearTimeout(timer);
+  const timer = setTimeout(() => setCount((c) => c + 1), 1000);
+  return () => clearTimeout(timer);
 }, []); // 或 [count] 如果需要响应外部 count 变化
 ```
 
@@ -797,22 +775,22 @@ useEffect(() => {
 ```js
 // ❌ 遗漏依赖：callback 变化时 effect 不会更新
 useEffect(() => {
-    fetchData(query, callback);
+  fetchData(query, callback);
 }, [query]); // 缺少 callback
 
 // ✅ 解决方案 1：添加所有依赖
 useEffect(() => {
-    fetchData(query, callback);
+  fetchData(query, callback);
 }, [query, callback]);
 
 // ✅ 解决方案 2：如果 callback 不稳定，使用 ref
 const callbackRef = useRef(callback);
 useEffect(() => {
-    callbackRef.current = callback;
+  callbackRef.current = callback;
 }, [callback]);
 
 useEffect(() => {
-    fetchData(query, (data) => callbackRef.current(data));
+  fetchData(query, (data) => callbackRef.current(data));
 }, [query]);
 ```
 
@@ -822,28 +800,28 @@ useEffect(() => {
 
 ```js
 useEffect(() => {
-    const timer = setInterval(() => {
-        console.log(count); // 永远是旧值！
-    }, 1000);
+  const timer = setInterval(() => {
+    console.log(count); // 永远是旧值！
+  }, 1000);
 }, []); // 空依赖导致闭包捕获初始 count
 
 // ✅ 解决方案 1：添加依赖
 useEffect(() => {
-    const timer = setInterval(() => {
-        console.log(count);
-    }, 1000);
+  const timer = setInterval(() => {
+    console.log(count);
+  }, 1000);
 }, [count]);
 
 // ✅ 解决方案 2：使用 ref 获取最新值
 const countRef = useRef(count);
 useEffect(() => {
-    countRef.current = count;
+  countRef.current = count;
 }, [count]);
 
 useEffect(() => {
-    const timer = setInterval(() => {
-        console.log(countRef.current); // 总是最新值
-    }, 1000);
+  const timer = setInterval(() => {
+    console.log(countRef.current); // 总是最新值
+  }, 1000);
 }, []);
 ```
 
@@ -854,25 +832,23 @@ useEffect(() => {
 ```jsx
 // ❌ 错误：useEffect 不能返回 Promise（async 函数隐式返回 Promise）
 useEffect(async () => {
-    const data = await fetchData();
+  const data = await fetchData();
 }, []);
 
 // ✅ 正确：内部定义 async 函数
 useEffect(() => {
-    async function loadData() {
-        const data = await fetchData();
-        setData(data);
-    }
-    loadData();
+  async function loadData() {
+    const data = await fetchData();
+    setData(data);
+  }
+  loadData();
 }, []);
 ```
-
-
 
 #### **<font color='#10c300'>6）useEffect vs useLayoutEffect</font>**
 
 ```jsx
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect } from "react";
 
 // useEffect：浏览器绘制完成后执行（不阻塞渲染）
 // useLayoutEffect：浏览器绘制之前执行（阻塞渲染，避免闪烁）
@@ -888,27 +864,23 @@ useLayoutEffect(() => {
 - 优先使用 `useEffect`
 - 仅在出现视觉闪烁（如从服务端渲染恢复时需要同步计算布局）时使用 `useLayoutEffect`
 
-
-
 #### **<font color='#10c300'>7）TypeScript 支持</font>**
 
 ```tsx
 // 清理函数类型会自动推断
 useEffect(() => {
-    const subscription = api.subscribe();
-  
-    return () => {
-        subscription.unsubscribe(); // 类型安全
-    };
+  const subscription = api.subscribe();
+
+  return () => {
+    subscription.unsubscribe(); // 类型安全
+  };
 }, []);
 
 // 依赖数组严格类型检查
 useEffect(() => {
-    console.log(name);
+  console.log(name);
 }, [name]); // name 必须是依赖项
 ```
-
-
 
 #### **<font color='#10c300'>8）最佳实践</font>**
 
@@ -917,22 +889,26 @@ useEffect(() => {
 ```js
 // ❌ 混合多个不相关逻辑
 useEffect(() => {
-    fetchUser();
-    const timer = setInterval(poll, 5000);
-    document.title = 'New Page';
-  
-    return () => {
-        clearInterval(timer);
-    };
+  fetchUser();
+  const timer = setInterval(poll, 5000);
+  document.title = "New Page";
+
+  return () => {
+    clearInterval(timer);
+  };
 }, []);
 
 // ✅ 分离成多个 effect
-useEffect(() => { fetchUser(); }, []);
-useEffect(() => { 
-    const timer = setInterval(poll, 5000);
-    return () => clearInterval(timer);
+useEffect(() => {
+  fetchUser();
 }, []);
-useEffect(() => { document.title = 'New Page'; }, []);
+useEffect(() => {
+  const timer = setInterval(poll, 5000);
+  return () => clearInterval(timer);
+}, []);
+useEffect(() => {
+  document.title = "New Page";
+}, []);
 ```
 
 ---
@@ -942,19 +918,20 @@ useEffect(() => { document.title = 'New Page'; }, []);
 ```jsx
 function useWindowSize() {
   const [size, setSize] = useState({ width: 0, height: 0 });
-  
+
   useEffect(() => {
-    const update = () => setSize({ 
-      width: window.innerWidth, 
-      height: window.innerHeight 
-    });
-    
-    window.addEventListener('resize', update);
+    const update = () =>
+      setSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+
+    window.addEventListener("resize", update);
     update();
-    
-    return () => window.removeEventListener('resize', update);
+
+    return () => window.removeEventListener("resize", update);
   }, []);
-  
+
   return size;
 }
 ```
@@ -1004,11 +981,9 @@ React 提供 **Context**，可以让你在组件树间**直接共享数据，不
 
 ```jsx
 // src\context\index.jsx
-import {createContext} from "react";
+import { createContext } from "react";
 const MyContext = createContext();
-export {
-	MyContext
-}
+export { MyContext };
 ```
 
 **Step 2️⃣：上层组件提供数据**
@@ -1020,17 +995,17 @@ import GrandChild from "./components/GrandChild";
 import { MyContext } from "./context/index";
 
 function App() {
-    const [data] = useState("大鱼海棠");
-    return (
-        <>
-            <MyContext.Provider value={data}>
-                <p>我是父组件</p>
-                <Child>
-                    <GrandChild />
-                </Child>
-            </MyContext.Provider>
-        </>
-    );
+  const [data] = useState("大鱼海棠");
+  return (
+    <>
+      <MyContext.Provider value={data}>
+        <p>我是父组件</p>
+        <Child>
+          <GrandChild />
+        </Child>
+      </MyContext.Provider>
+    </>
+  );
 }
 
 export default App;
@@ -1039,16 +1014,16 @@ export default App;
 **Step 3️⃣：子组件**
 
 ```jsx
-function Child({children}) {
-    return (
-        <>
-            <p>我是子组件</p>
-            {children}
-        </>
-    )
+function Child({ children }) {
+  return (
+    <>
+      <p>我是子组件</p>
+      {children}
+    </>
+  );
 }
 
-export default Child
+export default Child;
 ```
 
 **Step 4️⃣：孙组件使用 `useContext` 获取值**
@@ -1070,64 +1045,61 @@ function GrandChild() {
 export defau lt GrandChild
 ```
 
-
-
 #### **<font color='#10c300'>2）自定义 Hook 封装（推荐）</font>**
 
 直接 `useContext` 需要在每个组件处理 `null`，封装更安全：
 
 ```jsx
 // contexts/ThemeContext.js
-import { createContext, useState, useContext, useMemo } from 'react';
+import { createContext, useState, useContext, useMemo } from "react";
 
 const ThemeContext = createContext(null);
 
 // 自定义 Hook，内置错误处理
 export function useTheme() {
-    const context = useContext(ThemeContext);
-    if (!context) {
-        throw new Error('useTheme 必须在 ThemeProvider 内部使用');
-    }
-    return context;
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useTheme 必须在 ThemeProvider 内部使用");
+  }
+  return context;
 }
 
 export function ThemeProvider({ children }) {
-    const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState("light");
 
-    // 使用 useMemo 防止不必要的重渲染
-    const value = useMemo(() => ({
-        theme,
-        setTheme,
-        toggle: () => setTheme(t => t === 'light' ? 'dark' : 'light')
-    }), [theme]);
+  // 使用 useMemo 防止不必要的重渲染
+  const value = useMemo(
+    () => ({
+      theme,
+      setTheme,
+      toggle: () => setTheme((t) => (t === "light" ? "dark" : "light")),
+    }),
+    [theme],
+  );
 
-    return (
-        <ThemeContext.Provider value={value}>
-            {children}
-        </ThemeContext.Provider>
-    );
+  return (
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  );
 }
 ```
 
 ```jsx
 // app.vue 使用：
-import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 
 function Button() {
-    const { theme, toggle } = useTheme(); // 直接使用，类型安全
-    return <button onClick={toggle}>{theme}</button>;
+  const { theme, toggle } = useTheme(); // 直接使用，类型安全
+  return <button onClick={toggle}>{theme}</button>;
 }
 
 export default function App() {
-    return (
-        <ThemeProvider>
-            <Button />
-        </ThemeProvider>
-    );
+  return (
+    <ThemeProvider>
+      <Button />
+    </ThemeProvider>
+  );
 }
 ```
-
-
 
 #### **<font color='#10c300'>3）性能优化（关键）</font>**
 
@@ -1140,10 +1112,10 @@ export default function App() {
 ```jsx
 // ❌ 避免单一 Context 包含所有状态
 const AppContext = createContext({
-    user: {},
-    theme: '',
-    notifications: [],
-    // ... 所有状态
+  user: {},
+  theme: "",
+  notifications: [],
+  // ... 所有状态
 });
 
 // ✅ 拆分为多个 Context
@@ -1153,8 +1125,8 @@ const NotificationContext = createContext(null);
 
 // 组件只订阅需要的 Context
 function UserAvatar() {
-    const user = useContext(UserContext); // 只有 user 变化时重渲染
-    return <img src={user.avatar} />;
+  const user = useContext(UserContext); // 只有 user 变化时重渲染
+  return <img src={user.avatar} />;
 }
 ```
 
@@ -1164,8 +1136,8 @@ function UserAvatar() {
 
 ```jsx
 function ExpensiveComponent() {
-    const { theme } = useContext(ThemeContext);
-    return <div className={theme}>...</div>;
+  const { theme } = useContext(ThemeContext);
+  return <div className={theme}>...</div>;
 }
 
 // 虽然 context 变化，但 props 没变时跳过渲染
@@ -1182,63 +1154,61 @@ export default React.memo(ExpensiveComponent);
 
 ```jsx
 // contexts/StoreContext.js
-import { createContext, useReducer, useContext, useMemo } from 'react';
+import { createContext, useReducer, useContext, useMemo } from "react";
 
 const StoreContext = createContext(null);
 
 const initialState = { count: 0, user: null };
 
 function reducer(state, action) {
-    switch (action.type) {
-        case 'increment': return { ...state, count: state.count + 1 };
-        case 'setUser': return { ...state, user: action.payload };
-        default: return state;
-    }
+  switch (action.type) {
+    case "increment":
+      return { ...state, count: state.count + 1 };
+    case "setUser":
+      return { ...state, user: action.payload };
+    default:
+      return state;
+  }
 }
 
 // 自定义 Hooks
 export function useStore() {
-    const [state, dispatch] = useContext(StoreContext);
-    return { state, dispatch };
+  const [state, dispatch] = useContext(StoreContext);
+  return { state, dispatch };
 }
 
 export function StoreProvider({ children }) {
-    const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-    // 将 state 和 dispatch 都放入 context
-    const value = useMemo(() => [state, dispatch], [state]);
+  // 将 state 和 dispatch 都放入 context
+  const value = useMemo(() => [state, dispatch], [state]);
 
-    return (
-        <StoreContext.Provider value={value}>
-            {children}
-        </StoreContext.Provider>
-    );
+  return (
+    <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
+  );
 }
 
-
 // app.jsx
-import { StoreProvider, useStore } from './contexts/ThemeContext';
+import { StoreProvider, useStore } from "./contexts/ThemeContext";
 
 // 使用
 function Counter() {
-    const { state, dispatch } = useStore();
-    return (
-        <button onClick={() => dispatch({ type: 'increment' })}>
-            {state.count}
-        </button>
-    );
+  const { state, dispatch } = useStore();
+  return (
+    <button onClick={() => dispatch({ type: "increment" })}>
+      {state.count}
+    </button>
+  );
 }
 
 export default function App() {
-    return (
-        <StoreProvider>
-            <Counter />
-        </StoreProvider>
-    );
+  return (
+    <StoreProvider>
+      <Counter />
+    </StoreProvider>
+  );
 }
 ```
-
-
 
 #### **<font color='#10c300'>4）TypeScript 支持</font>**
 
@@ -1259,34 +1229,35 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 // 类型安全的自定义 Hook
 export function useAuth() {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth must be used within AuthProvider');
-    }
-    return context;
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+  return context;
 }
 
 // Provider 组件
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-  
-    const value = useMemo(() => ({
-        user,
-        isLoading,
-        login: (u: User) => { setUser(u); },
-        logout: () => { setUser(null); }
-    }), [user, isLoading]);
-  
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    );
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const value = useMemo(
+    () => ({
+      user,
+      isLoading,
+      login: (u: User) => {
+        setUser(u);
+      },
+      logout: () => {
+        setUser(null);
+      },
+    }),
+    [user, isLoading],
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 ```
-
-
 
 #### **<font color='#10c300'>5）常见陷阱⚠️</font>**
 
@@ -1297,9 +1268,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 const MyContext = createContext({ value: 0 });
 
 function Component() {
-    const ctx = useContext(MyContext);
-    // 如果忘记包裹 Provider，ctx 是 { value: 0 }
-    // 这可能隐藏错误，建议默认值设为 null 并检查
+  const ctx = useContext(MyContext);
+  // 如果忘记包裹 Provider，ctx 是 { value: 0 }
+  // 这可能隐藏错误，建议默认值设为 null 并检查
 }
 ```
 
@@ -1309,22 +1280,22 @@ function Component() {
 
 ```jsx
 function App() {
-    const [count, setCount] = useState(0);
-  
-    // ❌ 每次渲染都是新对象，导致所有消费者重渲染
-    return (
-        <ThemeContext.Provider value={{ theme: 'dark', count }}>
-            <Child />
-        </ThemeContext.Provider>
-    );
-  
-    // ✅ 使用 useMemo 缓存
-    const value = useMemo(() => ({ theme: 'dark', count }), [count]);
-    return (
-        <ThemeContext.Provider value={value}>
-            <Child />
-        </ThemeContext.Provider>
-    );
+  const [count, setCount] = useState(0);
+
+  // ❌ 每次渲染都是新对象，导致所有消费者重渲染
+  return (
+    <ThemeContext.Provider value={{ theme: "dark", count }}>
+      <Child />
+    </ThemeContext.Provider>
+  );
+
+  // ✅ 使用 useMemo 缓存
+  const value = useMemo(() => ({ theme: "dark", count }), [count]);
+  return (
+    <ThemeContext.Provider value={value}>
+      <Child />
+    </ThemeContext.Provider>
+  );
 }
 ```
 
@@ -1334,16 +1305,14 @@ function App() {
 
 ```jsx
 function Component() {
-    if (condition) {
-        const ctx = useContext(MyContext); // ❌ Hook 必须在顶层调用
-    }
-    // ✅ 始终在组件顶层调用
-    const ctx = useContext(MyContext);
-    if (!ctx) return null;
+  if (condition) {
+    const ctx = useContext(MyContext); // ❌ Hook 必须在顶层调用
+  }
+  // ✅ 始终在组件顶层调用
+  const ctx = useContext(MyContext);
+  if (!ctx) return null;
 }
 ```
-
-
 
 #### **<font color='#10c300'>6）何时使用 vs 不用</font>**
 
@@ -1366,8 +1335,6 @@ function Component() {
 - 高频更新：Zustand、Jotai、Recoil、Redux
 - 服务端状态：React Query、SWR
 
-
-
 #### **<font color='#10c300'>7）高级模式：Render Props 转 Context</font>**
 
 将旧版 Render Props 组件转为 Hook：
@@ -1375,20 +1342,28 @@ function Component() {
 ```jsx
 // 旧方式
 <MouseTracker>
-    {({ x, y }) => <div>{x}, {y}</div>}
-</MouseTracker>
+  {({ x, y }) => (
+    <div>
+      {x}, {y}
+    </div>
+  )}
+</MouseTracker>;
 
 // 新方式：结合 Context 和 Hook
 const MouseContext = createContext({ x: 0, y: 0 });
 
 function useMouse() {
-    return useContext(MouseContext);
+  return useContext(MouseContext);
 }
 
 // 使用
 function Component() {
-    const { x, y } = useMouse(); // 更简洁的 API
-    return <div>{x}, {y}</div>;
+  const { x, y } = useMouse(); // 更简洁的 API
+  return (
+    <div>
+      {x}, {y}
+    </div>
+  );
 }
 ```
 
@@ -1400,7 +1375,7 @@ function Component() {
 
 换句话说：
 
--  如果依赖没变 → 直接用上次计算的结果；
+- 如果依赖没变 → 直接用上次计算的结果；
 - 如果依赖变了 → 重新计算并返回新结果。
 
 它可以帮你显著减少不必要的计算或对象重建。
@@ -1412,7 +1387,9 @@ function Component() {
 #### **<font color='#10c300'>1）基本语法</font>**
 
 ```js
-useMemo(()=>{return 值},[依赖项])
+useMemo(() => {
+  return 值;
+}, [依赖项]);
 ```
 
 - 参数1 (工厂函数)：一个返回值的函数（执行计算）
@@ -1430,26 +1407,26 @@ useMemo(()=>{return 值},[依赖项])
 import { useState, useMemo } from "react";
 
 function ComputeTotal(price, count) {
-    console.log("函数运行了");
-    return price * count;
+  console.log("函数运行了");
+  return price * count;
 }
 
 function App() {
-    const [price, setPrice] = useState(100);
-    const [count] = useState(1);
-    const [color, setColor] = useState("red");
+  const [price, setPrice] = useState(100);
+  const [count] = useState(1);
+  const [color, setColor] = useState("red");
 
-    // 👉 只有 price 变化时，才重新计算
-    const totalPrice = useMemo(() => ComputeTotal(price, count),[price]);
+  // 👉 只有 price 变化时，才重新计算
+  const totalPrice = useMemo(() => ComputeTotal(price, count), [price]);
 
-    return (
-        <>
-            <p>总价：{totalPrice}</p>
-            <p>{color}</p>
-            <button onClick={() => setColor("blue")}>修改颜色</button>
-            <button onClick={() => setPrice(price + 100)}>修改价格</button>
-        </>
-    );
+  return (
+    <>
+      <p>总价：{totalPrice}</p>
+      <p>{color}</p>
+      <button onClick={() => setColor("blue")}>修改颜色</button>
+      <button onClick={() => setPrice(price + 100)}>修改价格</button>
+    </>
+  );
 }
 
 export default App;
@@ -1457,7 +1434,7 @@ export default App;
 
 ✅ 当你改变颜色的时候，不会重新执行ComputeTotal。只有price变化时才会重新计算。
 
-------
+---
 
 **2️⃣ 保持引用稳定，避免重渲染（关键用途）**
 
@@ -1466,23 +1443,26 @@ export default App;
 ```jsx
 function ChartComponent({ data, options }) {
   // ❌ 每次渲染都是新对象，导致 useEffect 无限循环或 Chart 组件重渲染
-  const config = { type: 'line', data, ...options };
-  
+  const config = { type: "line", data, ...options };
+
   // ✅ 依赖不变时保持同一引用
-  const config = useMemo(() => ({
-    type: 'line',
-    data,
-    options: {
-      responsive: true,
-      ...options
-    }
-  }), [data, options]);
-  
+  const config = useMemo(
+    () => ({
+      type: "line",
+      data,
+      options: {
+        responsive: true,
+        ...options,
+      },
+    }),
+    [data, options],
+  );
+
   useEffect(() => {
     // 现在只在 config 真正变化时执行
     chartRef.current.update(config);
   }, [config]);
-  
+
   return <canvas ref={canvasRef} />;
 }
 ```
@@ -1495,21 +1475,21 @@ function ChartComponent({ data, options }) {
 import React, { useMemo } from "react";
 
 function Child({ options }) {
-    console.log("Child render");
-    return <div>{options.join(", ")}</div>;
+  console.log("Child render");
+  return <div>{options.join(", ")}</div>;
 }
 const MemoChild = React.memo(Child);
 
 function Parent() {
-    // 如果不缓存，数组每次渲染都新建，导致 Child 重新渲染
-    const options = useMemo(() => ["A", "B"], []); // 👈 缓存数组引用
+  // 如果不缓存，数组每次渲染都新建，导致 Child 重新渲染
+  const options = useMemo(() => ["A", "B"], []); // 👈 缓存数组引用
 
-    return <MemoChild options={options} />;
+  return <MemoChild options={options} />;
 }
 export default Parent;
 ```
 
- `useMemo` 保证每次渲染中 `options` 的引用稳定，`React.memo` 会认为 props 没变，从而跳过重新渲染。
+`useMemo` 保证每次渲染中 `options` 的引用稳定，`React.memo` 会认为 props 没变，从而跳过重新渲染。
 
 ---
 
@@ -1520,29 +1500,28 @@ import { useState, useMemo } from "react";
 import Child from "./Child";
 
 function App() {
-    const [price, setPrice] = useState(100);
-    const [count] = useState(1);
-    const [color, setColor] = useState("red");
+  const [price, setPrice] = useState(100);
+  const [count] = useState(1);
+  const [color, setColor] = useState("red");
 
-    const memoizedChild = useMemo(() => (
-    	<Child count={count} price={price} />
-    ), [count, price]);
+  const memoizedChild = useMemo(
+    () => <Child count={count} price={price} />,
+    [count, price],
+  );
 
-    return (
-        <>
-            <p>{color}</p>
-            <button onClick={() => setColor("blue")}>修改颜色</button>
-            <button onClick={() => setPrice(price + 100)}>修改价格</button>
-            {/* 使用组件 */}
-            {memoizedChild}
-        </>
-    );
+  return (
+    <>
+      <p>{color}</p>
+      <button onClick={() => setColor("blue")}>修改颜色</button>
+      <button onClick={() => setPrice(price + 100)}>修改价格</button>
+      {/* 使用组件 */}
+      {memoizedChild}
+    </>
+  );
 }
 
 export default App;
 ```
-
-
 
 #### **<font color='#10c300'>3）与 useCallback 的关系</font>**
 
@@ -1565,40 +1544,41 @@ useMemo(() => fn, deps);
 
 ```jsx
 function SearchResults({ query, items }) {
-    const [highlightIndex, setHighlightIndex] = useState(0);
-    
-    // 搜索结果缓存
-    const results = useMemo(() => {
-        if (!query) return [];
-      
-        const startTime = performance.now();
-        const filtered = items.filter(item => 
-            item.text.toLowerCase().includes(query.toLowerCase())
-        );
-      
-        console.log(`搜索耗时: ${performance.now() - startTime}ms`);
-        return filtered;
-    }, [query, items]);
-    
-    // 高亮项缓存（基于 results，形成计算链）
-    const highlightedItem = useMemo(() => {
-        return results[highlightIndex] || null;
-    }, [results, highlightIndex]);
-    
-    return (
-        <div>
-            {results.map((item, idx) => (
-                <div key={item.id} className={idx === highlightIndex ? 'highlight' : ''}>
-                    {item.text}
-                </div>
-            ))}
-            <Preview data={highlightedItem} />
-        </div>
+  const [highlightIndex, setHighlightIndex] = useState(0);
+
+  // 搜索结果缓存
+  const results = useMemo(() => {
+    if (!query) return [];
+
+    const startTime = performance.now();
+    const filtered = items.filter((item) =>
+      item.text.toLowerCase().includes(query.toLowerCase()),
     );
+
+    console.log(`搜索耗时: ${performance.now() - startTime}ms`);
+    return filtered;
+  }, [query, items]);
+
+  // 高亮项缓存（基于 results，形成计算链）
+  const highlightedItem = useMemo(() => {
+    return results[highlightIndex] || null;
+  }, [results, highlightIndex]);
+
+  return (
+    <div>
+      {results.map((item, idx) => (
+        <div
+          key={item.id}
+          className={idx === highlightIndex ? "highlight" : ""}
+        >
+          {item.text}
+        </div>
+      ))}
+      <Preview data={highlightedItem} />
+    </div>
+  );
 }
 ```
-
-
 
 #### **<font color='#10c300'>4）TypeScript 支持</font>**
 
@@ -1608,13 +1588,13 @@ interface User {
     name: string;
     score: number;
   }
-  
+
   // 自动推断返回类型为 number
   const averageScore = useMemo(() => {
     if (users.length === 0) return 0;
     return users.reduce((sum, u) => sum + u.score, 0) / users.length;
   }, [users]);
-  
+
   // 复杂对象类型
   const processedData = useMemo<{ labels: string[]; values: number[] }>(() => {
     return {
@@ -1623,8 +1603,6 @@ interface User {
     };
   }, [data]);
 ```
-
-
 
 #### **<font color='#10c300'>5）常见陷阱⚠️</font>**
 
@@ -1669,13 +1647,13 @@ const fullName = useMemo(() => {
 ```jsx
 // ❌ 错误：useMemo 应该纯函数，不执行副作用
 const data = useMemo(() => {
-  localStorage.setItem('key', value); // 副作用！
+  localStorage.setItem("key", value); // 副作用！
   return process(value);
 }, [value]);
 
 // ✅ 副作用放在 useEffect
 useEffect(() => {
-  localStorage.setItem('key', value);
+  localStorage.setItem("key", value);
 }, [value]);
 
 const data = useMemo(() => process(value), [value]);
@@ -1688,16 +1666,14 @@ const data = useMemo(() => process(value), [value]);
 ```jsx
 // ❌ 这样缓存的是函数的返回值，不是函数本身
 const handler = useMemo(() => {
-  return () => console.log('clicked'); // 返回一个函数
+  return () => console.log("clicked"); // 返回一个函数
 }, []);
 
 // ✅ 如果真要缓存函数，直接用 useCallback
 const handler = useCallback(() => {
-  console.log('clicked');
+  console.log("clicked");
 }, []);
 ```
-
-
 
 #### **<font color='#10c300'>6）高级模式</font>**
 
@@ -1708,7 +1684,10 @@ const handler = useCallback(() => {
 ```jsx
 const rawData = useMemo(() => fetchData(), []);
 const processedData = useMemo(() => cleanData(rawData), [rawData]);
-const statistics = useMemo(() => calculateStats(processedData), [processedData]);
+const statistics = useMemo(
+  () => calculateStats(processedData),
+  [processedData],
+);
 ```
 
 ---
@@ -1727,7 +1706,7 @@ const value = useMemo(() => {
 **3️⃣与 useEffect 配合防止无限循环**
 
 ```jsx
-const userIds = useMemo(() => users.map(u => u.id), [users]);
+const userIds = useMemo(() => users.map((u) => u.id), [users]);
 
 // 现在 userIds 引用稳定，不会导致 effect 每次都执行
 useEffect(() => {
@@ -1765,8 +1744,6 @@ const memoizedCallback = useCallback(() => {
 - **第一个参数**：要缓存的回调函数
 - **第二个参数**：依赖数组，当依赖中有值变化时，返回的新函数引用会更新
 
-
-
 #### **<font color='#10c300'>2）核心使用场景</font>**
 
 **1️⃣传递给优化后的子组件（最常见）**
@@ -1777,28 +1754,28 @@ const memoizedCallback = useCallback(() => {
 import React, { useState, useCallback } from "react";
 
 function Child({ onClick }) {
-    console.log("子组件渲染了");
-    return <button onClick={onClick}>子组件按钮</button>;
+  console.log("子组件渲染了");
+  return <button onClick={onClick}>子组件按钮</button>;
 }
 
 const MemoChild = React.memo(Child); // 👈 只有 props 变了才渲染
 
 function App() {
-    const [count, setCount] = useState(0);
-    const [text, setText] = useState("");
+  const [count, setCount] = useState(0);
+  const [text, setText] = useState("");
 
-    // 只有 count 变化时才会更新函数引用(子组件渲染)
-    const handleClick = useCallback(() => {
-        console.log("Clicked:", count);
-    }, [count]); // 👈 缓存函数引用
+  // 只有 count 变化时才会更新函数引用(子组件渲染)
+  const handleClick = useCallback(() => {
+    console.log("Clicked:", count);
+  }, [count]); // 👈 缓存函数引用
 
-    return (
-        <div>
-            <button onClick={() => setCount(count + 1)}>count +1</button>
-            <input value={text} onChange={(e) => setText(e.target.value)} />
-            <MemoChild onClick={handleClick} />
-        </div>
-    );
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>count +1</button>
+      <input value={text} onChange={(e) => setText(e.target.value)} />
+      <MemoChild onClick={handleClick} />
+    </div>
+  );
 }
 
 export default App;
@@ -1818,26 +1795,26 @@ export default App;
 
 ```jsx
 function Search({ query }) {
-    const [results, setResults] = useState([]);
-    
-    // ❌ 每次渲染都是新函数，导致 effect 每次都要执行
-    const fetchData = async () => {
-      const res = await api.search(query);
-      setResults(res);
-    };
-    
-    // ✅ fetchData 引用稳定，只有 query 变化时才重新触发 effect
-    const fetchData = useCallback(async () => {
-      const res = await api.search(query);
-      setResults(res);
-    }, [query]);
-    
-    useEffect(() => {
-      fetchData();
-    }, [fetchData]); // 现在可以安全地将函数放入依赖数组
-    
-    return <Results data={results} />;
-  }
+  const [results, setResults] = useState([]);
+
+  // ❌ 每次渲染都是新函数，导致 effect 每次都要执行
+  const fetchData = async () => {
+    const res = await api.search(query);
+    setResults(res);
+  };
+
+  // ✅ fetchData 引用稳定，只有 query 变化时才重新触发 effect
+  const fetchData = useCallback(async () => {
+    const res = await api.search(query);
+    setResults(res);
+  }, [query]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]); // 现在可以安全地将函数放入依赖数组
+
+  return <Results data={results} />;
+}
 ```
 
 ---
@@ -1848,18 +1825,17 @@ function Search({ query }) {
 
 ```js
 function useDebounce(callback, delay) {
-    const [debouncedCallback] = useState(() =>
-        debounce(callback, delay)
-    );
+  const [debouncedCallback] = useState(() => debounce(callback, delay));
 
-    // 返回稳定的函数引用
-    return useCallback((...args) => {
-        debouncedCallback(...args);
-    }, [debouncedCallback]);
+  // 返回稳定的函数引用
+  return useCallback(
+    (...args) => {
+      debouncedCallback(...args);
+    },
+    [debouncedCallback],
+  );
 }
 ```
-
-
 
 #### **<font color='#10c300'>3）什么时候用 useCallback</font>**
 
@@ -1867,41 +1843,37 @@ function useDebounce(callback, delay) {
 2. 函数作为其他 Hook（`useEffect`、`useMemo`）的依赖
 3. 函数是自定义 Hook 的返回值，供外部使用
 
-
-
 #### **<font color='#10c300'>4）TypeScript 支持</font>**
 
 ```tsx
 // 基础类型推断
 const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
+  setValue(e.target.value);
 }, []);
 
-  // 泛型约束
-  type FetchFn = (id: string) => Promise<User>;
+// 泛型约束
+type FetchFn = (id: string) => Promise<User>;
 
 const fetchUser = useCallback<FetchFn>(async (id) => {
-    const res = await api.getUser(id);
-    return res.data;
+  const res = await api.getUser(id);
+  return res.data;
 }, []);
 
 // 返回元组（常见于自定义 Hook）
 function useToggle(initial = false) {
-    const [state, setState] = useState(initial);
+  const [state, setState] = useState(initial);
 
-    const toggle = useCallback(() => {
-        setState(s => !s);
-    }, []);
+  const toggle = useCallback(() => {
+    setState((s) => !s);
+  }, []);
 
-    const setTrue = useCallback(() => setState(true), []);
-    const setFalse = useCallback(() => setState(false), []);
+  const setTrue = useCallback(() => setState(true), []);
+  const setFalse = useCallback(() => setState(false), []);
 
-    // 类型自动推断为 [boolean, () => void, () => void, () => void]
-    return [state, toggle, setTrue, setFalse] as const;
+  // 类型自动推断为 [boolean, () => void, () => void, () => void]
+  return [state, toggle, setTrue, setFalse] as const;
 }
 ```
-
-
 
 #### **<font color='#10c300'>5）高级模式</font>**
 
@@ -1909,23 +1881,23 @@ function useToggle(initial = false) {
 
 ```js
 function useStableCallback(fn) {
-    const ref = useRef(fn);
-    ref.current = fn; // 每次渲染更新 ref
-    
-    // 返回稳定引用，但始终调用最新函数
-    return useCallback((...args) => ref.current(...args), []);
+  const ref = useRef(fn);
+  ref.current = fn; // 每次渲染更新 ref
+
+  // 返回稳定引用，但始终调用最新函数
+  return useCallback((...args) => ref.current(...args), []);
 }
-  
+
 // 使用：可以放入 useEffect 依赖而不触发重新执行，且能访问最新 props/state
 function Component({ onUpdate }) {
-    const stableCallback = useStableCallback(() => {
-        console.log('最新状态'); // 永远能访问最新值，无需依赖数组
-    });
-    
-    useEffect(() => {
-        const timer = setInterval(stableCallback, 1000);
-        return () => clearInterval(timer);
-    }, [stableCallback]); // 永远不会变，effect 只执行一次
+  const stableCallback = useStableCallback(() => {
+    console.log("最新状态"); // 永远能访问最新值，无需依赖数组
+  });
+
+  useEffect(() => {
+    const timer = setInterval(stableCallback, 1000);
+    return () => clearInterval(timer);
+  }, [stableCallback]); // 永远不会变，effect 只执行一次
 }
 ```
 
@@ -1935,22 +1907,22 @@ function Component({ onUpdate }) {
 
 ```js
 function List({ items }) {
-    // ❌ 每次渲染都创建 N 个新函数
-    return items.map(item => (
-        <button onClick={() => handleItemClick(item.id)}>{item.name}</button>
-    ));
-    
-    // ✅ 使用 useCallback 缓存每个处理器（配合 memo）
-    return items.map(item => (
-        <MemoItem 
-            key={item.id}
-            item={item}
-            onClick={useCallback(
-                () => handleItemClick(item.id), 
-                [item.id] // 只有当 item.id 变化时才更新
-            )}
-        />
-    ));
+  // ❌ 每次渲染都创建 N 个新函数
+  return items.map((item) => (
+    <button onClick={() => handleItemClick(item.id)}>{item.name}</button>
+  ));
+
+  // ✅ 使用 useCallback 缓存每个处理器（配合 memo）
+  return items.map((item) => (
+    <MemoItem
+      key={item.id}
+      item={item}
+      onClick={useCallback(
+        () => handleItemClick(item.id),
+        [item.id], // 只有当 item.id 变化时才更新
+      )}
+    />
+  ));
 }
 ```
 
@@ -1960,16 +1932,17 @@ function List({ items }) {
 
 ```js
 function useApi(api) {
-    // 即使 api 对象变化，只要 endpoint 不变，fetchData 引用稳定
-    const fetchData = useCallback((endpoint) => {
-        return api.request(endpoint);
-    }, [api]); // api 通常是稳定的单例
-    
-    return fetchData;
+  // 即使 api 对象变化，只要 endpoint 不变，fetchData 引用稳定
+  const fetchData = useCallback(
+    (endpoint) => {
+      return api.request(endpoint);
+    },
+    [api],
+  ); // api 通常是稳定的单例
+
+  return fetchData;
 }
 ```
-
-
 
 #### **<font color='#10c300'>6）常见误区⚠️</font>**
 
@@ -1979,8 +1952,6 @@ function useApi(api) {
    `useCallback` 只防止不必要的重渲染，但状态更新触发的渲染仍会发生
 3. **依赖不正确会导致逻辑错误**
    缺少依赖可能让函数内部拿到旧的状态
-
-
 
 <br>
 
@@ -2004,9 +1975,7 @@ const [state, dispatch] = useReducer(reducer, initialArg, init?)
 - **`dispatch`**：触发状态更新的函数
 - **`reducer`**：一个函数，负责“接收旧状态 + 动作（action）”，返回新状态
 - **`initialArg`**：初始状态
-- **`init（可选）`**：*惰性初始化函数*，用于在初始渲染时对 `initialArg` 进行加工或计算，返回真正的初始状态，只会在初始化执行一次
-
-
+- **`init（可选）`**：_惰性初始化函数_，用于在初始渲染时对 `initialArg` 进行加工或计算，返回真正的初始状态，只会在初始化执行一次
 
 #### **<font color='#10c300'>2）使用场景示例</font>**
 
@@ -2017,26 +1986,26 @@ import { useReducer } from "react";
 
 // 定义 reducer
 function reducer(state, action) {
-    switch (action.type) {
-        case "increment":
-            return { count: state.count + 1 };
-        case "decrement":
-            return { count: state.count - 1 };
-        default:
-            return state; // 返回原状态（防止报错）
-    }
+  switch (action.type) {
+    case "increment":
+      return { count: state.count + 1 };
+    case "decrement":
+      return { count: state.count - 1 };
+    default:
+      return state; // 返回原状态（防止报错）
+  }
 }
 
 function Counter() {
-    const [state, dispatch] = useReducer(reducer, { count: 0 });
+  const [state, dispatch] = useReducer(reducer, { count: 0 });
 
-    return (
-        <div>
-            <p>计数：{state.count}</p>
-            <button onClick={() => dispatch({ type: "increment" })}>+1</button>
-            <button onClick={() => dispatch({ type: "decrement" })}>-1</button>
-        </div>
-    );
+  return (
+    <div>
+      <p>计数：{state.count}</p>
+      <button onClick={() => dispatch({ type: "increment" })}>+1</button>
+      <button onClick={() => dispatch({ type: "decrement" })}>-1</button>
+    </div>
+  );
 }
 
 export default Counter;
@@ -2044,55 +2013,62 @@ export default Counter;
 
 ✅ `dispatch` 类似于调用 `setState`，但语义更清晰、逻辑集中。
 
-------
+---
 
 **<font color='#00A6ED'>2️⃣ 复杂状态示例：表单管理</font>**
 
 ```jsx
-import { useReducer } from 'react';
+import { useReducer } from "react";
 
 const initialForm = {
-    username: '',
-    age: '',
+  username: "",
+  age: "",
 };
 
 function formReducer(state, action) {
-    switch (action.type) {
-        case 'CHANGE_FIELD':
-            return { ...state, [action.field]: action.value };
-        case 'RESET':
-            return initialForm;
-        default:
-            return state;
-    }
+  switch (action.type) {
+    case "CHANGE_FIELD":
+      return { ...state, [action.field]: action.value };
+    case "RESET":
+      return initialForm;
+    default:
+      return state;
+  }
 }
 
 function Form() {
-    const [form, dispatch] = useReducer(formReducer, initialForm);
+  const [form, dispatch] = useReducer(formReducer, initialForm);
 
-    return (
-        <div>
-            <input
-                value={form.username}
-                onChange={(e) =>
-                    dispatch({ type: 'CHANGE_FIELD', field: 'username', value: e.target.value })
-                }
-                placeholder="用户名"
-            />
-            <input
-                value={form.age}
-                onChange={(e) =>
-                    dispatch({ type: 'CHANGE_FIELD', field: 'age', value: e.target.value })
-                }
-                placeholder="年龄"
-            />
-            <button onClick={() => dispatch({ type: 'RESET' })}>重置</button>
+  return (
+    <div>
+      <input
+        value={form.username}
+        onChange={(e) =>
+          dispatch({
+            type: "CHANGE_FIELD",
+            field: "username",
+            value: e.target.value,
+          })
+        }
+        placeholder="用户名"
+      />
+      <input
+        value={form.age}
+        onChange={(e) =>
+          dispatch({
+            type: "CHANGE_FIELD",
+            field: "age",
+            value: e.target.value,
+          })
+        }
+        placeholder="年龄"
+      />
+      <button onClick={() => dispatch({ type: "RESET" })}>重置</button>
 
-            <p>{JSON.stringify(form)}</p>
-        </div>
-    );
+      <p>{JSON.stringify(form)}</p>
+    </div>
+  );
 }
-
 
 export default Form;
 ```
@@ -2101,8 +2077,6 @@ export default Form;
 
 - 所有状态更新逻辑集中在 `reducer`；
 - 更容易维护、测试、调试。
-
-
 
 #### **<font color='#10c300'>3）useReducer 的执行流程图</font>**
 
@@ -2124,8 +2098,6 @@ reducer(state, action)
 newState → 触发重新渲染
 ```
 
-
-
 #### **<font color='#10c300'>4）useState vs useReducer 选择指南</font>**
 
 | 场景     | useState                          | useReducer                               |
@@ -2139,48 +2111,46 @@ newState → 触发重新渲染
 
 **转换信号**：当 `useState` 出现多个 `setXxx` 连续调用，或状态逻辑超过 5 行时，考虑改用 `useReducer`。
 
-
-
 #### **<font color='#10c300'>5）使用惰性初始化（第三个参数）</font>**
 
 `useReducer` 还支持传入一个函数，延迟计算初始状态（避免初始化开销）👇
 
 ```jsx
-import { useReducer } from 'react';
+import { useReducer } from "react";
 
 function init(initialCount) {
-    return { count: initialCount };
+  return { count: initialCount };
 }
 
 function reducer(state, action) {
-    switch (action.type) {
-        case 'reset':
-            return init(action.payload);
-        case 'increment':
-            return { count: state.count + 1 };
-        default:
-            return state;
-    }
+  switch (action.type) {
+    case "reset":
+      return init(action.payload);
+    case "increment":
+      return { count: state.count + 1 };
+    default:
+      return state;
+  }
 }
 
 function Counter() {
-    const [state, dispatch] = useReducer(reducer, 0, init);
+  const [state, dispatch] = useReducer(reducer, 0, init);
 
-    return (
-        <>
-            <p>计数: {state.count}</p>
-            <button onClick={() => dispatch({ type: 'increment' })}>+</button>
-            <button onClick={() => dispatch({ type: 'reset', payload: 5 })}>重置为 5</button>
-        </>
-    );
+  return (
+    <>
+      <p>计数: {state.count}</p>
+      <button onClick={() => dispatch({ type: "increment" })}>+</button>
+      <button onClick={() => dispatch({ type: "reset", payload: 5 })}>
+        重置为 5
+      </button>
+    </>
+  );
 }
 
 export default Counter;
 ```
 
 这种方式适用于初始状态计算非常复杂的情况。
-
-
 
 #### **<font color='#10c300'>6）useReducer + useContext</font>**
 
@@ -2189,42 +2159,44 @@ export default Counter;
 `useReducer` 常配合 `useContext` 使用，构建轻量“全局状态管理”：
 
 ```jsx
-import { createContext, useReducer, useContext } from 'react';
+import { createContext, useReducer, useContext } from "react";
 
 const CounterContext = createContext();
 
 function reducer(state, action) {
-    switch (action.type) {
-        case 'add': return state + 1;
-        default: return state;
-    }
+  switch (action.type) {
+    case "add":
+      return state + 1;
+    default:
+      return state;
+  }
 }
 
 function CounterProvider({ children }) {
-    const [count, dispatch] = useReducer(reducer, 0);
-    return (
-        <CounterContext.Provider value={{ count, dispatch }}>
-            {children}
-        </CounterContext.Provider>
-    );
+  const [count, dispatch] = useReducer(reducer, 0);
+  return (
+    <CounterContext.Provider value={{ count, dispatch }}>
+      {children}
+    </CounterContext.Provider>
+  );
 }
 
 function Child() {
-    const { count, dispatch } = useContext(CounterContext);
-    return (
-        <div>
-            <p>{count}</p>
-            <button onClick={() => dispatch({ type: 'add' })}>+1</button>
-        </div>
-    );
+  const { count, dispatch } = useContext(CounterContext);
+  return (
+    <div>
+      <p>{count}</p>
+      <button onClick={() => dispatch({ type: "add" })}>+1</button>
+    </div>
+  );
 }
 
 export default function App() {
-    return (
-        <CounterProvider>
-            <Child />
-        </CounterProvider>
-    );
+  return (
+    <CounterProvider>
+      <Child />
+    </CounterProvider>
+  );
 }
 ```
 
@@ -2253,7 +2225,7 @@ export default function App() {
 │   ├── 📄 Content.jsx              # 子组件，读取主题并展示
 ├── 📁 context/                      # Context
 │   ├── 📄 index.js                 # 创建 Context + Reducer
-└── 📄 App.jsx            
+└── 📄 App.jsx
 ```
 
 完整案例：https://www.yuque.com/zhbiao/qr34us/qk5da4gmpqzhat4s/edit#S3pEZ
@@ -2264,49 +2236,47 @@ export default function App() {
 - `reducer` 更新 theme → 所有使用该状态的组件自动重新渲染；
 - 所有组件同步变成“深色模式”。
 
-
-
 #### **<font color='#10c300'>7）TypeScript 最佳实践</font>**
 
 ```tsx
 // 1. 定义 State 和 Action 类型
 interface State {
-    count: number;
-    error: string | null;
-    status: 'idle' | 'loading' | 'success';
-  }
-  
-  type Action =
-    | { type: 'increment' }
-    | { type: 'decrement' }
-    | { type: 'reset'; payload: number }
-    | { type: 'setError'; error: string };
-  
+  count: number;
+  error: string | null;
+  status: "idle" | "loading" | "success";
+}
+
+type Action =
+  | { type: "increment" }
+  | { type: "decrement" }
+  | { type: "reset"; payload: number }
+  | { type: "setError"; error: string };
+
 // 2. Reducer 类型推断
 function reducer(state: State, action: Action): State {
-    switch (action.type) {
-        case 'increment':
-            return { ...state, count: state.count + 1 };
-        case 'reset':
-            return { ...state, count: action.payload, status: 'idle' };
-            // TypeScript 会检查是否处理了所有 action type
-        default:
-            return state;
-    }
+  switch (action.type) {
+    case "increment":
+      return { ...state, count: state.count + 1 };
+    case "reset":
+      return { ...state, count: action.payload, status: "idle" };
+    // TypeScript 会检查是否处理了所有 action type
+    default:
+      return state;
+  }
 }
-  
+
 // 3. 在组件中使用
 function Counter() {
-    const [state, dispatch] = useReducer(reducer, {
-        count: 0,
-        error: null,
-        status: 'idle'
-    });
-    
-    // dispatch 类型安全，错误的 action 会报错
-    dispatch({ type: 'increment' }); // ✅
-    dispatch({ type: 'reset', payload: 10 }); // ✅
-    dispatch({ type: 'unknown' }); // ❌ TypeScript 错误
+  const [state, dispatch] = useReducer(reducer, {
+    count: 0,
+    error: null,
+    status: "idle",
+  });
+
+  // dispatch 类型安全，错误的 action 会报错
+  dispatch({ type: "increment" }); // ✅
+  dispatch({ type: "reset", payload: 10 }); // ✅
+  dispatch({ type: "unknown" }); // ❌ TypeScript 错误
 }
 ```
 
@@ -2341,14 +2311,12 @@ const refContainer = useRef(initialValue);
 - `refContainer.current` 是存放值的地方
 - 改变 `refContainer.current` **不会触发组件重新渲染**
 
-
-
 #### **<font color='#10c300'>2）使用场景示例</font>**
 
 **<font color='#00A6ED'>1️⃣ 操作 DOM 元素</font>**
 
 ```jsx
-import { useRef } from 'react';
+import { useRef } from "react";
 
 function InputFocus() {
   const inputRef = useRef(null); // 初始 current = null
@@ -2371,32 +2339,32 @@ export default InputFocus;
 - `ref={inputRef}` 将 DOM 节点绑定到 `inputRef.current`
 - 点击按钮时执行 `inputRef.current.focus()` 来让输入框获得焦点
 
-------
+---
 
 **<font color='#00A6ED'>2️⃣ 用来存储可变值</font>**
 
 `useRef` 可以用来存储任意可变值，而且即使组件重新渲染，这个值仍然保留。
 
 ```jsx
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from "react";
 
 function RenderCount() {
-    const [count, setCount] = useState(0);
-    const renderTimes = useRef(0);
+  const [count, setCount] = useState(0);
+  const renderTimes = useRef(0);
 
-    useEffect(() => {
-        renderTimes.current += 1;  // 每次渲染 +1
-    });
-    console.log('组件渲染');
+  useEffect(() => {
+    renderTimes.current += 1; // 每次渲染 +1
+  });
+  console.log("组件渲染");
 
-    return (
-        <div>
-            <p>按钮点击次数：{count}</p>
-            <p>组件渲染次数：{renderTimes.current}</p>
-            {/* 这里点击调用了useState，导致页面重新渲染，但是useRef一直处于叠加状态，没有初始到0 说明具有持久性 */}
-            <button onClick={() => setCount(count + 1)}>点击</button>
-        </div>
-    );
+  return (
+    <div>
+      <p>按钮点击次数：{count}</p>
+      <p>组件渲染次数：{renderTimes.current}</p>
+      {/* 这里点击调用了useState，导致页面重新渲染，但是useRef一直处于叠加状态，没有初始到0 说明具有持久性 */}
+      <button onClick={() => setCount(count + 1)}>点击</button>
+    </div>
+  );
 }
 
 export default RenderCount;
@@ -2404,8 +2372,6 @@ export default RenderCount;
 
 - `renderTimes.current` 是一个持久化引用，组件每次渲染都会累加，但不会引起额外的渲染
 - 对 `useRef` 变量的修改不会触发 UI 更新
-
-
 
 #### **<font color='#10c300'>3）注意事项⚠️</font>**
 
@@ -2421,33 +2387,30 @@ export default RenderCount;
    import { useRef } from "react";
    import Child from "./child";
    function App() {
-       const domRef = useRef();
-       return (
-           <div>
-               {/* 错误写法，函数组件不能使用ref，因为函数组件没有实例 */}
-               <Child ref = {domRef} />
-               <button>父组件的按钮</button>
-           </div>
-       );
+     const domRef = useRef();
+     return (
+       <div>
+         {/* 错误写法，函数组件不能使用ref，因为函数组件没有实例 */}
+         <Child ref={domRef} />
+         <button>父组件的按钮</button>
+       </div>
+     );
    }
    export default App;
-   
    ```
-
-   
 
 #### **<font color='#10c300'>4）和 forwardRef 搭配</font>**
 
 <a name="forwardRef">**`useRef`** 配合 **`forwardRef`** 可以将 ref 传给子组件中的 DOM 元素：</a>
 
 ```jsx
-import { useRef, forwardRef } from 'react';
+import { useRef, forwardRef } from "react";
 
 const CustomInput = forwardRef((props, ref) => {
   return <input ref={ref} {...props} />;
 });
 
-function App() {	
+function App() {
   const myInputRef = useRef();
 
   return (
@@ -2466,14 +2429,14 @@ export default App;
 **<font color='red'>🚫在react19中已废弃forwardRef </font>**
 
 ```jsx
-import { useRef } from 'react';
+import { useRef } from "react";
 
 // ✅ React 19 写法：直接从 props 中获取 ref
 function CustomInput({ placeholder, ref, ...props }) {
   return <input ref={ref} placeholder={placeholder} {...props} />;
 }
 
-function App() {	
+function App() {
   const myInputRef = useRef();
 
   return (
@@ -2486,8 +2449,6 @@ function App() {
 
 export default App;
 ```
-
-
 
 #### **<font color='#10c300'>5）TypeScript 支持</font>**
 
@@ -2531,8 +2492,6 @@ const id = useId();
 - 每次渲染都保证相同组件中的 id 一致。
 - 不会在不同组件之间重复。
 
-
-
 #### **<font color='#10c300'>2）使用场景示例</font>**
 
 **<font color='#00A6ED'>1️⃣ 关联 `<label>` 与 `<input>`</font>**
@@ -2560,7 +2519,7 @@ export default NameField;
 - `label` 的 `htmlFor` 与 `input` 的 `id` 一致；
 - 当多个 `NameField` 组件同时存在时，每个组件生成的 id 不会冲突。
 
-------
+---
 
 **<font color='#00A6ED'>2️⃣ 组合前缀使用（推荐）</font>**
 
@@ -2575,8 +2534,6 @@ jsxconst id = useId();
 
 结果类比：`id="email-r1:0"`, `email-r1:1` 等。
 
-
-
 #### **<font color='#10c300'>3）与 SSR 配合</font>**
 
 React 18 引入了 `useId`，是为了解决 **服务端渲染（Server Side Rendering）** 时生成的 ID 不一致问题：
@@ -2585,8 +2542,6 @@ React 18 引入了 `useId`，是为了解决 **服务端渲染（Server Side Ren
 - Hydration（客户端激活）时，React 会保证客户端生成的 id 与服务端的一致。
 
 ✅ 所以 `useId` 是 **SSR 安全的唯一 ID**。
-
-
 
 #### **<font color='#10c300'>4）注意事项⚠️</font>**
 
@@ -2615,8 +2570,6 @@ const deferredValue = useDeferredValue(value);
 
 当 `value` 改变时，React **不会立即**让 `deferredValue` 同步，而是“稍后”更新它（基于调度优先级），如果更新非常快，比如频繁输入，`deferredValue` 会滞后一点跟上。
 
-
-
 #### **<font color='#10c300'>2）使用场景示例</font>**
 
 **<font color='#00A6ED'>1️⃣ 搜索过滤（大列表）</font>**
@@ -2624,36 +2577,40 @@ const deferredValue = useDeferredValue(value);
 假设我们有一个输入框用于搜索大量数据，输入过程中你不希望每个字母都立即导致昂贵的渲染：
 
 ```jsx
-import { useState, useDeferredValue, useMemo } from 'react';
+import { useState, useDeferredValue, useMemo } from "react";
 
 function SlowList({ input }) {
-    // 模拟大数据过滤（耗时） 要配合useMemo使用，要不然子组件每次渲染，也会导致输入卡顿
-    const list = useMemo(() => {
-        const items = [];
-        for (let i = 0; i < 10000; i++) {
-            items.push(<div key={i}>{input} - 项 {i}</div>);
-        }
-        return items;
-    }, [input]);
+  // 模拟大数据过滤（耗时） 要配合useMemo使用，要不然子组件每次渲染，也会导致输入卡顿
+  const list = useMemo(() => {
+    const items = [];
+    for (let i = 0; i < 10000; i++) {
+      items.push(
+        <div key={i}>
+          {input} - 项 {i}
+        </div>,
+      );
+    }
+    return items;
+  }, [input]);
 
-    return <div>{list}</div>;
+  return <div>{list}</div>;
 }
 
 function SearchPage() {
-    const [query, setQuery] = useState('');
-    const deferredQuery = useDeferredValue(query); // 👈 延迟使用 query
+  const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query); // 👈 延迟使用 query
 
-    return (
-        <div>
-            <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="输入搜索关键词..."
-            />
-            {/* 使用延迟的状态值渲染大列表 */}
-            <SlowList input={deferredQuery} />
-        </div>
-    );
+  return (
+    <div>
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="输入搜索关键词..."
+      />
+      {/* 使用延迟的状态值渲染大列表 */}
+      <SlowList input={deferredQuery} />
+    </div>
+  );
 }
 
 export default SearchPage;
@@ -2664,8 +2621,6 @@ export default SearchPage;
 - 输入框响应非常顺畅；
 - 列表渲染稍微滞后一点更新（不会阻塞输入）；
 - React 自动安排较低优先级的渲染任务。
-
-
 
 #### **<font color='#10c300'>3）useDeferredValue的本质</font>**
 
@@ -2681,8 +2636,6 @@ export default SearchPage;
 - 输入搜索时展示结果；
 - 大量数据过滤；
 - 复杂渲染场景中保持 UI 互动流畅。
-
-
 
 #### **<font color='#10c300'>4）注意事项⚠️</font>**
 
@@ -2708,8 +2661,6 @@ export default SearchPage;
 - **紧急更新（Urgent）**：立刻执行，比如输入框、点击。
 - **过渡更新（Transition）**：可以延后，比如筛选、分页、排序、大列表渲染。
 
-
-
 #### **<font color='#10c300'>1）基本语法搜索过滤</font>**
 
 ```jsx
@@ -2720,56 +2671,54 @@ const [isPending, startTransition] = useTransition();
 
 - `startTransition()`：函数：用于包裹属于过渡更新的代码（例如 setState）
 
-
-
 #### **<font color='#10c300'>2）使用场景示例</font>**
 
 ```jsx
-import { useState, useTransition } from 'react';
+import { useState, useTransition } from "react";
 
 const allItems = Array.from({ length: 20000 }, (_, i) => `Item ${i + 1}`);
 
 function List({ list }) {
-    return (
-        <ul>
-            {list.map((item) => (
-                <li key={item}>{item}</li>
-            ))}
-        </ul>
-    );
+  return (
+    <ul>
+      {list.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ul>
+  );
 }
 
 function App() {
-    const [query, setQuery] = useState('');
-    const [list, setList] = useState(allItems);
-    const [isPending, startTransition] = useTransition(); // 👈 使用 useTransition
+  const [query, setQuery] = useState("");
+  const [list, setList] = useState(allItems);
+  const [isPending, startTransition] = useTransition(); // 👈 使用 useTransition
 
-    function handleChange(e) {
-        const newQuery = e.target.value;
-        setQuery(newQuery); // 紧急更新（立即响应输入）
+  function handleChange(e) {
+    const newQuery = e.target.value;
+    setQuery(newQuery); // 紧急更新（立即响应输入）
 
-        // 过滤操作标记为“过渡更新”，不会阻塞输入
-        startTransition(() => {
-            const filtered = allItems.filter(item =>
-                item.toLowerCase().includes(newQuery.toLowerCase())
-            );
-            setList(filtered);
-        });
-    }
+    // 过滤操作标记为“过渡更新”，不会阻塞输入
+    startTransition(() => {
+      const filtered = allItems.filter((item) =>
+        item.toLowerCase().includes(newQuery.toLowerCase()),
+      );
+      setList(filtered);
+    });
+  }
 
-    return (
-        <div style={{ padding: 20 }}>
-            <h2>useTransition 优化的搜索示例</h2>
-            <input
-                value={query}
-                onChange={handleChange}
-                placeholder="输入关键字过滤列表…"
-            />
-            {isPending && <span style={{ color: 'orange' }}>正在过滤数据…</span>}
-            <p>匹配到 {list.length} 条结果</p>
-            <List list={list} />
-        </div>
-    );
+  return (
+    <div style={{ padding: 20 }}>
+      <h2>useTransition 优化的搜索示例</h2>
+      <input
+        value={query}
+        onChange={handleChange}
+        placeholder="输入关键字过滤列表…"
+      />
+      {isPending && <span style={{ color: "orange" }}>正在过滤数据…</span>}
+      <p>匹配到 {list.length} 条结果</p>
+      <List list={list} />
+    </div>
+  );
 }
 
 export default App;
@@ -2778,8 +2727,6 @@ export default App;
 ✅ 体验：
 输入框输入即时响应；
 列表过滤是延后执行的，界面不会卡顿。
-
-
 
 #### **<font color='#10c300'>3）工作原理</font>**
 
@@ -2797,8 +2744,6 @@ React 空闲时 → 执行过滤逻辑（过渡更新）
 - 暂缓其他较慢的渲染任务，
 - 确保界面流畅。
 
-
-
 #### **<font color='#10c300'>4）与useDeferredValue的对比</font>**
 
 - **`useDeferredValue`** 主要用于延迟单个值的更新，适用于值的变化直接影响到 UI 渲染但又不是立即必要的更新。
@@ -2809,7 +2754,7 @@ React 空闲时 → 执行过滤逻辑（过渡更新）
 | 控制对象       | 一整段状态更新（`setState`）   | 一个状态值             |
 | 延迟方式       | 手动包裹更新                   | 自动使值延迟生效       |
 | 返回值         | `[isPending, startTransition]` | `deferredValue`        |
-| 是否有加载状态 | ✅ 有 `isPending`               | ❌ 需手动比较           |
+| 是否有加载状态 | ✅ 有 `isPending`              | ❌ 需手动比较          |
 | 使用场景       | 你要延迟执行某个更新逻辑       | 你要延迟某个值传递下去 |
 
 #### **<font color='#10c300'>5）注意事项⚠️</font>**
@@ -2840,79 +2785,90 @@ useImperativeHandle(ref, createHandle, deps?)
 #### **<font color='#10c300'>2）React 19 之前的写法（forwardRef）</font>**
 
 ```jsx
-import { useRef, useImperativeHandle, forwardRef } from 'react';
+import { useRef, useImperativeHandle, forwardRef } from "react";
 
 // 子组件
 const Child = forwardRef((props, ref) => {
-    const inputRef = useRef(null);
+  const inputRef = useRef(null);
 
-    useImperativeHandle(ref, () => ({
-        focus: () => {
-            inputRef.current.focus();
-        },
-        getValue: () => inputRef.current.value
-    }), []);
+  useImperativeHandle(
+    ref,
+    () => ({
+      focus: () => {
+        inputRef.current.focus();
+      },
+      getValue: () => inputRef.current.value,
+    }),
+    [],
+  );
 
-    return <input ref={inputRef} placeholder="输入内容" />;
+  return <input ref={inputRef} placeholder="输入内容" />;
 });
 
 // 父组件
 function Parent() {
-    const childRef = useRef(null);
+  const childRef = useRef(null);
 
-    const handleClick = () => {
+  const handleClick = () => {
     // 调用子组件暴露的方法
-        childRef.current.focus();
-        console.log(childRef.current.getValue());
-    };
+    childRef.current.focus();
+    console.log(childRef.current.getValue());
+  };
 
-    return (
-        <>
-            <Child ref={childRef} />
-            <button onClick={handleClick}>操作子组件</button>
-        </>
-    );
+  return (
+    <>
+      <Child ref={childRef} />
+      <button onClick={handleClick}>操作子组件</button>
+    </>
+  );
 }
 
-export default Parent
+export default Parent;
 ```
 
 #### **<font color='#10c300'>3）React 19 的简化写法</font>**
 
 ```jsx
-import { useRef, useImperativeHandle } from 'react';
+import { useRef, useImperativeHandle } from "react";
 
 // 子组件
 function Child({ ref }) {
-    const inputRef = useRef(null);
+  const inputRef = useRef(null);
 
-    useImperativeHandle(ref, () => ({ // 返回一个对象
-        focus: () => inputRef.current?.focus(),
-        clear: () => { if (inputRef.current) inputRef.current.value = ''; }
-    }), []);
+  useImperativeHandle(
+    ref,
+    () => ({
+      // 返回一个对象
+      focus: () => inputRef.current?.focus(),
+      clear: () => {
+        if (inputRef.current) inputRef.current.value = "";
+      },
+    }),
+    [],
+  );
 
-    return <input ref={inputRef} />;
+  return <input ref={inputRef} />;
 }
 
 // 父组件
 function Parent() {
-    const childRef = useRef(null);
+  const childRef = useRef(null);
 
-    const handleClick = () => {
+  const handleClick = () => {
     // 调用子组件暴露的方法
-        childRef.current.focus();
-        childRef.current.clear();
-    };
+    childRef.current.focus();
+    childRef.current.clear();
+  };
 
-    return (
-        <>
-            <Child ref={childRef} />
-            <button onClick={handleClick}>操作子组件</button>
-        </>
-    );
+  return (
+    <>
+      <Child ref={childRef} />
+      <button onClick={handleClick}>操作子组件</button>
+    </>
+  );
 }
 
-export default Parent
+export default Parent;
 ```
 
 #### **<font color='#10c300'>4）使用场景</font>**
@@ -2922,13 +2878,14 @@ export default Parent
 ```jsx
 const FancyInput = forwardRef((props, ref) => {
   const inputRef = useRef(null);
-  
+
   useImperativeHandle(ref, () => ({
     // 只暴露特定的 API，隐藏内部实现
     focus: () => inputRef.current.focus(),
-    scrollIntoView: () => inputRef.current.scrollIntoView({ behavior: 'smooth' })
+    scrollIntoView: () =>
+      inputRef.current.scrollIntoView({ behavior: "smooth" }),
   }));
-  
+
   return <input ref={inputRef} {...props} />;
 });
 ```
@@ -2940,19 +2897,19 @@ const FancyInput = forwardRef((props, ref) => {
 ```jsx
 const AnimatedBox = forwardRef((props, ref) => {
   const elementRef = useRef(null);
-  
+
   useImperativeHandle(ref, () => ({
     shake: () => {
-      elementRef.current?.classList.add('shake-animation');
+      elementRef.current?.classList.add("shake-animation");
       setTimeout(() => {
-        elementRef.current?.classList.remove('shake-animation');
+        elementRef.current?.classList.remove("shake-animation");
       }, 500);
     },
     highlight: () => {
-      elementRef.current?.classList.add('highlight');
-    }
+      elementRef.current?.classList.add("highlight");
+    },
   }));
-  
+
   return <div ref={elementRef}>{props.children}</div>;
 });
 ```
@@ -2970,7 +2927,7 @@ const AnimatedBox = forwardRef((props, ref) => {
        focus: () => void;
        clear: () => void;
    }
-   
+
    const Child = forwardRef<ChildRef, Props>((props, ref) => {
        useImperativeHandle(ref, () => ({
            focus: () => {},
@@ -3007,8 +2964,6 @@ useLayoutEffect（同步执行，阻塞绘制）← 在这里修改 DOM，用户
 useEffect（异步执行，不阻塞绘制）
 ```
 
-
-
 #### **<font color='#10c300'>2）核心使用场景</font>**
 
 **1️⃣测量 DOM 并同步修改（防止闪烁）**
@@ -3016,34 +2971,34 @@ useEffect（异步执行，不阻塞绘制）
 **完整案例：**https://www.yuque.com/zhbiao/qr34us/qk5da4gmpqzhat4s/edit#fdd2408c
 
 ```jsx
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from "react";
 
 function Tooltip({ children, content }) {
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const triggerRef = useRef(null);
   const tooltipRef = useRef(null);
-  
+
   useLayoutEffect(() => {
     const triggerRect = triggerRef.current.getBoundingClientRect();
     const tooltipRect = tooltipRef.current.getBoundingClientRect();
-    
+
     // 计算 tooltip 位置（例如显示在 trigger 上方）
     const top = triggerRect.top - tooltipRect.height - 8;
     const left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
-    
+
     // 同步设置位置，用户不会看到 tooltip 先出现在错误位置
     setPosition({ top, left });
   }, []);
-  
+
   return (
     <>
       <span ref={triggerRef}>{children}</span>
-      <div 
+      <div
         ref={tooltipRef}
-        style={{ 
-          position: 'fixed', 
-          top: position.top, 
-          left: position.left 
+        style={{
+          position: "fixed",
+          top: position.top,
+          left: position.left,
         }}
       >
         {content}
@@ -3068,13 +3023,13 @@ function Tooltip({ children, content }) {
 ```jsx
 function ClientOnlyComponent() {
   const [width, setWidth] = useState(0);
-  
+
   // 服务端没有 window，默认渲染为 0
   // 客户端在绘制前同步计算实际宽度，防止闪烁
   useLayoutEffect(() => {
     setWidth(window.innerWidth);
   }, []);
-  
+
   return <div>窗口宽度: {width}</div>;
 }
 ```
@@ -3141,30 +3096,26 @@ function getWindowSize() { ... }
 - 只在顶层调用（不在循环、条件、嵌套函数中）
 - 只在 React 函数或自定义 Hook 中调用
 
-
-
 #### **<font color='#10c300'>2）基础模板</font>**
 
 ```jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 function useCustomHook(arg) {
   // 可以使用其他 Hooks
   const [state, setState] = useState(initialValue);
-  
+
   useEffect(() => {
     // 副作用逻辑
     return () => {
       // 清理逻辑
     };
   }, [arg]);
-  
+
   // 返回状态、方法或计算值
   return [state, setState]; // 或返回对象 { state, action }
 }
 ```
-
-
 
 #### **<font color='#10c300'>3）实战示例</font>**
 
@@ -3267,43 +3218,45 @@ export default useDebounce
 
 ```js
 function useFetch(url) {
-    const [state, setState] = useState({
-        data: null,
-        isLoading: true,
-        error: null
-    });
+  const [state, setState] = useState({
+    data: null,
+    isLoading: true,
+    error: null,
+  });
 
-    useEffect(() => {
-        let cancelled = false;
-    
-        setState(prev => ({ ...prev, isLoading: true }));
-    
-        fetch(url)
-            .then(res => res.json())
-            .then(data => {
-                if (!cancelled) {
-                    setState({ data, isLoading: false, error: null });
-                }
-            })
-            .catch(error => {
-                if (!cancelled) {
-                    setState({ data: null, isLoading: false, error });
-                }
-            });
-      
-        return () => { cancelled = true; };
-    }, [url]);
+  useEffect(() => {
+    let cancelled = false;
 
-    return state;
+    setState((prev) => ({ ...prev, isLoading: true }));
+
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) {
+          setState({ data, isLoading: false, error: null });
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setState({ data: null, isLoading: false, error });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
+
+  return state;
 }
 
 // 使用
 function UserProfile({ userId }) {
-    const { data: user, isLoading, error } = useFetch(`/api/users/${userId}`);
+  const { data: user, isLoading, error } = useFetch(`/api/users/${userId}`);
 
-    if (isLoading) return <Spinner />;
-    if (error) return <Error message={error.message} />;
-    return <div>{user.name}</div>;
+  if (isLoading) return <Spinner />;
+  if (error) return <Error message={error.message} />;
+  return <div>{user.name}</div>;
 }
 ```
 
@@ -3312,81 +3265,83 @@ function UserProfile({ userId }) {
 **4️⃣useMediaQuery（响应式）**
 
 ```jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 function useMediaQuery(query) {
-    const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
+  const [matches, setMatches] = useState(
+    () => window.matchMedia(query).matches,
+  );
 
-    useEffect(() => {
-        const media = window.matchMedia(query);
+  useEffect(() => {
+    const media = window.matchMedia(query);
 
-        const listener = () => setMatches(media.matches);
-        media.addEventListener('change', listener);
-        setMatches(media.matches);
+    const listener = () => setMatches(media.matches);
+    media.addEventListener("change", listener);
+    setMatches(media.matches);
 
-        return () => media.removeEventListener('change', listener);
-    }, [query]); // 不必依赖 matches
+    return () => media.removeEventListener("change", listener);
+  }, [query]); // 不必依赖 matches
 
-    return matches;
+  return matches;
 }
 
 // 使用
 function ResponsiveComponent() {
-    const isMobile = useMediaQuery('(max-width: 768px)');
-    const isTablet = useMediaQuery('(min-width: 769px) and (max-width: 1024px)');
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isTablet = useMediaQuery("(min-width: 769px) and (max-width: 1024px)");
 
-    return <div>{isMobile ? '手机视图' : isTablet ? '平板视图' : '桌面视图'}</div>;
+  return (
+    <div>{isMobile ? "手机视图" : isTablet ? "平板视图" : "桌面视图"}</div>
+  );
 }
 
 export default ResponsiveComponent;
 ```
-
-
 
 #### **<font color='#10c300'>4）高级模式</font>**
 
 **1️⃣组合多个 Hooks（自定义 Hook 使用其他自定义 Hook）**
 
 ```jsx
-
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from "react";
 
 function useWindowSize() {
-    const [size, setSize] = useState({ width: 0, height: 0 });
-    useEffect(() => {
-        const update = () => setSize({
-            width: window.innerWidth,
-            height: window.innerHeight
-        });
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  useEffect(() => {
+    const update = () =>
+      setSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
 
-        window.addEventListener('resize', update);
-        update();
-        return () => window.removeEventListener('resize', update);
-    }, []);
+    window.addEventListener("resize", update);
+    update();
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
-    return size;
+  return size;
 }
 
 // 组合使用
 function useBreakpoint() {
-    const { width } = useWindowSize();
-    return useMemo(() => {
-        return {
-            isMobile: width < 768,
-            isTablet: width >= 768 && width < 1024,
-            isDesktop: width >= 1024
-        }
-    }, [width]);
+  const { width } = useWindowSize();
+  return useMemo(() => {
+    return {
+      isMobile: width < 768,
+      isTablet: width >= 768 && width < 1024,
+      isDesktop: width >= 1024,
+    };
+  }, [width]);
 }
 
 function App() {
-    const breakpoints = useBreakpoint();
-    return (
-        <div>
-            <h1>Current Breakpoints</h1>
-            <pre>{JSON.stringify(breakpoints, null, 4)}</pre>
-        </div>
-    );
+  const breakpoints = useBreakpoint();
+  return (
+    <div>
+      <h1>Current Breakpoints</h1>
+      <pre>{JSON.stringify(breakpoints, null, 4)}</pre>
+    </div>
+  );
 }
 
 export default App;
@@ -3398,35 +3353,38 @@ export default App;
 
 ```jsx
 function useAuth() {
-    const [user, setUser] = useState(null);
-  
-    // 使用 useCallback 保持方法引用稳定
-    const login = useCallback(async (credentials) => {
-        const user = await api.login(credentials);
-        setUser(user);
-    }, []);
-  
-    const logout = useCallback(() => {
-        api.logout();
-        setUser(null);
-    }, []);
-  
-    // 使用 useMemo 保持对象引用稳定
-    const value = useMemo(() => ({
-        user,
-        isAuthenticated: !!user,
-        login,
-        logout
-    }), [user, login, logout]);
-  
-    return value;
+  const [user, setUser] = useState(null);
+
+  // 使用 useCallback 保持方法引用稳定
+  const login = useCallback(async (credentials) => {
+    const user = await api.login(credentials);
+    setUser(user);
+  }, []);
+
+  const logout = useCallback(() => {
+    api.logout();
+    setUser(null);
+  }, []);
+
+  // 使用 useMemo 保持对象引用稳定
+  const value = useMemo(
+    () => ({
+      user,
+      isAuthenticated: !!user,
+      login,
+      logout,
+    }),
+    [user, login, logout],
+  );
+
+  return value;
 }
 
 // 现在可以安全地用于 useEffect 依赖
 useEffect(() => {
-    if (auth.isAuthenticated) {
+  if (auth.isAuthenticated) {
     // 不会导致无限循环，因为 auth 引用稳定
-    }
+  }
 }, [auth]);
 ```
 
@@ -3439,16 +3397,16 @@ useEffect(() => {
 ```jsx
 // ❌ 错误：handler 变化时不会更新
 function useEventListener(eventName, handler) {
-    useEffect(() => {
-        window.addEventListener(eventName, handler);
-        return () => window.removeEventListener(eventName, handler);
-    }, []); // 缺少 handler
+  useEffect(() => {
+    window.addEventListener(eventName, handler);
+    return () => window.removeEventListener(eventName, handler);
+  }, []); // 缺少 handler
 }
 
 // ✅ 正确：但要求使用者使用 useCallback 包裹 handler
 useEffect(() => {
-    window.addEventListener(eventName, handler);
-    return () => window.removeEventListener(eventName, handler);
+  window.addEventListener(eventName, handler);
+  return () => window.removeEventListener(eventName, handler);
 }, [eventName, handler]);
 ```
 
@@ -3512,8 +3470,6 @@ const MemoizedComponent = React.memo(MyComponent);
 export default React.memo(MyComponent);
 ```
 
-
-
 #### **<font color='#10c300'>2）基本示例</font>**
 
 ```js
@@ -3538,7 +3494,7 @@ function App() {
 export default App;
 
 ============================================分割线==============================================
-    
+
 // Child.jsx
 import { memo } from 'react';
 
@@ -3563,8 +3519,6 @@ export default memo(Child);
 
 如果用的是普通组件，哪怕 props 一样，也会重新渲染。
 
-
-
 #### **<font color='#10c300'>3）工作原理</font>**
 
 `React.memo` 在渲染后，会 **保存上一次的 props**。
@@ -3576,24 +3530,17 @@ export default memo(Child);
 > 默认比较是浅层（只比较基础类型或引用是否相同），
 > 对象/数组类型的 props 如果新建了对象，就会认为不同。
 
-
-
-#### **<font color='#10c300'>4）自定义比较函数</font>**	
+#### **<font color='#10c300'>4）自定义比较函数</font>**
 
 有时候你希望控制“什么算变”，可以在第二个参数传入自定义比较函数：
 
 ```js
-const Memoized = React.memo(
-  MyComponent,
-  (prevProps, nextProps) => {
-    // 返回 true 表示不需要重新渲染（props 相等）
-    // 返回 false 表示需要重渲染
-    return prevProps.id === nextProps.id;
-  }
-);
+const Memoized = React.memo(MyComponent, (prevProps, nextProps) => {
+  // 返回 true 表示不需要重新渲染（props 相等）
+  // 返回 false 表示需要重渲染
+  return prevProps.id === nextProps.id;
+});
 ```
-
-
 
 #### **<font color='#10c300'>5）常见优化场景</font>**
 
@@ -3604,27 +3551,24 @@ const Memoized = React.memo(
 | 复杂组件            | 内部渲染代价高但 props 很稳定      |
 | 与 useCallback 搭配 | 保持传入函数引用一致，避免误触更新 |
 
-
-
 #### **<font color='#10c300'>6）与 useCallback 和 useMemo 的配合</font>**
 
 `React.memo` 只关心 props 是否变化。但是如果传入的是一个函数，每次渲染函数都是新引用，就会导致重新渲染。函数作为 `props` 的“引用不稳定”问题
 
 ```jsx
-import {useState} from "react";
+import { useState } from "react";
 // 子组件
 const Child = React.memo((props) => {
-  console.log('Child render');
+  console.log("Child render");
   return <div>{props.count}</div>;
 });
-
 
 // 父组件
 function Parent() {
   const [count, setCount] = useState(0);
 
   const handleClick = () => {
-    console.log('clicked');
+    console.log("clicked");
   };
 
   return (
@@ -3645,7 +3589,7 @@ export default Parent;
 React.memo 的默认比较方式是浅比较（shallow compare）
 
 ```js
-oldProps.onClick === newProps.onClick
+oldProps.onClick === newProps.onClick;
 ```
 
 而因为每次重新渲染时，这个函数都是新建的，所以结果是 `false`，导致 `Child` 无论 props 内容是否逻辑相同，都会被认为变动了。
@@ -3671,8 +3615,6 @@ unction Parent() {
 export default Parent;
 ```
 
-
-
 #### **<font color='#10c300'>7）注意事项</font>**
 
 | 项目                    | 说明                                   |
@@ -3681,8 +3623,6 @@ export default Parent;
 | 不适合滥用              | 若组件很轻量，比较成本可能高于渲染收益 |
 | useContext 更新仍会触发 | Context 更新时会重新渲染子节点         |
 | 不缓存 state            | 仅缓存渲染结果，与内部状态无关         |
-
-
 
 #### **<font color='#10c300'>8）总结</font>**
 
@@ -3694,7 +3634,7 @@ export default Parent;
 | 推荐搭配 | `useCallback`, `useMemo` 保持 props 引用稳定 |
 | 适用场景 | 子组件稳定、父组件频繁渲染、性能优化         |
 
-------
+---
 
 🌟 **一句话总结：**
 
@@ -3704,3 +3644,349 @@ export default Parent;
 ---
 
 <br>
+
+## **七、 React 19 新特性**
+
+React 19 带来了许多令人兴奋的新特性，特别是针对 **性能优化** 和 **服务端组件（RSC）** 的深度集成。最引人注目的是 React Compiler（React 编译器）的引入，它旨在自动处理 memoization，减少手动优化的负担。
+
+### **<font color='red'>7.1 React Compiler (React 编译器)</font>**
+
+这是 React 19 最具革命性的变化。
+
+- **过去**：为了避免不必要的重新渲染，我们需要手动使用 `useMemo`、`useCallback` 和 `React.memo`。
+- **现在**：React Compiler 可以在构建时自动分析代码，并自动应用优化。这意味着你可能不再需要手动写 `useMemo` 和 `useCallback` 了！
+
+> ⚠️ 注意：这是一个构建工具层面的优化，而不是运行时 API。
+
+### **<font color='red'>7.2 Actions (Server Actions)</font>**
+
+React 19 更加拥抱服务端能力，引入了 **Actions** 概念，简化数据提交和变更。
+
+#### **<font color='#10c300'>1）useActionState (原 useFormState)</font>**
+
+用于管理表单提交的状态（如加载中、成功、失败、错误信息）。
+
+```jsx
+import { useActionState } from "react";
+
+async function updateName(error, formData) {
+  const name = formData.get("name");
+  if (!name) return "Name required";
+  await api.updateUser(name);
+  return null;
+}
+
+function ChangeName() {
+  const [error, submitAction, isPending] = useActionState(updateName, null);
+
+  return (
+    <form action={submitAction}>
+      <input type="text" name="name" />
+      <button type="submit" disabled={isPending}>
+        {isPending ? "Updating..." : "Update"}
+      </button>
+      {error && <p>{error}</p>}
+    </form>
+  );
+}
+```
+
+#### **<font color='#10c300'>2）useFormStatus</font>**
+
+让我们在子组件中直接获取父级 `<form>` 的状态，而不需要通过 props 传递 `loading` 状态。
+
+```jsx
+import { useFormStatus } from "react-dom";
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return <button disabled={pending}>{pending ? "提交中..." : "提交"}</button>;
+}
+
+function App() {
+  return (
+    <form action={submitAction}>
+      <input name="name" />
+      <SubmitButton /> {/* 自动感知 form 状态 */}
+    </form>
+  );
+}
+```
+
+### **<font color='red'>7.3 新的 `use` API</font>**
+
+`use` 是一个新的 API，用于在 render 中读取资源（Promise 或 Context）。
+
+#### **<font color='#10c300'>1）读取 Context</font>**
+
+不再受限于只能在顶层使用 `useContext`，`use` 可以在条件语句和循环中使用（尽管仍建议在顶层）。
+
+```jsx
+import { use } from "react";
+import ThemeContext from "./ThemeContext";
+
+function Heading({ children }) {
+  if (children == null) {
+    return null;
+  }
+  // ✅ 可以在条件判断中使用
+  const theme = use(ThemeContext);
+  return <h1 style={{ color: theme.color }}>{children}</h1>;
+}
+```
+
+#### **<font color='#10c300'>2）读取 Promise</font>**
+
+可以直接在组件中等待 Promise 解析（配合 Suspense）。
+
+```jsx
+import { use, Suspense } from "react";
+
+function Comments({ commentsPromise }) {
+  // ❌ 以前：需要 useEffect + useState
+  // ✅ 现在：直接 use(promise)
+  const comments = use(commentsPromise);
+
+  return comments.map((c) => <p key={c.id}>{c.text}</p>);
+}
+
+function Page({ post }) {
+  return (
+    <Suspense fallback="加载评论中...">
+      <Comments commentsPromise={fetchComments(post.id)} />
+    </Suspense>
+  );
+}
+```
+
+### **<font color='red'>7.4 Ref 作为 Prop</font>**
+
+终于！在 React 19 中，你不再需要 `forwardRef` 了。`ref` 现在只是一个普通的 prop。
+
+```jsx
+// React 19 写法
+function MyInput({ placeholder, ref }) {
+  return <input placeholder={placeholder} ref={ref} />;
+}
+
+// 父组件
+<MyInput ref={inputRef} />;
+```
+
+### **<font color='red'>7.5 文档元数据支持</font>**
+
+直接在组件中渲染 `<title>`、`<meta>` 和 `<link>` 标签，React 会自动将它们提升到 `<head>` 中。
+
+```jsx
+function HomePage() {
+  return (
+    <>
+      <title>首页 - 我的应用</title>
+      <meta name="description" content="这是首页" />
+      <h1>欢迎</h1>
+    </>
+  );
+}
+```
+
+---
+
+<br>
+
+## **八、 最佳实践**
+
+### **<font color='red'>8.1 组件拆分与结构</font>**
+
+1. **单一职责原则**：每个组件只做一件事。如果一个组件超过 200 行，或者包含多个 `useEffect` 处理不同逻辑，考虑拆分。
+2. **容器与展示组件分离**：
+   - **展示组件 (Presentational)**：只负责渲染 UI，通过 props 接收数据和回调（如 `Button`, `Card`）。
+   - **容器组件 (Container)**：负责获取数据、处理逻辑，将数据传给展示组件。
+
+### **<font color='red'>8.2 性能优化指南</font>**
+
+1. **变动分离**：将变动频繁的部分（如输入框文字）抽离成独立组件，避免带动父组件重渲染。
+2. **列表虚拟化**：对于长列表（超过 50 条），使用 `react-window` 或 `react-virtuoso` 仅渲染可视区域的元素。
+3. **懒加载 (Lazy Loading)**：
+   对于非首屏路由或大型组件，使用 `lazy` 和 `Suspense`。
+
+   ```jsx
+   const AdminPanel = lazy(() => import("./AdminPanel"));
+   
+   <Suspense fallback={<Spinner />}>
+     <AdminPanel />
+   </Suspense>;
+   ```
+
+4. **避免滥用 Context**：Context 适合全局配置（主题、用户、语言），不适合高频变动的数据。高频数据应考虑 `Zustand` 或 `Redux` 等专门的状态管理库。
+
+### **<font color='red'>8.3 自定义 Hooks 封装逻辑</font>**
+
+不要在组件里堆砌 `useEffect`。将相关的逻辑（如 data fetching, event listeners）封装到自定义 Hook 中。
+
+```jsx
+// ❌ 不推荐
+function Component() {
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handle = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handle);
+    return () => window.removeEventListener("resize", handle);
+  }, []);
+  // ...
+}
+
+// ✅ 推荐
+function Component() {
+  const width = useWindowSize(); // 逻辑复用且清晰
+  // ...
+}
+```
+
+### **<font color='red'>8.4 错误边界 (Error Boundaries)</font>**
+
+使用错误边界捕获组件树中的 JS 错误，防止整个应用崩溃（白屏）。推荐使用 `react-error-boundary` 库。
+
+```jsx
+import { ErrorBoundary } from "react-error-boundary";
+
+<ErrorBoundary fallback={<div>出错了！</div>}>
+  <MyWidget />
+</ErrorBoundary>;
+```
+
+---
+
+<br>
+
+## **九、 常见问题与解决方案**
+
+### **<font color='red'>Q1: 为什么我的组件渲染了两次？</font>**
+
+**A:** 这是 React 18+ 在 **开发模式 (Strict Mode)** 下的预期行为。
+React 会故意卸载并重新挂载组件（mount -> unmount -> mount），主要为了检测：
+
+- `useEffect` 清理函数是否正确。
+- 是否有不纯的副作用。
+
+**生产环境只会渲染一次**，无需担心性能。
+
+### **<font color='red'>Q2: "Too many re-renders" 报错</font>**
+
+**A:** 通常是因为你在**渲染阶段**直接调用了 `setState`。
+
+```jsx
+// ❌ 错误
+function App() {
+  const [count, setCount] = useState(0);
+  setCount(1); // 🔴 每次渲染又触发更新 -> 死循环
+  return <div>{count}</div>;
+}
+
+// ✅ 正确
+useEffect(() => {
+  setCount(1);
+}, []); // 仅在挂载时执行
+```
+
+### **<font color='red'>Q3: useEffect 依赖警告 (exhaustive-deps)</font>**
+
+**A:** ESLint 警告你遗漏了依赖项。
+
+- **不要忽略它**：忽略通常会导致闭包陷阱（读到旧值）。
+- **解决方案**：
+  1. 将函数移到 `useEffect` 内部。
+  2. 使用 `useCallback` 包裹函数。
+  3. 如果真的只需要执行一次，检查逻辑是否正确，或者用 `useRef` 保存不需要触发更新的值。
+
+### **<font color='red'>Q4: 为什么 console.log 打印 State 总是旧值？</font>**
+
+**A:** `setState` 是**异步**（批处理）的。调用后状态不会立刻改变，而是等到下一次渲染。
+
+```jsx
+const handleClick = () => {
+  setCount(10);
+  console.log(count); // 仍然是 0 (旧值)
+};
+
+// 解决方法：使用 useEffect 监听变化
+useEffect(() => {
+  console.log(count); // 10 (新值)
+}, [count]);
+```
+
+### **<font color='red'>Q5: A component is changing an uncontrolled input to be controlled</font>**
+
+**A:** 这通常是因为你给 input 的 `value` 传了 `undefined` 或 `null`。
+
+```jsx
+// ❌ 错误：初始是 undefined (非受控)，后来变成 'hello' (受控)
+const [text, setText] = useState();
+<input value={text} />;
+
+// ✅ 正确：给初始值
+const [text, setText] = useState("");
+```
+
+### **<font color='red'>Q6: 如何处理组件卸载后的异步状态更新？</font>**
+
+**A:** 在 `useEffect` 中发起异步请求时，如果组件在请求完成前被卸载，尝试更新状态可能会导致警告（React 18 前）或潜在的竞态条件。
+
+**🤔 为什么说“组件可能已卸载”？**
+
+由于 `fetch` 是异步的（网络请求需要时间），在请求发出后到响应返回前的这段时间内，用户可能已经点击了路由跳转、关闭了弹窗或条件渲染导致该组件被销毁。
+此时代码执行到 `.then(setUser)` 时，实际上是在试图更新一个“已经不存在的组件”的状态。
+
+```jsx
+// ❌ 问题：组件卸载后更新状态
+function UserData({ userId }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    fetch(`/api/users/${userId}`)
+      .then((res) => res.json())
+      .then((data) => setUser(data)); // 如果此时用户已经离开当前页面，组件已卸载，这里就会报错
+  }, [userId]);
+}
+
+// ✅ 解决：使用 AbortController (推荐)
+function UserData({ userId }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const controller = new AbortController(); // 1. 创建控制器
+
+    fetch(`/api/users/${userId}`, { signal: controller.signal }) // 2. 绑定 signal
+      .then((res) => res.json())
+      .then((data) => setUser(data))
+      .catch((err) => {
+        // 3. 忽略因取消导致的错误
+        if (err.name !== "AbortError") throw err;
+      });
+
+    // 4. 组件卸载或 userId 变化时取消请求
+    return () => controller.abort();
+  }, [userId]);
+}
+
+// ⚠️ 传统解法：使用 cleanup function + 标记变量 (isMounted)
+// 这种方法不终止网络请求，只是不执行 setState，浪费流量但能避免报错
+function UserDataFallback({ userId }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true; // 1. 设置标记
+
+    fetch(`/api/users/${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        // 2. 只有组件还在挂载中时才更新状态
+        if (isMounted) setUser(data);
+      });
+
+    // 3. 清理函数：组件卸载时将标记设为 false
+    return () => {
+      isMounted = false;
+    };
+  }, [userId]);
+}
+```
