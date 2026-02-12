@@ -19,11 +19,12 @@ date: 2026-02-11 11:00:00
 
 1. [引言](#一引言)
 2. [快速上手 (Data Router)](#二快速上手-data-router)
-3. [核心特性详解](#三核心特性详解)
-4. [封装式路由配置](#四封装式路由配置-best-practice)
-5. [进阶与优化](#五进阶与优化)
-6. [常见误区 (Common Pitfalls)](#六常见误区-common-pitfalls)
-7. [总结](#七总结)
+3. [路由核心基础 (Routing)](#三路由核心基础-routing)
+4. [Data API (进阶)](#四data-api-进阶)
+5. [封装式路由配置](#五封装式路由配置-best-practice)
+6. [进阶与优化](#六进阶与优化)
+7. [常见误区 (Common Pitfalls)](#七常见误区-common-pitfalls)
+8. [总结](#八总结)
 
 <br>
 
@@ -105,11 +106,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
 <br>
 
-## **三、核心特性详解**
+## **三、路由核心基础 (Routing)**
+
+<br>
 
 ### **<font color='red'>3.1 数据加载 (Loader)</font>**
 
-这是 Data APIs 最核心的功能。它允许路由在渲染组件**之前**并行加载数据，彻底解决了 React 应用中常见的“瀑布流加载”问题。
+> **注意**: 这里展示的是基础概念，更深入的 Data API 用法请参考 [第四章 Data API](#四-data-api-进阶)。
+
+这是 Data APIs 的基础功能。它允许路由在渲染组件**之前**并行加载数据，彻底解决了 React 应用中常见的“瀑布流加载”问题。
 
 **<font color='#00A6ED'>为什么使用 loader 而不是 verifyEffect？</font>**
 
@@ -118,7 +123,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
 **代码实现：**
 
-```javascript
+```jsx
 // 1. 定义数据加载函数 (Loader)
 // 该函数会在路由跳转时自动执行，支持异步操作
 export const homeLoader = async () => {
@@ -134,6 +139,28 @@ const routes = [
     element: <Home />,
     loader: homeLoader, // <--- 绑定 loader
     errorElement: <ErrorPage />, // 自动捕获 loader 抛出的错误
+  },
+  {
+    path: "/user/:id",
+    element: <User />,
+    // loader 函数接收一个 params 对象
+    loader: async ({ params }) => {
+      const response = fetch(`/api/user/${params.id}`);
+      return response.json()
+    },
+  },
+  {
+    path: "/detail/:id",
+    element: <Detail />,
+    loader: async ({ params }) => {
+      const response = fetch(`/api/user/${params.id}`);
+      const res = response.json()
+      if(!res.token) { // 重定向
+          throw redirect('/login')
+      } else {
+          return res
+      }
+    },
   },
 ];
 ```
@@ -455,7 +482,7 @@ const withSuspense = (Component) => (
 const router = createBrowserRouter([
   {
     path: "/about",
-    element: withSuspense(About)
+    element: withSuspense(About),
   },
 ]);
 
@@ -463,35 +490,277 @@ export default router;
 
 // 方式3：可在整个路由入口使用Suspense 包裹所有路由组件(前提全部路由懒加载)
 <Suspense fallback={<div>Loading...</div>}>
-       <RouterProvider router={router} />
-</Suspense>
+  <RouterProvider router={router} />
+</Suspense>;
 ```
 
 > **注意**：如果不使用 `Suspense` 包裹，React 在等待组件加载时会抛出错误，导致应用崩溃。
 
 <br>
 
-### **<font color='red'>3.6 404 页面配置</font>**
+### **<font color='red'>3.6 路由模式</font>**
 
-当用户访问不存在的路径时，我们需要展示一个 404 页面。利用 `path: "*"` 通配符即可实现。
+React Router 主要支持两种路由模式：**History 模式** 和 **Hash 模式**。在 Data API (v6.4+) 中，它们分别对应 `createBrowserRouter` 和 `createHashRouter`。
+
+#### **<font color='#10c300'>1）History 模式 (推荐)</font>**
+
+这是现代 Web 应用的标准模式，使用 HTML5 History API (`pushState`, `replaceState`) 来管理 URL。
+
+- **表现**：URL 看起来像标准的路径，例如 `example.com/user/123`。
+- **优点**：URL 美观，符合用户习惯；SEO 友好。
+- **缺点**：**需要服务器配置支持**。因为是单页应用，当用户直接访问深层路径（如 `/user/123`）或刷新页面时，服务器必须返回 `index.html`，否则会出现 404 错误。
+
+**代码示例：**
 
 ```jsx
-// router/index.jsx
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
 const router = createBrowserRouter([
-  // ... 其他路由
-  {
-    path: "*", // 匹配所有未定义的路径
-    element: <NotFoundPage />,
-  },
+  // ...路由配置
 ]);
 
-function NotFoundPage() {
+<RouterProvider router={router} />;
+```
+
+**服务器配置示例 (Nginx)：**
+
+```nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+#### **<font color='#10c300'>2）Hash 模式</font>**
+
+使用 URL 的 Hash 部分 (`#`) 来模拟一个完整的 URL。
+
+- **表现**：URL 带有 `#` 号，例如 `example.com/#/user/123`。
+- **优点**：兼容性极好（支持老旧浏览器）；**不需要服务器额外配置**（因为 `#` 后面的内容不会发送给服务器）。
+- **缺点**：URL 不够美观；SEO 较差；某些第三方登录回调可能不支持 Hash 路径。
+
+**代码示例：**
+
+```jsx
+import { createHashRouter, RouterProvider } from "react-router-dom";
+
+const router = createHashRouter([
+  // ...路由配置
+]);
+
+<RouterProvider router={router} />;
+```
+
+#### **<font color='#10c300'>3）如何选择？</font>**
+
+| 特性           | History 模式 (`createBrowserRouter`) | Hash 模式 (`createHashRouter`)            |
+| :------------- | :----------------------------------- | :---------------------------------------- |
+| **URL 外观**   | 美观 (`/path`)                       | 带井号 (`/#/path`)                        |
+| **服务器配置** | **需要** (Nginx/Apache rewrite)      | **不需要**                                |
+| **SEO**        | 友好                                 | 较差                                      |
+| **部署难度**   | 中                                   | 低                                        |
+| **推荐场景**   | 公网项目、企业级应用                 | 内部工具、演示 Demo、无法控制服务器配置时 |
+
+#### **<font color='#10c300'>4）拓展</font>**
+
+1️⃣History 模式下为什么需要服务器配置支持，为什么当用户直接访问深层路径（如 `/user/123`）或刷新页面时，服务器必须返回 `index.html`，否则会出现 404 错误。
+
+答：当你直接在浏览器地址栏输入 http://example.com/user/123 并回车（或按刷新键）：
+
+1. 浏览器：这被视为一次全新的访问。浏览器会老老实实向服务器发送一个 HTTP GET 请求："请给我 /user/123 这个文件"。
+2. **服务器**：去它的硬盘文件系统里找
+   - 它找有没有 user 文件夹？没有。
+   - 它找有没有 user/123 文件？没有。
+   - 它找有没有 user/123.html？也没有。
+   - 因为 SPA 项目打包后，服务器上通常只有一个 index.html 和一堆 .js/.css 文件，根本不存在物理上的 /user/123 目录。
+3. **结果**：服务器诚实地返回了 **404 Not Found**。
+
+<br>
+
+### **<font color='red'>3.7 404 页面配置</font>**
+
+在 SPA 应用中，当用户访问了未定义的路径时，如果不做处理，页面可能会显示一片空白。我们需要配置一个 **Catch-All 路由** 来展示友好的 404 页面。
+
+在 React Router v6 中，使用 `path: "*"` 即可匹配任意路径。由于 v6 内部有智能的路由排名算法（Ranking Algorithm），你不需要在这个路由上加 `exact`，也不强求将它放在路由数组的最后（但在 v5 中必须放在最后）。
+
+#### **<font color='#10c300'>1）基础配置</font>**
+
+```jsx
+// src/router/index.jsx
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/about",
+    element: <About />,
+  },
+  // 🔥 404 路由配置（通常建议放在最后，便于阅读）
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+]);
+```
+
+#### **<font color='#10c300'>2）创建优雅的 404 组件</font>**
+
+简单的 404 页面应该包含错误提示和返回首页的按钮。
+
+```jsx
+// src/pages/NotFound.jsx
+import { Link, useNavigate } from "react-router-dom";
+
+export default function NotFound() {
+  const navigate = useNavigate();
+
   return (
-    <div>
-      <h1>404 - 页面未找到</h1>
-      <Link to="/">返回首页</Link>
+    <div style={{ textAlign: "center", padding: "50px" }}>
+      <h1 style={{ fontSize: "72px" }}>404</h1>
+      <p style={{ fontSize: "24px" }}>抱歉，您访问的页面不存在。</p>
+
+      <div style={{ marginTop: "20px" }}>
+        <button onClick={() => navigate(-1)} style={{ marginRight: "10px" }}>
+          返回上一页
+        </button>
+
+        <Link to="/">
+          <button>回到首页</button>
+        </Link>
+      </div>
     </div>
   );
+}
+```
+
+#### **<font color='#10c300'>3）重定向到首页</font>**
+
+有时候我们不希望显示 404 页面，而是直接将用户重定向回首页（例如在后台管理系统中）。可以使用 `<Navigate>` 组件。
+
+```jsx
+{
+  path: "*",
+  element: <Navigate to="/" replace />, // replace: true 防止用户点击后退时陷入死循环
+}
+```
+
+<br>
+
+---
+
+<br>
+
+## **四、Data API (进阶)**
+
+React Router 6.4+ 引入的 Data API 不仅仅是关于路由跳转，它提供了一套完整的**数据生命周期管理**方案。这使得我们可以在路由层面处理数据获取、提交和错误处理，大大减少组件内部的副作用代码。
+
+### **<font color='red'>4.1 数据加载 (Loader)</font>**
+
+> **注意**：Loader 的基础用法已在 [3.1 节](#31-数据加载-loader) 中介绍。
+
+Loader 是 Data API 的读取端。它在路由渲染前运行，为组件提供数据。
+
+**核心优势**：
+
+1.  **并行加载**：路由组件和数据并行请求，消除瀑布流。
+2.  **数据/UI 分离**：组件只负责接收数据渲染，不负责 Fetch。
+
+<br>
+
+### **<font color='red'>4.2 数据提交 (Action)</font>**
+
+Action 是 Data API 的写入端，用于处理非 GET 请求（如 POST, PUT, DELETE）。它与 `<Form>` 组件配合，能在不手动编写 `onSubmit` 和 `fetch` 的情况下完成数据提交。
+
+#### **<font color='#10c300'>1）定义 Action</font>**
+
+```javascript
+// src/pages/Login.jsx
+import { redirect } from "react-router-dom";
+
+export async function loginAction({ request }) {
+  // 获取表单数据
+  const formData = await request.formData();
+  const data = Object.fromEntries(formData);
+
+  // 发起请求
+  await fetch("/api/login", { method: "POST", body: JSON.stringify(data) });
+
+  // 成功后重定向
+  return redirect("/dashboard");
+}
+```
+
+#### **<font color='#10c300'>2）绑定 Config</font>**
+
+```javascript
+// router/index.jsx
+{
+  path: "/login",
+  element: <Login />,
+  action: loginAction, // 👈 绑定 action
+}
+```
+
+#### **<font color='#10c300'>3）使用 Form 组件</font>**
+
+```jsx
+import { Form } from "react-router-dom";
+
+function Login() {
+  return (
+    <Form method="post">
+      <input name="username" type="text" />
+      <input name="password" type="password" />
+      <button type="submit">登录</button>
+    </Form>
+  );
+}
+```
+
+<br>
+
+### **<font color='red'>4.3 无导航交互 (useFetcher)</font>**
+
+通常点击链接或提交表单会导致页面跳转。但有些操作我们**不希望跳转页面**，比如：**点赞**、**加入购物车**、**Newsletter 订阅**。这时使用 `useFetcher`。
+
+提供了 `fetcher.Form`、`fetcher.submit`、`fetcher.load` 等方法，可以在不导航的情况下触发 loader 或 action。
+
+```jsx
+import { useFetcher } from "react-router-dom";
+
+function ProductItem({ product }) {
+  const fetcher = useFetcher();
+  const isSubmitting = fetcher.state === "submitting";
+
+  return (
+    <div className="product-card">
+      <h3>{product.name}</h3>
+      {/* 这里的提交不会导致页面跳转，但会触发 action 并自动重新验证页面数据 */}
+      <fetcher.Form method="post" action="/add-to-cart">
+        <input type="hidden" name="productId" value={product.id} />
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "添加中..." : "加入购物车"}
+        </button>
+      </fetcher.Form>
+    </div>
+  );
+}
+```
+
+<br>
+
+### **<font color='red'>4.4 错误边界 (ErrorElement)</font>**
+
+每个路由都可以定义一个 `errorElement`。当 `loader`、`action` 或组件渲染过程中抛出错误时，React Router 会捕获它并渲染 `errorElement`，而不是让整个页面白屏。
+
+```javascript
+{
+  path: "/",
+  loader: async () => {
+    throw new Error("Oh no!");
+  },
+  element: <Home />,
+  errorElement: <ErrorPage />, // 👈 用户将看到这个组件
 }
 ```
 
@@ -499,11 +768,11 @@ function NotFoundPage() {
 
 <br>
 
-## **四、封装式路由配置 (Best Practice)**
+## **五、封装式路由配置 (Best Practice)**
 
 在真实项目中，我们将路由配置抽离到独立文件中管理，使其结构更清晰。
 
-### **<font color='red'>4.1 目录结构</font>**
+### **<font color='red'>5.1 目录结构</font>**
 
 推荐在 `src/router` 目录下管理路由：
 
@@ -520,7 +789,7 @@ src/
 
 <br>
 
-### **<font color='red'>4.2 路由配置文件</font>**
+### **<font color='red'>5.2 路由配置文件</font>**
 
 利用 `createBrowserRouter` 和 `lazy` 实现配置化与懒加载的完美结合。
 
@@ -538,7 +807,6 @@ const Login = lazy(() => import("../pages/Login"));
 
 // 加载中组件
 const Loading = () => <div className="p-4">Loading...</div>;
-
 
 // 路由表定义
 const routes = [
@@ -580,7 +848,7 @@ export default router;
 
 <br>
 
-### **<font color='red'>4.3 入口文件接入</font>**
+### **<font color='red'>5.3 接入</font>**
 
 ```jsx
 // App.jsx
@@ -589,28 +857,27 @@ import { Suspense } from "react";
 import router from "./router";
 
 function App() {
-    return (
-        <>
-            <Suspense fallback={<div>Loading...</div>}>
-                   <RouterProvider router={router} />
-            </Suspense>
-        </>
-    );
+  return (
+    <>
+      <Suspense fallback={<div>Loading...</div>}>
+        <RouterProvider router={router} />
+      </Suspense>
+    </>
+  );
 }
 
 export default App;
-
 ```
 
 ---
 
 <br>
 
-## **五、进阶与优化**
-
-### **<font color='red'>5.1 路由守卫 (Protected Routes)</font>**
+## **六、进阶与优化**
 
 在封装式写法中，我们可以创建一个包装组件来保护路由。
+
+### **<font color='red'>6.1 路由守卫 (Protected Routes)</font>**
 
 ```jsx
 // components/AuthGuard.jsx
@@ -640,7 +907,7 @@ export default function AuthGuard({ children }) {
 
 <br>
 
-### **<font color='red'>5.2 全局 Loading 状态</font>**
+### **<font color='red'>6.2 全局 Loading 状态</font>**
 
 使用 `useNavigation` 监听全局路由跳转状态。
 
@@ -664,9 +931,9 @@ function RootLayout() {
 
 <br>
 
-## **六、常见误区 (Common Pitfalls)**
+## **七、常见误区 (Common Pitfalls)**
 
-### **<font color='red'>6.1 错误使用 Layout 组件 (Context 丢失)</font>**
+### **<font color='red'>7.1 错误使用 Layout 组件 (Context 丢失)</font>**
 
 很多初学者容易犯的一个错误是：**将布局组件 (`Layout` / `Menu`) 防止在 `RouterProvider` 之外**。
 
@@ -768,7 +1035,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
 <br>
 
-## **七、总结**
+## **八、总结**
 
 React Router v6.4+ 定义了现代 React 应用的路由标准：
 
