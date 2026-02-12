@@ -39,6 +39,8 @@ date: 2026-02-11 11:00:00
 2.  **体验如原生应用**：丝滑的页面切换效果。
 3.  **URL 与 UI 同步**：通过 URL (`/about`) 直接定位到特定组件 (`<About />`)。
 
+<br>
+
 ### **<font color='red'>1.2 React Router v6.4+ (Data APIs)</font>**
 
 这是 React Router 的一次革命性更新，引入了 **Data APIs**。这不仅是定义路由的新方式，更解决了 React 应用中常见的“加载瀑布流”问题。
@@ -63,6 +65,8 @@ npm install react-router-dom localforage match-sorter sort-by
 ```
 
 > **提示**：安装完成后，检查 `package.json` 中的 `dependencies`，确认版本号 `>= 6.4`。
+
+<br>
 
 ### **<font color='red'>2.2 基本使用</font>**
 
@@ -147,6 +151,8 @@ function Home() {
 }
 ```
 
+<br>
+
 ### **<font color='red'>3.2 路由跳转 (Navigation)</font>**
 
 React Router 提供了两种主要的跳转方式：声明式和编程式。
@@ -210,6 +216,8 @@ function LoginPage() {
 }
 ```
 
+<br>
+
 ### **<font color='red'>3.3 参数传递 (Params)</font>**
 
 这是开发中最常见的需求，React Router 支持三种主要的传参方式。
@@ -250,8 +258,6 @@ function UserPage() {
 }
 ```
 
-
-
 #### **<font color='#10c300'>2）查询参数 (Query Params)</font>**
 
 参数以 key=value 形式拼接在 ? 后，如 `/list?page=1&sort=desc`。
@@ -287,8 +293,6 @@ function ListPage() {
 }
 ```
 
-
-
 #### **<font color='#10c300'>3）隐式状态 (State)</font>**
 
 参数不显示在 URL 中，存储在 history state 对象里。
@@ -319,6 +323,8 @@ function ProfilePage() {
 }
 ```
 
+<br>
+
 ### **<font color='red'>3.4 嵌套路由与 Outlet</font>**
 
 嵌套路由是 React Router 最核心、最强大的功能。它让我们能够将 UI 的嵌套结构与 URL 的路径结构完美对应。
@@ -347,7 +353,7 @@ const router = createBrowserRouter([
     // 3. 定义子路由数组
     children: [
       {
-        index: true, // 默认子路由 (访问 /dashboard 时显示)
+        index: true, // 默认子路由 (访问 /dashboard 时显示，默认子路由里面不能再嵌套子路由)
         element: <Stats />,
       },
       {
@@ -404,7 +410,68 @@ function DashboardLayout() {
 </DashboardLayout>
 ```
 
-### **<font color='red'>3.5 404 页面配置</font>**
+<br>
+
+### **<font color='red'>3.5 路由懒加载</font>**
+
+随着应用规模的增长，打包后的 JavaScript 文件（Chunk）会变得越来越大，导致首屏加载缓慢。 **路由懒加载** 是优化 React 应用性能的关键手段。
+
+#### **<font color='#10c300'>1）为什么要懒加载？</font>**
+
+- **默认行为**：构建工具（如 Viper/Webpack）会将所有页面组件打包进一个巨大的 JS 文件中。即使有些页面用户可能永远不会访问，浏览器也必须先下载这些代码。
+- **懒加载行为**：将代码分割成多个小块（Chunks）。**只有当用户点击跳转到特定路由时**，浏览器才去下载该页面对应的 JS 代码。
+
+#### **<font color='#10c300'>2）核心 API：React.lazy & Suspense</font>**
+
+React 原生提供了 `lazy` 函数来实现动态导入，配合 `Suspense` 组件处理加载状态。
+
+```jsx
+import { lazy, Suspense } from "react";
+import { createBrowserRouter } from "react-router-dom";
+
+// 1. 使用 lazy 动态导入组件 (注意：不要在组件内部声明)
+const About = lazy(() => import("./pages/About"));
+
+//  2. 使用 Suspense 包裹懒加载组件，fallback 用于显示加载中状态
+// 方式1：
+const router = createBrowserRouter([
+  {
+    path: "/about",
+    element: (
+      <Suspense fallback={<div>Loading...</div>}>
+        <About />
+      </Suspense>
+    ),
+  },
+]);
+
+// 方式2：封装 Suspens(HOC高阶函数)
+const withSuspense = (Component) => (
+  <Suspense fallback={<Loading />}>
+    <Component />
+  </Suspense>
+);
+
+const router = createBrowserRouter([
+  {
+    path: "/about",
+    element: withSuspense(About)
+  },
+]);
+
+export default router;
+
+// 方式3：可在整个路由入口使用Suspense 包裹所有路由组件(前提全部路由懒加载)
+<Suspense fallback={<div>Loading...</div>}>
+       <RouterProvider router={router} />
+</Suspense>
+```
+
+> **注意**：如果不使用 `Suspense` 包裹，React 在等待组件加载时会抛出错误，导致应用崩溃。
+
+<br>
+
+### **<font color='red'>3.6 404 页面配置</font>**
 
 当用户访问不存在的路径时，我们需要展示一个 404 页面。利用 `path: "*"` 通配符即可实现。
 
@@ -451,43 +518,41 @@ src/
 │   └── index.jsx    <-- 路由配置文件
 ```
 
-### **<font color='red'>4.2 路由配置文件 (src/router/index.jsx)</font>**
+<br>
+
+### **<font color='red'>4.2 路由配置文件</font>**
 
 利用 `createBrowserRouter` 和 `lazy` 实现配置化与懒加载的完美结合。
 
 ```javascript
-import React, { Suspense } from "react";
+// src/router/index.jsx
+
+import { lazy } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 // 懒加载页面组件
-const Home = React.lazy(() => import("../pages/Home"));
-const About = React.lazy(() => import("../pages/About"));
-const Dashboard = React.lazy(() => import("../pages/Dashboard"));
-const Login = React.lazy(() => import("../pages/Login"));
+const Home = lazy(() => import("../pages/Home"));
+const About = lazy(() => import("../pages/About"));
+const Dashboard = lazy(() => import("../pages/Dashboard"));
+const Login = lazy(() => import("../pages/Login"));
 
 // 加载中组件
 const Loading = () => <div className="p-4">Loading...</div>;
 
-// 封装 Suspense 高阶函数 (HOC)
-const withSuspense = (Component) => (
-  <Suspense fallback={<Loading />}>
-    <Component />
-  </Suspense>
-);
 
 // 路由表定义
 const routes = [
   {
     path: "/",
-    element: withSuspense(Home),
+    element: Home,
   },
   {
     path: "/login",
-    element: withSuspense(Login),
+    element: Login,
   },
   {
     path: "/dashboard",
-    element: withSuspense(Dashboard),
+    element: Dashboard,
     // 嵌套路由配置
     children: [
       {
@@ -513,16 +578,28 @@ const router = createBrowserRouter(routes);
 export default router;
 ```
 
-### **<font color='red'>4.3 入口文件接入 (src/main.jsx)</font>**
+<br>
 
-应用入口变得非常简洁：
+### **<font color='red'>4.3 入口文件接入</font>**
 
 ```jsx
+// App.jsx
 import { RouterProvider } from "react-router-dom";
+import { Suspense } from "react";
 import router from "./router";
 
-// ...
-<RouterProvider router={router} />;
+function App() {
+    return (
+        <>
+            <Suspense fallback={<div>Loading...</div>}>
+                   <RouterProvider router={router} />
+            </Suspense>
+        </>
+    );
+}
+
+export default App;
+
 ```
 
 ---
@@ -560,6 +637,8 @@ export default function AuthGuard({ children }) {
   ),
 }
 ```
+
+<br>
 
 ### **<font color='red'>5.2 全局 Loading 状态</font>**
 
