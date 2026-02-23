@@ -1,7 +1,7 @@
 ---
 title: Claude Code 安装与配置指南
 abbrlink: claudecodeinstall
-date: 2026-01-30 15:30:00
+date: 2026-02-23 01:30:00
 img: /static/49.webp
 categories: 工具
 tags:

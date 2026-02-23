@@ -1,7 +1,7 @@
 ---
 title: Hyper-V虚拟机详细安装教程
 abbrlink: hyper-v-install
-date: 2026-01-18 19:00:00
+date: 2026-02-23 10:00:00
 img: /static/46.webp
 categories: 后端与运维
 tags:
