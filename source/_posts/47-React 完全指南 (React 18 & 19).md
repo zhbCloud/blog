@@ -127,6 +127,61 @@ webpack-react-app/
 └── package.json               # 项目配置文件
 ```
 
+### **<font color='red'>2.4 跨域请求代理配置</font>**
+
+在前后端分离跨域开发时，通常需要在本地开发服务器中配置代理解决跨域问题。
+
+#### **<font color='#10c300'>1）Vite 配置跨域代理</font>**
+
+修改根目录下的 `vite.config.js` 文件，在 `server` 选项中添加用户指定的 `proxy`：
+
+```javascript
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://jsonplaceholder.typicode.com", // 实际后端地址
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""), // 如果后端接口本身不带 /api 前缀
+      },
+    },
+  },
+});
+```
+
+#### **<font color='#10c300'>2）Create React App 配置跨域代理</font>**
+
+CRA 官方推荐通过在 src 目录下创建 `setupProxy.js` 来配置代理底层中间件。
+
+1. 安装代理插件：
+
+```bash
+npm install http-proxy-middleware --save
+```
+
+2. 在 `src/` 目录中新建 `setupProxy.js`（注意：由于它是 Node 环境直接读取配置，只能使用 CommonJS 规范），写入以下配置：
+
+```javascript
+const { createProxyMiddleware } = require("http-proxy-middleware");
+
+module.exports = function (app) {
+  app.use(
+    "/api",
+    createProxyMiddleware({
+      target: "https://jsonplaceholder.typicode.com", // 实际后端地址
+      changeOrigin: true,
+      pathRewrite: {
+        "^/api": "", // 路径重写，去掉 /api 前缀
+      },
+    }),
+  );
+};
+```
+
 ---
 
 <br>
@@ -1956,13 +2011,10 @@ function useApi(api) {
    缺少依赖可能让函数内部拿到旧的状态
 
 4. 在写代码时，**默认不要加 `useCallback`**。只有当你遇到下面这两个信号时，再补上：
-
    - 👋 “我要把这个函数传给一个很重的、加了 memo 的列表子组件”。
    - “ESLint 警告我说，这个函数被用这了 useEffect 的依赖里”。
 
    除此之外，放心大胆地写普通函数，代码更干净，性能反而更好。
-
-
 
 <br>
 
