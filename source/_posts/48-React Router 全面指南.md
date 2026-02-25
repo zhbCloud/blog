@@ -73,7 +73,7 @@ npm install react-router-dom
 
 与传统的组件式 (`<BrowserRouter>`) 不同，新版推荐使用对象配置。
 
-**src/main.jsx:**
+**`src\router\index.js`**
 
 ```jsx
 import React from "react";
