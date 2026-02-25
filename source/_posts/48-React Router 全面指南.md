@@ -104,6 +104,8 @@ const router = createBrowserRouter([
     element: <div>About</div>, // 渲染 About 组件
   },
 ]);
+
+export default router;
 ```
 
 **`src\App.jsx`**
