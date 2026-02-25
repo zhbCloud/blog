@@ -90,7 +90,7 @@ npm install react-router-dom
 **`src\router\index.js`**
 
 ```jsx
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 
 // 1. 创建路由器实例 (Router Instance)
 // 这里定义了 URL 路径与 React 组件的映射关系
