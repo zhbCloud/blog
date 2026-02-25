@@ -92,17 +92,21 @@ const router = createBrowserRouter([
     element: <div>About</div>, // 渲染 About 组件
   },
 ]);
-
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    {/* RouterProvider 组件用于包裹整个应用或路由部分，能直接生成路由界面 */}
-    <RouterProvider router={router} />
-    {/*  <App /> */}
-  </React.StrictMode>,
-);
 ```
 
----
+**`src\App.jsx`**
+
+```
+import { RouterProvider } from "react-router-dom";
+import router from "./router";
+
+function App() {
+	{/* RouterProvider 组件用于包裹整个应用或路由部分，能直接生成路由界面 */}
+    return <RouterProvider router={router} />;
+}
+
+export default App;
+```
 
 <br>
 
