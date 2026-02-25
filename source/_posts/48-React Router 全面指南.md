@@ -62,7 +62,7 @@ date: 2026-02-11 11:00:00
 
 ```bash
 # 安装最新版 React Router DOM (包含了核心 React Router)
-npm install react-router-dom localforage match-sorter sort-by
+npm install react-router-dom
 ```
 
 > **提示**：安装完成后，检查 `package.json` 中的 `dependencies`，确认版本号 `>= 6.4`。
