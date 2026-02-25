@@ -90,8 +90,6 @@ npm install react-router-dom
 **`src\router\index.js`**
 
 ```jsx
-import React from "react";
-import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 // 1. 创建路由器实例 (Router Instance)
