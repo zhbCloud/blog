@@ -52,6 +52,20 @@ date: 2026-02-11 11:00:00
 - **配置化路由**：使用对象数组 (`createBrowserRouter`) 管理路由，比 JSX 写法更清晰、更易维护。
 - **自动状态管理**：内置 `loading`、`error` 状态处理，减少大量样板代码。
 
+<br>
+
+### **<font color='red'>1.3 React Router v7+三种使用模式</font>**
+
+React Router 的这三种模式反映了它从一个简单的组件库演变为功能完备的数据框架的历程。
+
+### 1. 三种模式的区别
+
+| 模式                     | 核心理念                                                     | 使用场景                                                     |
+| :----------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- |
+| **Declarative (声明式)** | 传统的组件化路由，使用 `<Routes>` 和 `<Route>` 直接写在 JSX 中。 | 简单的 CSR 应用，不需要路由驱动的数据预加载。                |
+| **Data (数据驱动)**      | **React Router v6.4+ 推荐方式**。使用 `createBrowserRouter` 定义路由对象。支持 `loader`（预加载数据）、`action`（数据修改）和 `errorElement`。 | 中大型应用，希望通过路由并行加载数据、处理表单提交和错误边界。 |
+| **Framework (框架模式)** | **React Router v7 (原 Remix)**。将 React Router 作为全栈框架使用，处理 SSR（服务端渲染）、静态生成等。 | 需要 SSR、SEO 优化或复杂全栈逻辑的项目。                     |
+
 ---
 
 <br>
@@ -96,7 +110,7 @@ const router = createBrowserRouter([
 
 **`src\App.jsx`**
 
-```
+```jsx
 import { RouterProvider } from "react-router-dom";
 import router from "./router";
 
