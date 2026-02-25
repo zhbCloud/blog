@@ -126,8 +126,6 @@ export default App;
 
 ## **三、路由核心基础 (Routing)**
 
-<br>
-
 ### **<font color='red'>3.1 数据加载 (Loader)</font>**
 
 > **注意**: 这里展示的是基础概念，更深入的 Data API 用法请参考 [第四章 Data API](#四-data-api-进阶)。

@@ -423,6 +423,907 @@ function TodoList() {
 
 > ⚠️ **key 的重要性**：key 帮助 React 识别哪些元素改变了，避免使用数组索引作为 key（除非列表是静态的）
 
+<br>
+
+### **<font color='red'>3.8 CSS Modules - 样式管理</font>**
+
+CSS Modules 是一种 CSS 文件的模块化和作用域化方案，它可以让 CSS 类名自动生成唯一的名称，避免全局样式冲突。
+
+#### **<font color='#10c300'>1）什么是 CSS Modules？</font>**
+
+CSS Modules 的核心思想：
+
+- **局部作用域**：默认情况下，CSS 类名只在当前模块内生效
+- **自动命名**：构建工具会将类名转换为唯一的哈希值（如 `.button` → `.Button_button__2Rx3L`）
+- **显式依赖**：通过 `import` 引入样式，明确组件与样式的关系
+- **可组合性**：支持 `composes` 关键字实现样式继承
+
+#### **<font color='#10c300'>2）基本使用</font>**
+
+**Step 1️⃣：创建 CSS Module 文件**
+
+文件命名规范：`*.module.css`（Vite 和 CRA 都默认支持）
+
+```css
+/* Button.module.css */
+.button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+.primary {
+  background-color: #28a745;
+}
+
+.danger {
+  background-color: #dc3545;
+}
+```
+
+**Step 2️⃣：在组件中导入并使用**
+
+```jsx
+import styles from "./Button.module.css";
+
+function Button({ type = "default", children }) {
+  return (
+    <button className={styles.button}>
+      {children}
+    </button>
+  );
+}
+
+export default Button;
+```
+
+**Step 3️⃣：查看编译后的类名**
+
+在浏览器中查看，类名会被转换为类似这样的唯一标识：
+
+```html
+<button class="Button_button__2Rx3L">点击我</button>
+```
+
+#### **<font color='#10c300'>3）动态类名组合</font>**
+
+**1️⃣使用模板字符串**
+
+```jsx
+import styles from "./Card.module.css";
+
+function Card({ isActive, children }) {
+  return (
+    <div className={`${styles.card} ${isActive ? styles.active : ""}`}>
+      {children}
+    </div>
+  );
+}
+```
+
+**2️⃣使用 classnames 库（推荐）**
+
+先安装：
+
+```bash
+npm install classnames
+```
+
+使用方式：
+
+```jsx
+import styles from "./Card.module.css";
+import classNames from "classnames";
+
+function Card({ isActive, isDisabled, children }) {
+  return (
+    <div
+      className={classNames(styles.card, {
+        [styles.active]: isActive,
+        [styles.disabled]: isDisabled,
+      })}
+    >
+      {children}
+    </div>
+  );
+}
+
+export default Card;
+```
+
+**3️⃣使用 clsx 库（轻量替代）**
+
+```bash
+npm install clsx
+```
+
+```jsx
+import styles from "./Button.module.css";
+import clsx from "clsx";
+
+function Button({ variant, size, disabled, children }) {
+  return (
+    <button
+      className={clsx(
+        styles.button,
+        styles[variant], // 动态访问样式
+        styles[size],
+        disabled && styles.disabled
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+```
+
+#### **<font color='#10c300'>4）composes 样式组合</font>**
+
+CSS Modules 支持 `composes` 关键字来实现样式继承和组合：
+
+```css
+/* Button.module.css */
+.button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.primary {
+  composes: button;
+  background-color: #007bff;
+  color: white;
+}
+
+.danger {
+  composes: button;
+  background-color: #dc3545;
+  color: white;
+}
+```
+
+使用时只需应用一个类名：
+
+```jsx
+import styles from "./Button.module.css";
+
+function Button({ type }) {
+  return <button className={styles[type]}>按钮</button>;
+}
+
+// 使用
+<Button type="primary" />  // 自动继承 button 的样式
+```
+
+#### **<font color='#10c300'>5）从其他文件组合样式</font>**
+
+```css
+/* base.module.css */
+.baseButton {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Button.module.css */
+.submitButton {
+  composes: baseButton from "./base.module.css";
+  background-color: green;
+  color: white;
+}
+```
+
+#### **<font color='#10c300'>6）全局样式与局部样式混合</font>**
+
+**1️⃣使用 `:global` 声明全局样式**
+
+```css
+/* App.module.css */
+.container {
+  padding: 20px;
+}
+
+/* 全局样式 */
+:global(.highlight) {
+  background-color: yellow;
+}
+
+/* 也可以嵌套 */
+.wrapper :global(.external-class) {
+  margin: 10px;
+}
+```
+
+**2️⃣混合使用全局类名和模块类名**
+
+```jsx
+import styles from "./App.module.css";
+
+function App() {
+  return (
+    <div className={`${styles.container} global-theme`}>
+      <span className="highlight">全局高亮</span>
+    </div>
+  );
+}
+```
+
+#### **<font color='#10c300'>7）CSS 变量与主题切换</font>**
+
+```css
+/* theme.module.css */
+.light {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+}
+
+.dark {
+  --bg-color: #1a1a1a;
+  --text-color: #ffffff;
+}
+
+.container {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  padding: 20px;
+}
+```
+
+```jsx
+import { useState } from "react";
+import styles from "./theme.module.css";
+
+function App() {
+  const [theme, setTheme] = useState("light");
+
+  return (
+    <div className={`${styles.container} ${styles[theme]}`}>
+      <h1>当前主题：{theme}</h1>
+      <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+        切换主题
+      </button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+#### **<font color='#10c300'>8）配合 Sass/Less 使用</font>**
+
+CSS Modules 完全支持 CSS 预处理器。
+
+**1️⃣安装 Sass**
+
+```bash
+npm install sass
+```
+
+**2️⃣创建 SCSS Module 文件**
+
+```scss
+/* Button.module.scss */
+$primary-color: #007bff;
+$hover-darken: 10%;
+
+.button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+
+  &.primary {
+    background-color: $primary-color;
+    
+    &:hover {
+      background-color: darken($primary-color, $hover-darken);
+    }
+  }
+
+  &.large {
+    padding: 15px 30px;
+    font-size: 18px;
+  }
+}
+```
+
+**3️⃣在组件中使用**
+
+```jsx
+import styles from "./Button.module.scss";
+
+function Button({ variant = "primary", size = "medium", children }) {
+  return (
+    <button className={`${styles.button} ${styles[variant]} ${styles[size]}`}>
+      {children}
+    </button>
+  );
+}
+```
+
+#### **<font color='#10c300'>9）TypeScript 支持</font>**
+
+**1️⃣自动生成类型定义**
+
+安装类型生成工具：
+
+```bash
+npm install -D typescript-plugin-css-modules
+```
+
+配置 `tsconfig.json`：
+
+```json
+{
+  "compilerOptions": {
+    "plugins": [{ "name": "typescript-plugin-css-modules" }]
+  }
+}
+```
+
+**2️⃣手动创建类型定义**
+
+```typescript
+// Button.module.css.d.ts
+declare const styles: {
+  readonly button: string;
+  readonly primary: string;
+  readonly danger: string;
+  readonly large: string;
+  readonly small: string;
+};
+
+export default styles;
+```
+
+**3️⃣在 TypeScript 组件中使用**
+
+```tsx
+import styles from "./Button.module.css";
+
+interface ButtonProps {
+  variant?: "primary" | "danger" | "success";
+  size?: "small" | "medium" | "large";
+  children: React.ReactNode;
+}
+
+const Button: React.FC<ButtonProps> = ({ 
+  variant = "primary", 
+  size = "medium", 
+  children 
+}) => {
+  return (
+    <button className={`${styles.button} ${styles[variant]} ${styles[size]}`}>
+      {children}
+    </button>
+  );
+};
+
+export default Button;
+```
+
+#### **<font color='#10c300'>10）实战案例：卡片组件</font>**
+
+```css
+/* Card.module.css */
+.card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.cardContent {
+  color: #666;
+  line-height: 1.6;
+}
+
+.cardFooter {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.highlighted {
+  border-color: #007bff;
+  background-color: #f8f9ff;
+}
+```
+
+```jsx
+import styles from "./Card.module.css";
+import classNames from "classnames";
+
+function Card({ title, children, actions, highlighted = false }) {
+  return (
+    <div className={classNames(styles.card, {
+      [styles.highlighted]: highlighted
+    })}>
+      {title && (
+        <div className={styles.cardHeader}>
+          <h3 className={styles.cardTitle}>{title}</h3>
+        </div>
+      )}
+      
+      <div className={styles.cardContent}>
+        {children}
+      </div>
+      
+      {actions && (
+        <div className={styles.cardFooter}>
+          {actions}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default Card;
+```
+
+#### **<font color='#10c300'>11）配置自定义哈希命名</font>**
+
+**Vite 配置**
+
+```javascript
+// vite.config.js
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  plugins: [react()],
+  css: {
+    modules: {
+      // 自定义生成的类名格式
+      generateScopedName: "[name]__[local]___[hash:base64:5]",
+      // [name]: 文件名
+      // [local]: 原始类名
+      // [hash:base64:5]: 5位哈希值
+    },
+  },
+});
+```
+
+**Create React App 配置**
+
+CRA 需要 eject 或使用 `craco` / `react-app-rewired` 来修改配置：
+
+```javascript
+// craco.config.js
+module.exports = {
+  style: {
+    modules: {
+      localIdentName: "[name]__[local]--[hash:base64:5]",
+    },
+  },
+};
+```
+
+#### **<font color='#10c300'>12）最佳实践</font>**
+
+**1️⃣文件命名约定**
+
+```
+components/
+├── Button/
+│   ├── Button.jsx
+│   ├── Button.module.css
+│   └── index.js
+```
+
+**2️⃣避免过度嵌套**
+
+```css
+/* ❌ 不推荐：选择器嵌套过深 */
+.container .wrapper .content .item .title {
+  color: red;
+}
+
+/* ✅ 推荐：扁平化类名 */
+.container { }
+.item { }
+.itemTitle { }
+```
+
+**3️⃣使用语义化命名**
+
+```css
+/* ❌ 不清晰 */
+.btn1 { }
+.box2 { }
+.red { }
+
+/* ✅ 语义化 */
+.submitButton { }
+.userCard { }
+.errorMessage { }
+```
+
+**4️⃣组合全局样式和模块样式**
+
+```jsx
+import styles from "./App.module.css";
+
+function App() {
+  return (
+    // 全局重置样式 + 模块样式
+    <div className={`global-reset ${styles.container}`}>
+      <header className={styles.header}>标题</header>
+    </div>
+  );
+}
+```
+
+**5️⃣共享常量（CSS 变量）**
+
+```css
+/* variables.module.css */
+:export {
+  primaryColor: #007bff;
+  successColor: #28a745;
+  spacing: 16px;
+}
+```
+
+```jsx
+import variables from "./variables.module.css";
+
+function Component() {
+  return (
+    <div style={{ 
+      color: variables.primaryColor,
+      padding: variables.spacing 
+    }}>
+      内容
+    </div>
+  );
+}
+```
+
+#### **<font color='#10c300'>13）常见问题与解决方案</font>**
+
+**Q1: 如何应用多个类名？**
+
+```jsx
+// 方法1：模板字符串
+<div className={`${styles.card} ${styles.active}`} />
+
+// 方法2：数组 join
+<div className={[styles.card, styles.active].join(' ')} />
+
+// 方法3：classnames 库（推荐）
+<div className={classNames(styles.card, styles.active)} />
+```
+
+**Q2: 如何访问带连字符的类名？**
+
+```css
+/* Button.module.css */
+.submit-button { }
+```
+
+```jsx
+// 方法1：中括号语法
+<button className={styles['submit-button']} />
+
+// 方法2：驼峰命名（推荐）
+/* 改为 .submitButton */
+<button className={styles.submitButton} />
+```
+
+**Q3: 如何在 CSS Modules 中使用伪类和伪元素？**
+
+```css
+/* Button.module.css */
+.button {
+  position: relative;
+}
+
+/* 伪类 */
+.button:hover {
+  opacity: 0.8;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* 伪元素 */
+.button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+```
+
+**Q4: 如何覆盖第三方组件库样式？**
+
+```css
+/* App.module.css */
+/* 使用 :global 包裹第三方类名 */
+.customModal :global(.ant-modal-content) {
+  border-radius: 16px;
+}
+
+.wrapper :global {
+  .mui-button {
+    text-transform: none;
+  }
+}
+```
+
+```jsx
+import styles from "./App.module.css";
+import { Modal } from "antd";
+
+function App() {
+  return (
+    <div className={styles.customModal}>
+      <Modal>内容</Modal>
+    </div>
+  );
+}
+```
+
+#### **<font color='#10c300'>14）CSS Modules vs 其他方案对比</font>**
+
+| 方案 | 优势 | 劣势 | 适用场景 |
+|:-----|:-----|:-----|:---------|
+| **CSS Modules** | 自动作用域、零运行时、学习成本低 | 动态样式支持弱、需要构建工具 | 中小型项目、组件库 |
+| **CSS-in-JS** (styled-components) | 动态样式强大、主题支持好 | 运行时开销、调试困难 | 需要大量动态样式的应用 |
+| **Tailwind CSS** | 快速开发、设计系统一致性 | HTML 类名冗长、需要学习类名 | 追求开发效率的项目 |
+| **普通 CSS** | 简单直接 | 全局污染、命名冲突 | 简单页面、原型开发 |
+| **Sass/Less Modules** | 变量、嵌套、函数 | 需要编译、学习成本 | 复杂样式逻辑 |
+
+#### **<font color='#10c300'>15）高级技巧</font>**
+
+**1️⃣条件渲染复杂样式**
+
+```jsx
+import styles from "./Status.module.css";
+
+function StatusBadge({ status }) {
+  const statusClass = {
+    pending: styles.pending,
+    success: styles.success,
+    error: styles.error,
+    warning: styles.warning,
+  }[status];
+
+  return <span className={`${styles.badge} ${statusClass}`}>{status}</span>;
+}
+```
+
+**2️⃣动画与过渡**
+
+```css
+/* Animation.module.css */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeInElement {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+```
+
+**3️⃣响应式设计**
+
+```css
+/* Card.module.css */
+.card {
+  padding: 20px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .card {
+    width: 50%;
+    padding: 30px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    width: 33.333%;
+  }
+}
+```
+
+**4️⃣条件样式的性能优化**
+
+```jsx
+import { useMemo } from "react";
+import styles from "./List.module.css";
+
+function ListItem({ item, isActive, isSelected }) {
+  // 缓存类名计算结果
+  const className = useMemo(
+    () =>
+      classNames(styles.item, {
+        [styles.active]: isActive,
+        [styles.selected]: isSelected,
+      }),
+    [isActive, isSelected]
+  );
+
+  return <li className={className}>{item.name}</li>;
+}
+```
+
+#### **<font color='#10c300'>16）常见陷阱 ⚠️</font>**
+
+**1️⃣忘记使用 .module.css 后缀**
+
+```jsx
+// ❌ 错误：没有 .module 后缀，会被当作普通 CSS
+import styles from "./Button.css";
+
+// ✅ 正确
+import styles from "./Button.module.css";
+```
+
+**2️⃣直接修改 styles 对象**
+
+```jsx
+// ❌ 错误：styles 是只读的
+styles.button = "new-class";
+
+// ✅ 正确：通过字符串拼接
+const className = `${styles.button} ${styles.active}`;
+```
+
+**3️⃣在全局样式中使用模块类名**
+
+```css
+/* ❌ 错误：global.css（全局样式文件） */
+.Button_button__2Rx3L {
+  color: red; /* 哈希值会变，无法定位 */
+}
+
+/* ✅ 正确：使用语义化的全局类或 data 属性 */
+[data-component="button"] {
+  color: red;
+}
+```
+
+```jsx
+// 组件中添加 data 属性
+<button className={styles.button} data-component="button">
+```
+
+**4️⃣在 CSS Modules 中引用图片路径问题**
+
+```css
+/* ❌ 可能失效 */
+.background {
+  background-image: url(./images/bg.png);
+}
+
+/* ✅ 使用别名或绝对路径 */
+.background {
+  background-image: url(@/assets/images/bg.png);
+}
+```
+
+或在组件中使用：
+
+```jsx
+import styles from "./Hero.module.css";
+import bgImage from "./images/bg.png";
+
+function Hero() {
+  return (
+    <div 
+      className={styles.hero} 
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
+      内容
+    </div>
+  );
+}
+```
+
+#### **<font color='#10c300'>17）调试技巧</font>**
+
+**1️⃣查看编译后的类名**
+
+在浏览器开发者工具中检查元素，可以看到实际的类名：
+
+```html
+<button class="Button_button__2Rx3L Button_primary__3kM9x">点击</button>
+```
+
+**2️⃣在开发环境使用可读的类名**
+
+```javascript
+// vite.config.js
+export default defineConfig({
+  css: {
+    modules: {
+      generateScopedName: 
+        process.env.NODE_ENV === "production"
+          ? "[hash:base64:8]"  // 生产：短哈希
+          : "[name]__[local]___[hash:base64:5]", // 开发：可读
+    },
+  },
+});
+```
+
+**3️⃣使用 console.log 查看 styles 对象**
+
+```jsx
+import styles from "./Button.module.css";
+
+console.log(styles);
+// 输出: { button: "Button_button__2Rx3L", primary: "Button_primary__3kM9x" }
+```
+
+#### **<font color='#10c300'>18）性能优化建议</font>**
+
+1. **按需导入**：如果只需要少数几个类名，可以使用解构
+   ```jsx
+   import { button, primary } from "./Button.module.css";
+   ```
+
+2. **避免在循环中动态计算类名**：
+   ```jsx
+   // ❌ 每次渲染都计算
+   {items.map(item => (
+     <div className={item.active ? styles.active : styles.inactive}>
+   ))}
+   
+   // ✅ 预先计算或使用 useMemo
+   const getItemClass = useCallback((active) => 
+     active ? styles.active : styles.inactive, 
+   []);
+   ```
+
+3. **生产环境压缩类名**：确保构建工具生成短哈希以减小 HTML 体积
+
 ---
 
 <br>
