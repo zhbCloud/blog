@@ -7,7 +7,7 @@ tags:
   - javascript
   - modules
 abbrlink: w41d92f5
-date: 2026-02-27 22:30:00
+date: 2026-02-27 22:11:00
 ---
 
 # 🚀 JavaScript 模块化与 Webpack 5：从原理剖析到工程化实战
