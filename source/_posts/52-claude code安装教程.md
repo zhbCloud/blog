@@ -133,3 +133,135 @@ claude auth login
 3.  进入 **PCI Subsystem Settings** 菜单。
 4.  将 **SR-IOV Support** 开启 (**Enabled**)。
 5.  F10 保存并重启。
+
+<br>
+
+### **<font color='red'>六、终端中使用 Claude Code 接入阿里云百炼 GLM-5</font>**
+
+详细说明了在终端（CLI）中使用官网安装的 `claude` 命令行工具，并配置阿里云百炼 **Coding Plan 专属 API Key** 以原生调用 **GLM-5** 模型的完整步骤。这使得你无需依赖 Anthropic 官网账单便能享受到强大的 AI 辅助编程能力。
+
+
+
+#### **<font color='#10c300'>6.1、前提条件</font>**
+
+1. **已经全局安装 Claude Code 核心 CL**
+
+2. **跳过 Anthropic 登录**：如果首次启动强制要求登录 Anthropic 账户，找到 `C:\Users\你的用户名\.claude.json` 文件，将内容设置为
+
+   ```json
+   {
+     "hasCompletedOnboarding": true
+   }
+   ```
+
+3. **获取 API Key**：你需要进入[阿里云百炼控制台 Coding Plan 页面](https://bailian.console.aliyun.com/cn-beijing/?tab=model#/efm/coding_plan)订阅并获取专属的 API Key（格式为 `sk-sp-****`）。
+
+#### **<font color='#10c300'>6.2、全局环境变量配置（永久生效）</font>**
+
+Claude Code 在无界面认证时需要读取终端的环境变量以发起请求。为了防止**每次重启终端后配置丢失**，建议使用 PowerShell 修改系统级（或用户级）环境变量。
+
+**<font color='cornflowerblue'>第一步：打开 PowerShell 终端运行配置命令</font>**
+
+粘贴并运行以下完整的环境变量设置命令：
+
+```powershell
+# 1. 配置你的 Coding Plan 专属 API Key（请替换为你自己的 key）
+[Environment]::SetEnvironmentVariable("ANTHROPIC_API_KEY", "sk-sp-75af544fcd5d4cd9bf2c7e0148555a5a", [EnvironmentVariableTarget]::User)
+
+# 2. 配置 Coding Plan 专属的 Base URL
+[Environment]::SetEnvironmentVariable("ANTHROPIC_BASE_URL", "https://coding.dashscope.aliyuncs.com/apps/anthropic", [EnvironmentVariableTarget]::User)
+
+# 3. 智能模型调度配置（推荐）
+
+# 配置后无需手动切换模型，Claude Code 会根据任务难度自动在这 3 个模型间切换，帮你节省额度和提高加载速度：
+# 复杂度极高的任务（如分析整个项目架构） -> 使用最强模型 GLM-5
+[Environment]::SetEnvironmentVariable("ANTHROPIC_DEFAULT_OPUS_MODEL", "glm-5", [EnvironmentVariableTarget]::User)
+
+# 日常编写大段代码、实现功能的核心任务 -> 使用主模型 GLM-5
+[Environment]::SetEnvironmentVariable("ANTHROPIC_DEFAULT_SONNET_MODEL", "glm-5", [EnvironmentVariableTarget]::User)
+
+# 简单的文件检索、拼写检查等打杂任务 -> 使用精简极速的 qwen3-coder-next
+[Environment]::SetEnvironmentVariable("ANTHROPIC_DEFAULT_HAIKU_MODEL", "qwen3-coder-next", [EnvironmentVariableTarget]::User)
+
+# （注：配置了上方 3 个细分变量后，不要再配置全局的 ANTHROPIC_MODEL，以免被强行覆盖）
+```
+
+**注意：** 这些变量已被永久写入操作系统的**用户环境变量**中。
+
+**<font color='cornflowerblue'>第二步：彻底重启终端（非常关键！）</font>**
+
+由于当前正在运行的 PowerShell 或内嵌终端（如 VS Code 终端）**不会自动重载**底层外部环境变量：
+
+1. 请完全关闭当前的控制台/终端窗口（如果你在 VS Code 里面，请完全关闭整个 VS Code 软件）。
+2. **重新打开一个新的终端窗口**。
+
+最佳方式可直接重启电脑
+
+**<font color='cornflowerblue'>第三步：运行与验证</font>**
+
+在重新打开的新终端中进入你的代码项目目录。
+
+**1.  验证变量生效**
+
+在终端中执行测试命令检查：
+
+```powershell
+echo $env:ANTHROPIC_API_KEY
+```
+
+如果成功输出你的专属 API Key（如 `sk-sp-75af5...`），说明配置已经**永久生效**！
+
+**2.  启动终端版 Claude Code**
+
+在终端直接输入：
+
+```bash
+claude
+```
+
+此时你将跳过复杂的 Anthropic 官方验证拦截，直接在终端里启动对话交互模式，开始向 GLM-5 提问和辅助阅读源码、生成文件。
+
+#### **<font color='#10c300'>6.3、（可选）体验项目级局部配置</font>**
+
+如果你不想污染系统环境变量，或者想在不同项目间切换不同模型，Claude Code 也支持在你的项目根目录新建一个名为 `settings.json`（或全局的 `~/.claude.json`）并写入如下配置：（建议直接配置在 `~/.claude.json`中，这是目前我自己使用的方式）
+
+```json
+{
+    "env": {
+        "ANTHROPIC_API_KEY": "sk-sp-75af544fcd5d4cd9bf2c7e0148555a5a",
+        "ANTHROPIC_BASE_URL": "https://coding.dashscope.aliyuncs.com/apps/anthropic",
+        // 配置后无需手动切换模型，Claude Code会根据任务难度自动在这3个模型间切换，帮你节省额度和提高加载速度
+        // 复杂度极高的任务（如分析整个项目架构） -> 使用最强模型 GLM-5
+        "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5",
+        // 日常编写大段代码、实现功能的核心任务 -> 使用主模型 GLM-5
+        "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5",
+        // 简单的文件检索、拼写检查等打杂任务 -> 使用精简极速的 qwen3-coder-next
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "qwen3-coder-next"
+    },
+    "hasCompletedOnboarding": true
+}
+```
+
+提示： `hasCompletedOnboarding: true` 用于跳过由于没有官方账号造成的强制登录流程。
+
+#### **<font color='#10c300'>6.4、常见问题排查</font>**
+
+**Q1：输入 `claude` 依然提示 `Could not resolve authentication method...`？**
+
+- **原因：** VS Code 终端仍在使用旧的环境变量进程缓存。
+
+- **解决：** 必须完全退出并关闭 VS Code 主程序，或者在当前终端立刻运行一条**临时热加载命令**：
+
+  ```powershell
+  $env:ANTHROPIC_API_KEY="你的API_KEY"; $env:ANTHROPIC_BASE_URL="https://coding.dashscope.aliyuncs.com/apps/anthropic"; $env:ANTHROPIC_MODEL="glm-5"; claude
+  ```
+
+**Q2：想切换到其他支持的模型？**
+
+- 阿里云百炼 Coding Plan 还支持 `qwen3.5-plus`, `kimi-k2.5`, `qwen3-coder-next` 等。
+- 在运行中的 `claude` 会话内，只需输入 `/model <模型名>` 即可迅速无缝切换。例如：`/model qwen3.5-plus`。
+
+
+
+
+
