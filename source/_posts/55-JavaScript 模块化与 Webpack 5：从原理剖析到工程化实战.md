@@ -437,7 +437,35 @@ export default {
 ✅ **推荐做法**：使用 ES6 模块、生产模式构建、避免副作用代码、使用支持 Tree Shaking 的库。
 ❌ **避免**：混用 CommonJS 和 ESM、顶层副作用代码、默认导出整个大对象。
 
-#### **<font color='#10c300'>7）常见误区：与 "type": "module" 的关系</font>**
+#### **<span style='color:#10c300'>7）生产级 sideEffects 标准排除清单</span>**
+
+这是解决 Tree Shaking 误删问题的标准化 `package.json` 配置，建议直接作为模板使用：
+
+```json
+// package.json
+{
+  "sideEffects": [
+    "*.css", // 确保 CSS 不被误删
+    "*.less",
+    "*.scss",
+    "./src/polyfills.js", // Polyfill 全局初始化
+    "./src/global.js", // 全局变量或插件初始化
+    "**/plugins/*.js" // 通用插件目录
+  ]
+}
+```
+
+> **数组配置的“潜规则”**：
+> 当你使用数组列出有副作用的文件时，**没有出现在清单中的所有其他 JS 文件都会被 Webpack 默认为“绝对纯净”**（即 `sideEffects: false`）。
+>
+> **这意味着**：如果一个 JS 文件不在清单里，即使它内部写了 `console.log` 或修改了全局变量，只要它的 `export` 成员未被其他地方使用，Webpack 就会**直接跳过并物理删除整个文件**，其中的副作用逻辑也会随之消失。
+>
+> **建议**：
+>
+> 1. 养成**纯净模块化**习惯：JS 文件应只负责导出功能，不应在顶层执行逻辑。
+> 2. 如果某些历史遗留文件确实有“只需加载即生效”的代码，请务必将其加入上述清单。
+
+#### **<font color='#10c300'>8）常见误区：与 "type": "module" 的关系</font>**
 
 **真相**：Tree Shaking 与 package.json 的 `"type"` 无关。它只取决于源代码是否使用了 `import/export` 语法。
 
