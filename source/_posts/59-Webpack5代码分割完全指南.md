@@ -1,7 +1,7 @@
 ---
 title: Webpack 5 代码分割完全指南 (Code Splitting)
 img: /static/59.webp
-categories: 开发环境与构建工具
+categories: 工程化与质量
 tags:
   - webpack5
   - 性能优化
