@@ -502,7 +502,70 @@ optimization: {
 }
 ```
 
-**推荐使用 `'single'`**，特别是对于单页面应用。
+**推荐使用 `'方式一和方式三'`**，特别是对于单页面应用。
+
+#### **<font color='#10c300'>深度解析：为什么需要提取 runtimeChunk？</font>**
+
+**🤔 场景演示：**
+假设你的项目有两个文件：入口文件 `main.js` 和一个按需加载的 `About.js`（动态导入）。
+
+1.  **如果不提取（默认情况）**：
+    - Webpack 会把“模块映射关系”（即 runtime）打包进 `main.js`。
+    - 如果你修改了 `About.js` 的内容，`About.js` 的 hash 肯定会变。
+    - **关键点**：由于 `main.js` 内部记录了 `About.js` 的新文件名，导致 `main.js` 的内容也发生了微小变化，因此 `main.js` 的 hash 也会被迫改变。
+    - **结果**：用户本来只需要重新下载最新的 `About.js`，现在却因为 runtime 的变动，不得不重新下载几百 KB 的 `main.js`（即使业务逻辑没变）。
+
+2.  **如果提取（runtimeChunk: 'single'）**：
+    - Webpack 会产生一个微小的 `runtime.js`（专门存放映射关系）。
+    - 如果你修改了 `About.js`，此时只有 `runtime.js`（记录了新映射）和 `About.js` 本身的 hash 会变。
+    - **结果**：主逻辑 `main.js` 的内容保持绝对不变，它的 hash 也不会变。这意味着浏览器可以直接从本地缓存读取 `main.js`，大大提升了二次访问速度。
+
+> [!TIP]
+> **结论**：在追求“长效缓存（Long-term Caching）”的项目中，提取 `runtime` 是标配操作。它通过牺牲一次微小的 HTTP 请求（`runtime.js` 通常只有几 KB），换取了大型业务 chunk 的缓存稳定性。
+
+#### **<font color='#10c300'>runtime.js 内部到底保存了什么？</font>**
+
+简单来说，`runtime.js` 是 Webpack 在浏览器中的 **“总调度指挥部”**。它的核心内容通常包括：
+
+1.  **模块映射表（Manifest）**：
+    这是最重要的部分。它记录了所有模块 ID 与其对应的文件 Hash 之间的映射关系。
+    ```javascript
+    // 伪代码示例：映射表
+    {
+      "about": "about.8f2d1a3b.chunk.js",
+      "home": "home.c5e6d7f8.chunk.js"
+    }
+    ```
+2.  **核心加载逻辑**：
+    包含 Webpack 的模块加载函数（如 `__webpack_require__`）。它负责管理模块的初始化、缓存以及如何处理模块之间的循环依赖。
+3.  **异步分包加载指令**：
+    提供处理动态 `import()` 的底层代码。例如，它包含了如何动态创建 `<script>` 标签、如何监听下载进度、以及如何在脚本下载报错时进行处理的逻辑。
+4.  **环境支撑脚本**：
+    如果是开发环境，它还包含了支持 **热更新（HMR）** 的通信逻辑。
+
+#### **<font color='#10c300'>Hash 稳定性的精髓：间接引用</font>**
+
+```
+// 伪代码示例：映射表 `runtime.js` 
+{
+  "about": "about.8f2d1a3b.chunk.js",
+  "home": "home.c5e6d7f8.chunk.js"
+}
+```
+
+我们可以用 **“查字典”** 来类比这个过程：
+
+- **`main.js`（读者）**：它手里拿的是**模块 ID**（索引）。比如它知道自己需要 `about` 这个模块，代码里写的是 `__webpack_require__.e("about")`。
+- **`runtime.js`（字典）**：它保存了最新的**页码映射**（映射表）。它告诉读者：“你要找的 `about`，现在在 `about.8f2d1a3b.js` 这一页。”
+
+**为什么这样就能保护缓存？**
+
+1.  **解耦**：`main.js` 不再直接写死对方带 Hash 的完整文件名，而是通过一个**永远不变的 ID**（如数字 ID 或具名 ID）去询问 `runtime.js`。
+2.  **局部更新**：当你修改了 `about.js`，它的 Hash 变了（变成 `8f2d1a3b` -> `9ec2b10a`），字典（`runtime.js`）会更新这一行记录。
+3.  **缓存命中**：因为 `main.js` 里的代码 `__webpack_require__.e("about")` **一个字都没改**，所以它的 Hash 也不会变。浏览器发现 `main.js` 没变，就会直接命中磁盘缓存，不需要重新下载！
+
+> [!IMPORTANT]
+> **一句话总结**：`runtime.js` 充当了 Hash 变动的**“缓冲区”**。它吸收了所有因依赖版本更新而产生的 Hash 波动，从而保护了上层业务逻辑（`main.js`）的缓存有效性。
 
 ---
 
