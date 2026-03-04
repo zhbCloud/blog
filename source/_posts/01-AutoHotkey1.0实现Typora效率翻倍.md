@@ -99,31 +99,33 @@ addOrReplaceFontColor(color) {
 
     if (clipboard != "") {
         text := clipboard
-        ; 检查是否已有 **<font color='...'>...**
-        if RegExMatch(text, "^\*\*<font\s+color=['""]([^'""]+)['""]>(.*)</font>\*\*$", m) {
+        ; 检查是否已有 **<span style='color:...'>...**
+        if RegExMatch(text, "^\*\*<span\s+style=['""]color:\s*([^'"";]+);?['""]>(.*)</span>\*\*$", m) {
             innerText := m2
-            ; 去掉旧的 markdown ** 和 font 标签
+            ; 去掉旧的 markdown ** 和 span 标签
             innerText := RegExReplace(innerText, "\*\*", "")
             ; 直接替换颜色，并保持 markdown 加粗
-            text := "**<font color='" . color . "'>" . innerText . "</font>**"
+            text := "**<span style='color:" . color . "'>" . innerText . "</span>**"
         } else {
-            ; 没有标签则添加 ** + font
+            ; 没有标签则添加 ** + span
             ; 去掉旧的 **
             text := RegExReplace(text, "\*\*", "")
-            ; 去掉旧的 font
+            ; 去掉旧的 font 或 span
             text := RegExReplace(text, "<font[^>]*>", "")
             text := RegExReplace(text, "</font>", "")
-            text := "**<font color='" . color . "'>" . text . "</font>**"
+            text := RegExReplace(text, "<span[^>]*>", "")
+            text := RegExReplace(text, "</span>", "")
+            text := "**<span style='color:" . color . "'>" . text . "</span>**"
         }
         clipboard := text
         Send ^v
         Send {End}
     } else {
         ; 空行时插入标签，加粗占位
-        newText := "**<font color='" . color . "'></font>**"
+        newText := "**<span style='color:" . color . "'></span>**"
         SendInput {Text}%newText%
-        ; 光标定位到 font 内部
-        Send {Left 4} ; 把光标移到 </font> 前
+        ; 光标定位到 span 内部
+        Send {Left 7} ; 把光标移到 </span> 前
     }
 }
 
@@ -139,9 +141,11 @@ removeFontColor() {
 
     if (clipboard != "") {
         cleaned := clipboard
-        ; 去掉 <font> 标签
+        ; 去掉 <font> 和 <span> 标签
         cleaned := RegExReplace(cleaned, "<font[^>]*>", "")
         cleaned := RegExReplace(cleaned, "</font>", "")
+        cleaned := RegExReplace(cleaned, "<span[^>]*>", "")
+        cleaned := RegExReplace(cleaned, "</span>", "")
         ; 去掉 Markdown 粗体 **
         cleaned := RegExReplace(cleaned, "\*\*", "")
         clipboard := cleaned
@@ -149,7 +153,6 @@ removeFontColor() {
         Send {End}
     }
 }
-
 ```
 
 
