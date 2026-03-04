@@ -1352,3 +1352,72 @@ optimization: {
 ---
 
 > **结语**：没有完美的配置，只有最适合当前项目业务场景的权衡方案。建议每隔一到两个月，运行一次 `webpack-bundle-analyzer` 来巡检你的打包结果。
+
+## 十三、如何编写 Tree-Shaking 友好的代码（避坑指南）
+
+正如我们在第十二章提到的 `sideEffects` 机制，如果不规范编码，很容易在项目维护后期掉入“副作用丢失”的陷阱。
+
+### **<span style='color:red'>1. 致命诱因：混合模块（Hybrid Modules）</span>**
+
+这是最典型的维护惨案：在一个文件中既包含了“纯纯的导出成员”，又包含了“加载即执行的副作用”。
+
+```javascript
+// ❌ 极其危险的写法 (utils.js)
+export const count = (x) => x + 11; // 纯函数
+
+// 这是一个隐蔽的副作用，可能被全局某个地方引用
+window.globalConfig = { theme: "dark" };
+console.log("项目核心配置已初始化");
+```
+
+**为什么这很危险？**
+
+1. 假设现在 `count` 函数还在用，项目运行完美。
+2. 几个月后，同事小张重构代码，发现 `count` 没用了，于是删除了对 `count` 的所有引用。
+3. 如果项目设置了 `sideEffects: false` 且没把 `utils.js` 写进例外清单。
+4. **结局**：下次打包线上版时，Webpack 会认为 `utils.js` 没用，直接**物理抹除**。导致 `window.globalConfig` 变成了 `undefined`，线上项目直接白屏。
+
+### **<span style='color:red'>2. 避坑准则一：物理分离副作用</span>**
+
+**绝对不要将 utility（工具类）和 initialization（初始化类）逻辑写在一起。**
+
+```bash
+# 推荐的目录结构
+src/
+  ├── utils/          # 纯函数目录（sideEffects: false 的安全区）
+  │     └── math.js
+  └── init/           # 副作用目录（必须全部写进 sideEffects 例外清单）
+        └── global-setup.js
+```
+
+### **<span style='color:red'>3. 避坑准则二：拒绝“隐蔽”导入</span>**
+
+如果你导入一个文件是为了它的副作用，请在代码中明确体现，而不是指望它“顺便”被加载。
+
+```javascript
+// main.js
+// ❌ 不要指望通过导入 utils 来顺便初始化全局变量
+// import { someUtil } from './utils.js';
+
+// ✅ 应该显式地、独立地导入初始化模块
+import "./init/global-setup.js";
+import { someUtil } from "./utils/math.js";
+```
+
+### **<span style='color:red'>4. 避坑准则三：使用具名导出（Named Exports）</span>**
+
+对于对象类型的导出，Tree Shaking 的效果往往不佳。
+
+```javascript
+// ❌ 不利于 Tree Shaking
+export default {
+  add: (a, b) => a + b,
+  sub: (a, b) => a - b,
+};
+
+// ✅ 最佳实践
+export const add = (a, b) => a + b;
+export const sub = (a, b) => a - b;
+```
+
+> **总结**：Tree Shaking 的最终效果，50% 取决于 Webpack 的配置，另外 **50% 取决于你的编码习惯**。一个优秀的 Webpack 工程师，必然也是一个深谙“关注点分离”的架构师。
