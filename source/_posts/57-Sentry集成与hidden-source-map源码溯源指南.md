@@ -10,8 +10,6 @@ abbrlink: f8a2c3d9xr
 date: 2026-03-01 23:50:00
 ---
 
-# Sentry集成与hidden-source-map源码溯源指南
-
 > 📚 本方案将指导你如何在 Webpack 5 项目中集成 Sentry，实现生产环境的自动错误捕获和源码还原。
 
 ---

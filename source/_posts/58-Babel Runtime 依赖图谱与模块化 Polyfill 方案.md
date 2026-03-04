@@ -10,7 +10,7 @@ abbrlink: 44f179c0b9
 date: 2026-03-02 11:34:59
 ---
 
-# **Babel Runtime 依赖图谱与模块化 Polyfill 方案**
+
 
 在使用 Babel 进行 JavaScript 代码编译时，为了优化打包体积并处理新增 API，我们经常会用到 `@babel/plugin-transform-runtime` 以及它的两个核心依赖库。本文档将详细梳理它们的作用、关系以及最佳实践配置。
 
