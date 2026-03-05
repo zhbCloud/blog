@@ -10,7 +10,7 @@ abbrlink: w41d92f5
 date: 2026-02-27 22:11:00
 ---
 
-# 🚀 JavaScript 模块化与 Webpack 5：从原理剖析到工程化实战
+
 
 > 📚 本总结深入剖析了 JavaScript 模块化规范的底层差异（CommonJS vs ESM），并结合 Webpack 5 及最新的 Webpack CLI 6.x 提供了详尽的实测验证与工程化最佳实践。
 
