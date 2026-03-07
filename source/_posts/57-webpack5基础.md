@@ -281,7 +281,7 @@ npm i css-loader style-loader -D
 #### **<span style='color:red'>2）功能介绍</span>**
 
 - `css-loader`：读取 `.css` 文件内容，将其**转换为 JS 模块**（`export default "css字符串"`），使 CSS 成为 JS 依赖图的一部分，从而被打包进 bundle
-- `style-loader`：接收 `css-loader` 输出的 JS 模块，在浏览器**运行时**动态创建 `<style>` 标签并插入 DOM
+- `style-loader`：接收 `css-loader` 输出的 JS 模块，在浏览器**运行时**动态创建 `<style>` 标签并插入DOM中
 
 #### **<span style='color:red'>3）配置</span>**
 

@@ -556,17 +556,17 @@ npx webpack
 
 ### **<font color='red'>3.4 三种模式详解</font>**
 
-#### **<font color='#10c300'>1）不设置 type（默认行为）⭐⭐⭐⭐⭐</font>**
+#### **<font color='#10c300'>1）不设置 type</font>**
 
-这是最推荐的配置。`.js` 文件默认为 CommonJS，但由于最新的 **webpack-cli 6.x** 智能加载机制，配置文件依然可以使用 `export default`。
+`.js` 文件默认为 CommonJS，但由于最新的 **webpack-cli 6.x** 智能加载机制，配置文件依然可以使用 `export default`。
 
-#### **<font color='#10c300'>2）设置 "type": "commonjs"</font>**
+#### **<font color='#10c300'>2）设置 "type": "commonjs" （默认行为）</font>**
 
-强制 `.js` 文件为 CommonJS。在此模式下，`webpack.config.js` **不能**使用 ESM 语法。
+npm init -y默认生成`type": "commonjs`。强制 `.js` 文件为 CommonJS。在此模式下，`webpack.config.js` **不能**使用 ESM 语法。
 
-#### **<font color='#10c300'>3）设置 "type": "module"</font>**
+#### **<font color='#10c300'>3）设置 "type": "module"</font>**⭐⭐⭐⭐⭐
 
-所有 `.js` 文件遵循 ESM 严格模式。**注意**：在此模式下，`import` 必须携带完整的文件扩展名（如 `.js`）。
+这是最推荐的配置。后面比较新的插件有的可能就是**纯 ESM 模块** `.js` 文件遵循 ESM 严格模式。**注意**：在此模式下，`import` 必须携带完整的文件扩展名（如 `.js`）。
 
 ---
 
