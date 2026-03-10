@@ -111,10 +111,14 @@ Babel 核心编译引擎，负责解析代码、调度执行配置好的插件�
 
 ### **<font color='red'>4.2 Plugin（插件）是什么？</font>**
 
+**插件“从左往右”**：如果有多个插件，排在前面的先执行。
+
 插件就是一个 JS 模块，负责告诉 Babel：遇到某种特定的 AST 节点时，该怎么改。
 _例如：遇到“箭头函数”，就把它转成 `function () {}`；遇到 `?.`，就改成安全的兼容判断。_
 
 ### **<font color='red'>4.3 Preset（预设）是什么？</font>**
+
+**预设“从右往左”**（逆序）：如果有多个预设，排在**后面**的先执行。
 
 预设解决的是“懒人不用挑插件”的问题。现代项目最常用的老三样：
 
@@ -191,7 +195,39 @@ npm i -D @babel/preset-env
 Babel 在转译像 `class`、`async/await` 这种复杂新特性时，会在文件里注入一些辅助函数（Helpers）。比如：`_classCallCheck`。
 如果项目里有 100 个文件用了 `class`，这段冗长的 helper 函数就会被内联 100 次，包体积会变得极速膨胀。
 
-### **<font color='red'>6.2 transform-runtime 的作用</font>**
+#### **<span style='color:#10c300'>1）为什么需要辅助函数</span>**
+
+这触及了 Babel 转译的核心——**语法模拟（Syntax Emulation）**。
+
+- **为什么不能直接转译？**
+
+  虽然 ES6 的 `class`、`async/await` 经过 Babel 转换后变成了 ES5 的代码（主要是 `function` 和 `prototype`），但 ES5 本身的语法非常简陋。为了让转译后的 ES5 代码**表现得和 ES6 原生一模一样**，Babel 必须额外写一堆逻辑来“模拟”这些新特性的行为。
+
+- **以 _classCallCheck 为例**
+
+  在 ES6 中，如果你直接像调用普通函数一样调用 `class`（即不加 `new`），JS 引擎会报错：`TypeError: Class constructor cannot be invoked without 'new'`。
+
+  **但是**，转译成 ES5 后，`class` 变成了普通的 `function`。在 ES5 里，`function` 是可以直接调用的。
+
+  为了**强制报错（模拟原生行为）**，Babel 就会注入 `_classCallCheck`：
+
+  ```js
+  // Babel 生成的辅助函数
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+  
+  // 转译后的代码
+  var Person = function Person() {
+    _classCallCheck(this, Person); // 检查是不是用 new 调用的
+  };
+  ```
+
+  
+
+### **<font color='red'>6.2 transform-runtime 的作用</font>** 
 
 安装配套：
 
@@ -432,7 +468,7 @@ export default function ({ types: t }) {
 
 
 
-```
+```js
 // plugin\let-to-var.js
 module.exports = function ({ types: t }) {
     return {
