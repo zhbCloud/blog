@@ -1,5 +1,5 @@
 ---
-title: javaScript中宏任务和微任务有什么区别？
+title: js事件循环（Event Loop）
 abbrlink: 89a78f73
 date: 2025-03-09 15:51:08
 img: /static/31.webp
@@ -12,6 +12,9 @@ tags:
 微任务和宏任务皆为异步任务，它们都属于一个队列，主要**区别在于他们的执行顺序，Event Loop的走向和取值**。
 
 `Event Loop`即事件循环，是指浏览器或`Node`的一种解决`javaScript`单线程运行时不会阻塞的一种机制，也就是我们经常使用异步的原理。
+
+- **同步任务（Synchronous Task）**：立即执行，先入先出。
+- **异步任务（Asynchronous Task）**：不会立即执行，而是放入任务队列，等待事件循环调度。
 
 <br>
 
@@ -31,7 +34,7 @@ MutationObserver                ✅            ❌
 Promise.then catch finally      ✅            ✅
 ```
 
-**宏任务与微任务之间的执行顺序(同步任务->微任务->宏任务)** 
+**宏任务与微任务之间的执行顺序(宏任务(整个js)->同步任务->微任务->宏任务(下一个))** 
 
 ```js
 setTimeout (() => { console.log(4)}) // 宏任务
@@ -52,6 +55,53 @@ new Promise (resolve => {
 (这里声明下，整段js代码就是第一个大的宏任务，事件循环是由这第一个宏任务开始的，然后分出微任务，这里是为了理解微任务宏任务的执行区别就先跳过这第一层)
 
 <br>
+
+### **<span style='color:red'>2、事件循环中的执行顺序示意</span>**
+
+1. **执行同步任务**，进入调用栈（Call Stack）。
+2. 同步任务执行完后：
+   - 将异步任务（宏任务）加入 **宏任务队列**
+   - 将产生的微任务加入 **微任务队列**
+3. 当前宏任务执行结束后：
+   - 立即执行所有 **微任务队列**（直到队列清空）
+4. 清空微任务后，如果有新的宏任务：
+   - 取下一个宏任务执行
+5. 重复上述循环。
+
+### **<span style='color:red'>3、举例说明执行顺序</span>**
+
+```js
+console.log('1');
+
+setTimeout(() => {
+  console.log('2');
+}, 0);
+
+Promise.resolve().then(() => {
+  console.log('3');
+});
+
+console.log('4'); // 1 4 3 2
+```
+
+**执行步骤：**
+
+1. 进入主脚本（这是一个宏任务），执行同步代码：
+
+   - 输出 `'script start'`
+   - 注册 `setTimeout` → 放入宏任务队列
+   - 注册 `Promise.then` → 放入微任务队列
+   - 输出 `'script end'`
+
+2. 当前宏任务（整个脚本）执行完毕 → 清空
+
+    微任务队列：
+
+   - 输出 `'Promise'`
+
+3. 进入下一个宏任务：
+
+   - 执行 `setTimeout` 回调 → 输出 `'setTimeout'`
 
 ### **<font color='red'>2、场景</font>**
 
