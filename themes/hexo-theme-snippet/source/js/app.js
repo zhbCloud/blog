@@ -76,6 +76,105 @@ window.onload = function () {
     }
   }
 
+  //文章正文图片预览
+  function initPostImagePreview() {
+    var $postContent = document.querySelector(".post-content");
+    if (!$postContent) return;
+
+    var imageList = [];
+    var $images = $postContent.querySelectorAll("img");
+    if (!$images || $images.length === 0) return;
+
+    for (var i = 0; i < $images.length; i++) {
+      imageList.push($images[i]);
+      $images[i].setAttribute("data-preview-index", i);
+    }
+
+    var activeIndex = -1;
+    var $overlay = document.createElement("div");
+    $overlay.className = "img-preview-overlay";
+    $overlay.innerHTML =
+      '<button class="img-preview-close" type="button" aria-label="关闭">&times;</button>' +
+      '<button class="img-preview-nav img-preview-prev" type="button" aria-label="上一张">&#8249;</button>' +
+      '<img class="img-preview-image" src="" alt="预览图">' +
+      '<button class="img-preview-nav img-preview-next" type="button" aria-label="下一张">&#8250;</button>';
+    document.body.appendChild($overlay);
+
+    var $previewImage = $overlay.querySelector(".img-preview-image");
+    var $btnClose = $overlay.querySelector(".img-preview-close");
+    var $btnPrev = $overlay.querySelector(".img-preview-prev");
+    var $btnNext = $overlay.querySelector(".img-preview-next");
+
+    function normalizeIndex(index) {
+      var total = imageList.length;
+      return (index + total) % total;
+    }
+
+    function updatePreview(index) {
+      activeIndex = normalizeIndex(index);
+      var $target = imageList[activeIndex];
+      var src = $target.getAttribute("src");
+      if (!src && $target.getAttribute("data-src")) {
+        src = $target.getAttribute("data-src");
+      }
+      $previewImage.setAttribute("src", src || "");
+      $previewImage.setAttribute("alt", $target.getAttribute("alt") || "预览图");
+    }
+
+    function openPreview(index) {
+      updatePreview(index);
+      $overlay.classList.add("active");
+      document.body.classList.add("img-preview-open");
+    }
+
+    function closePreview() {
+      $overlay.classList.remove("active");
+      document.body.classList.remove("img-preview-open");
+      activeIndex = -1;
+      $previewImage.setAttribute("src", "");
+    }
+
+    $postContent.addEventListener("click", function (event) {
+      var target = event.target;
+      if (!target || target.tagName !== "IMG") return;
+      var index = parseInt(target.getAttribute("data-preview-index"), 10);
+      if (isNaN(index)) return;
+      event.preventDefault();
+      openPreview(index);
+    });
+
+    $btnClose.onclick = closePreview;
+    $btnPrev.onclick = function (event) {
+      event.stopPropagation();
+      updatePreview(activeIndex - 1);
+    };
+    $btnNext.onclick = function (event) {
+      event.stopPropagation();
+      updatePreview(activeIndex + 1);
+    };
+
+    $overlay.onclick = function (event) {
+      if (event.target === $overlay) {
+        closePreview();
+      }
+    };
+
+    document.addEventListener("keydown", function (event) {
+      if (!$overlay.classList.contains("active")) return;
+      if (event.key === "Escape") {
+        closePreview();
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        updatePreview(activeIndex - 1);
+        return;
+      }
+      if (event.key === "ArrowRight") {
+        updatePreview(activeIndex + 1);
+      }
+    });
+  }
+
   //获取滚动高度
   function getScrollTop() {
     return $body.scrollTop || document.documentElement.scrollTop;
@@ -93,6 +192,7 @@ window.onload = function () {
     imgsAjax($ajaxImgs);
   };
   scrollCallback();
+  initPostImagePreview();
 
   //监听滚动事件
   window.addEventListener("scroll", function () {
