@@ -1,5 +1,5 @@
 ---
-title: Claude Code 安装与配置指南
+title: Claude Code 安装与入门指南
 abbrlink: claudecodeinstall
 date: 2026-02-23 01:30:00
 img: /static/49.webp
@@ -470,10 +470,9 @@ Skills 是 Claude Code 的扩展机制，通过 `/skill-name` 方式调用，用
     # 2. 查看可用的插件
     /plugin browse
     
-    # 3. 启用具体的插件包
-    /plugin enable anthropic-agent-skills/document-skills
-    /plugin enable anthropic-agent-skills/example-skills
-    /plugin enable anthropic-agent-skills/claude-api
+    # 3. 需要安装具体的 plugin 包
+    /plugin install document-skills@anthropic-agent-skills
+    /plugin install example-skills@anthropic-agent-skills
     
     # 4. 查看已启用的 skills
     /skills
@@ -483,9 +482,9 @@ Skills 是 Claude Code 的扩展机制，通过 `/skill-name` 方式调用，用
     /xlsx
     /frontend-design
     ```
-
+    
   - **文件存放位置**
-
+  
     ```
     ~/.claude/plugins/marketplaces/<marketplace-name>/
     ├── .claude-plugin/
@@ -499,9 +498,9 @@ Skills 是 Claude Code 的扩展机制，通过 `/skill-name` 方式调用，用
     │   └── ...
     └── README.md
     ```
-
+  
   - **管理命令**
-
+  
     ```bash
     /plugin marketplace list         # 查看已添加的 marketplace
     /plugin marketplace update       # 更新所有 marketplace
@@ -509,9 +508,9 @@ Skills 是 Claude Code 的扩展机制，通过 `/skill-name` 方式调用，用
     /plugin disable <plugin-name>    # 禁用插件
     /plugin remove <plugin-name>     # 移除插件
     ```
-
+  
     
-
+  
 - **<span style='color:orange'>手动放置到 skills 目录</span>**
 
   - **适用场景**
