@@ -193,6 +193,49 @@ window.onload = function () {
   };
   scrollCallback();
   initPostImagePreview();
+  initCodeCopyButtons();
+
+  function initCodeCopyButtons() {
+    var blocks = document.querySelectorAll("figure.highlight");
+    if (!blocks || blocks.length === 0) return;
+
+    for (var i = 0; i < blocks.length; i++) {
+      (function (block) {
+        var btn = document.createElement("button");
+        btn.className = "code-copy-btn";
+        btn.type = "button";
+        btn.textContent = "复制";
+        block.appendChild(btn);
+
+        btn.addEventListener("click", function () {
+          var codeEl = block.querySelector("td.code");
+          if (!codeEl) codeEl = block.querySelector("pre");
+          if (!codeEl) return;
+
+          var lines = codeEl.querySelectorAll(".line");
+          var text;
+          if (lines.length > 0) {
+            var arr = [];
+            for (var j = 0; j < lines.length; j++) {
+              arr.push(lines[j].textContent);
+            }
+            text = arr.join("\n");
+          } else {
+            text = codeEl.textContent;
+          }
+
+          navigator.clipboard.writeText(text).then(function () {
+            btn.textContent = "已复制";
+            btn.classList.add("copied");
+            setTimeout(function () {
+              btn.textContent = "复制";
+              btn.classList.remove("copied");
+            }, 2000);
+          });
+        });
+      })(blocks[i]);
+    }
+  }
 
   //监听滚动事件
   window.addEventListener("scroll", function () {
