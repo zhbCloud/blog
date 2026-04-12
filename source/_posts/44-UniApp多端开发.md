@@ -93,6 +93,8 @@ tags:
 
 ![image-20250604102525380](https://picgo-2024.oss-cn-beijing.aliyuncs.com/img/image-20250604102525380.png)
 
+可配合ApowerMirror投屏，在电脑上查看
+
 <br>
 
 #### **<font color='#10c300'>2-2、IOS真机调试配置</font>**
@@ -172,6 +174,28 @@ tags:
 <br>
 
 #### **<font color='#10c300'>2-3、微信小程序调试配置</font>**
+
+##### **<span style='color:cornflowerblue'>1）下载微信开发者工具并设置</span>**
+
+手动开启服务端口
+
+![image-20260406172920887](https://picgo-2024.oss-cn-beijing.aliyuncs.com/img/image-20260406172920887.png)
+
+微信开发者工具中设置appid和项目manifest.json中的保持一致
+
+![image-20260406174348997](https://picgo-2024.oss-cn-beijing.aliyuncs.com/img/image-20260406174348997.png)
+
+##### **<span style='color:cornflowerblue'>2）HbuilderX配置</span>**
+
+运行设置，添加微信小程序开发者工具路径
+
+![image-20260406173122342](https://picgo-2024.oss-cn-beijing.aliyuncs.com/img/image-20260406173122342.png)
+
+![image-20260406173222694](https://picgo-2024.oss-cn-beijing.aliyuncs.com/img/image-20260406173222694.png)
+
+项目manifest.json添加appid
+
+![image-20260406174322963](https://picgo-2024.oss-cn-beijing.aliyuncs.com/img/image-20260406174322963.png)
 
 <br>
 
